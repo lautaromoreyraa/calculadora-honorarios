@@ -1,7 +1,7 @@
 /* Total y desglose del resultado. */
 
 .desglose {
-  background: var(--color-superficie);
+  background: var(--color-superficie-elevada);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
   box-shadow: var(--sombra);
@@ -22,19 +22,41 @@
   color: var(--color-texto-suave);
 }
 
+/* El total es el protagonista: la voz de titular, en el acento más luminoso. */
 .desglose__total {
+  font-family: var(--fuente-titulos);
   font-size: var(--texto-total);
-  line-height: 1.1;
-  font-weight: 700;
+  line-height: 1;
+  font-weight: 560;
+  letter-spacing: -0.02em;
   color: var(--color-acento-fuerte);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* El único movimiento de la página: cuando cambia el total, el número nuevo se
+   asienta en su lugar. Arranca visible, así nunca hay un instante en blanco. */
+@media (prefers-reduced-motion: no-preference) {
+  .desglose__total--animado {
+    animation: asentar 420ms var(--curva-salida);
+  }
+}
+
+@keyframes asentar {
+  from {
+    opacity: 0.55;
+    transform: translateY(0.12em);
+    filter: blur(2px);
+  }
 }
 
 /* Sin resultado, lo principal es la lista de lo que falta, no el aviso. */
 .desglose__total--vacio {
+  font-family: var(--fuente-base);
   color: var(--color-texto-suave);
   font-size: var(--texto-medio);
+  font-weight: 650;
   line-height: 1.4;
+  letter-spacing: 0;
 }
 
 .desglose__contexto {

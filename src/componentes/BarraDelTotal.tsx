@@ -11,9 +11,11 @@ interface Props {
 export function BarraDelTotal({ calculo }: Props) {
   return (
     <div className="barra-del-total">
-      <span className="barra-del-total__monto">
-        {calculo.ok ? formatearPesos(calculo.resultado.total) : 'Faltan datos'}
-      </span>
+      {calculo.ok ? (
+        <span className="barra-del-total__monto">{formatearPesos(calculo.resultado.total)}</span>
+      ) : (
+        <span className="barra-del-total__monto barra-del-total__monto--vacio">Faltan datos</span>
+      )}
       <a className="barra-del-total__enlace" href="#resultado">
         Ver desglose
       </a>

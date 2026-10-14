@@ -13,7 +13,6 @@ export function Encabezado({ vigencia }: Props) {
         Ir al resultado
       </a>
       <div className="encabezado__contenido">
-        <p className="encabezado__sobre">Valores a {formatearVigencia(vigencia)}</p>
         <h1 className="encabezado__titulo">Calculadora de honorarios</h1>
         <p className="encabezado__bajada">
           Para autónomos de la comunicación de Chaco y Corrientes.
@@ -21,6 +20,9 @@ export function Encabezado({ vigencia }: Props) {
             {' '}
             Parte del salario de convenio de tu rol y suma lo que pagás por trabajar por tu cuenta.
           </span>
+        </p>
+        <p className="encabezado__vigencia">
+          Valores vigentes a <strong>{formatearVigencia(vigencia)}</strong>
         </p>
       </div>
     </header>

@@ -45,7 +45,10 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
   return (
     <>
       <p className="desglose__total-etiqueta">Total del trabajo</p>
-      <p className="desglose__total">{formatearPesos(r.total)}</p>
+      {/* La key cambia con el monto: React remonta el nodo y la animación corre una vez. */}
+      <p key={r.total} className="desglose__total desglose__total--animado">
+        {formatearPesos(r.total)}
+      </p>
       <p className="desglose__contexto">
         {r.rol.nombre}, {formatearNumero(r.horas)} h a {formatearPesosConCentavos(r.valorHora)} la hora
       </p>

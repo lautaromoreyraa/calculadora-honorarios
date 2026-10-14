@@ -62,6 +62,42 @@ Para cambiar o agregar un valor se edita el JSON y se corre
 tests comprueban las referencias entre archivos y que ningún monto quede
 escrito en `src/`.
 
+## Interfaz
+
+Una sola página (`src/paginas/Calculadora.tsx`) que se arma desde `datos/`: los
+roles, los grupos, las casillas, las opciones excluyentes y las categorías
+salen de los JSON, así que un ítem o una categoría nueva aparece sola. El
+estado del formulario vive en `useCalculadora`; `src/util/formulario.ts` lo
+traduce a la selección que recibe el motor, y el resultado se recalcula con
+cada cambio.
+
+| Componente | Qué hace |
+|---|---|
+| `layout/Encabezado` · `layout/PieDePagina` | Título, vigencia de los valores, aviso, fuentes y crédito |
+| `componentes/CampoNumerico` | Campo de texto con teclado decimal; acepta «1,5» y «2.400.000» |
+| `componentes/OpcionesExcluyentes` | Radios de un conjunto excluyente (tipo de cliente, plazo) |
+| `componentes/ItemConCasilla` | Casilla de un ítem, con los datos que pide al marcarse |
+| `componentes/NormaDelItem` | Norma y vigencia de cada ítem, plegable |
+| `componentes/Desglose` | Total, renglones y lo que falta para calcular; anuncia el total a los lectores de pantalla |
+| `componentes/BarraDelTotal` | Total fijo abajo en el celular, con enlace al desglose |
+| `componentes/DescargaDePresupuesto` | Datos del presupuesto y descarga del `.docx`, que se genera con `import()` al pedirlo |
+
+**Tema.** Oscuro siempre, sin depender de la preferencia del sistema
+(`color-scheme: dark`). La paleta vive en `src/estilos/tokens.css` con los
+contrastes calculados de cada par: base verde azulada casi negra, el petróleo
+de marca en la franja del encabezado, un único verde agua para lo elegido y un
+ámbar para el foco del teclado.
+
+**Tipografía.** Newsreader para títulos, el valor hora y el total, y Public
+Sans para el resto, las dos variables y autoalojadas con `@fontsource-variable`
+(van dentro del bundle y se precargan en `index.html`). Los montos usan cifras
+tabulares para que no bailen al recalcular.
+
+**Movimiento.** Uno solo: el total se asienta al cambiar. Con
+`prefers-reduced-motion` no hay animación.
+
+Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
+
 ## Estructura
 
 | Ruta | Qué vive adentro |
@@ -72,7 +108,7 @@ escrito en `src/`.
 | `src/util/datos/` | Carga tipada de `datos/` |
 | `src/util/` | Funciones puras: motor de cálculo y armado del presupuesto |
 | `src/paginas/` · `src/componentes/` · `src/layout/` | Interfaz |
-| `src/hooks/` · `src/contexto/` | Estado de la interfaz |
+| `src/hooks/` | Estado de la interfaz |
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |
 | `src/test/` | Tests de Vitest, espejando `src/` |
 | `.github/workflows/` | Verificación de cada PR |

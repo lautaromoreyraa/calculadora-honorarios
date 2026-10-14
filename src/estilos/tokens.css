@@ -1,32 +1,61 @@
 /* Valores de diseño en un solo lugar: el resto de las hojas sólo usa estas variables.
-   Contrastes calculados sobre --color-superficie (#fff): texto 16,4:1 · texto
-   suave 7,4:1 (6,3:1 sobre --color-acento-suave) · acento 7,8:1 · error 7,4:1 ·
-   borde de control 3,4:1 · foco 5,2:1. Blanco sobre --color-acento-fuerte 10,8:1;
-   ahí el foco va en blanco, porque el naranja no llega a 3:1. */
-:root {
-  --color-fondo: #f4f3ef;
-  --color-superficie: #ffffff;
-  --color-texto: #1c2025;
-  --color-texto-suave: #4f5660;
-  --color-borde: #dcd9d1;
-  --color-borde-control: #868b93;
-  --color-acento: #0f5c57;
-  --color-acento-fuerte: #0a4541;
-  --color-acento-suave: #e4efed;
-  --color-sobre-acento: #ffffff;
-  --color-foco: #c2410c;
-  --color-error: #a3261b;
-  --color-error-suave: #fbeceb;
-  --color-aviso: #6e4500;
-  --color-aviso-suave: #fff3dc;
 
-  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+   Tema oscuro siempre (RNF-10), paleta «Petróleo de guardia»: el petróleo de
+   marca como franja del encabezado sobre una base verde azulada casi negra, y
+   un único verde agua luminoso para todo lo que se elige. No hay variante
+   clara: el sitio se ve igual con el sistema en modo claro o en modo oscuro.
+
+   Contrastes calculados (WCAG 2.x):
+   - texto sobre fondo, superficie y elevada: 16,3 / 14,7 / 12,5:1;
+   - texto suave sobre fondo, superficie, elevada y acento suave: 10,0 / 9,0 / 7,6 / 6,8:1;
+   - acento sobre superficie y acento suave: 9,1 / 6,9:1;
+   - acento fuerte (total) sobre la elevada: 9,9:1;
+   - sobre-acento sobre acento: 9,8:1;
+   - texto del encabezado sobre la franja: 7,6:1 (el suave, 6,3:1);
+   - error sobre superficie: 7,1:1; aviso sobre su fondo: 9,2:1;
+   - borde de control sobre superficie y elevada: 4,6 / 3,9:1;
+   - foco sobre fondo, superficie, elevada y franja: 10,4 / 9,4 / 7,9 / 4,6:1;
+   - placeholder sobre superficie y elevada: 5,8 / 4,9:1;
+   - texto sobre la selección de texto: 6,5:1.
+   El borde tenue (1,5:1) sólo separa tarjetas y renglones; nunca es el único
+   borde de un control. */
+:root {
+  color-scheme: dark;
+
+  --color-fondo: #0b1515;
+  --color-superficie: #132020;
+  --color-superficie-elevada: #1d2e2e;
+  --color-borde: #313f3f;
+  --color-borde-control: #798a8a;
+  --color-texto: #eaf2f1;
+  --color-texto-suave: #b3c1c1;
+  --color-placeholder: #8b9c9b;
+  --color-acento: #54d3c0;
+  --color-acento-fuerte: #8ee8d9;
+  --color-acento-suave: #113935;
+  --color-sobre-acento: #031a19;
+  --color-encabezado: #0c5952;
+  --color-sobre-encabezado: #f2f8f8;
+  --color-encabezado-suave: #cfe6e2;
+  --color-foco: #fab45f;
+  --color-error: #fa8880;
+  --color-error-suave: #411e1c;
+  --color-aviso: #f8ce73;
+  --color-aviso-suave: #3b2b0d;
+  --color-seleccion: #1f5f57;
+
+  /* Newsreader se diseñó para leer noticias en pantalla: es la voz de titulares
+     y del total. Public Sans, la de los formularios del Estado norteamericano,
+     lleva lo operativo. Las dos van dentro del bundle (CSP: font-src 'self'). */
+  --fuente-titulos: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
+  --fuente-base: 'Public Sans Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
   --texto-chico: 0.875rem;
   --texto-base: 1rem;
   --texto-medio: 1.125rem;
-  --texto-subtitulo: 1.25rem;
-  --texto-titulo: 1.75rem;
-  --texto-total: 2.25rem;
+  --texto-subtitulo: 1.5rem;
+  --texto-titulo: 2.375rem;
+  --texto-total: 3rem;
 
   --espacio-1: 0.25rem;
   --espacio-2: 0.5rem;
@@ -36,16 +65,18 @@
   --espacio-6: 2rem;
   --espacio-7: 3rem;
 
-  --radio: 10px;
-  --radio-chico: 6px;
+  --radio: 12px;
+  --radio-chico: 8px;
   --alto-control: 3rem;
-  --ancho-maximo: 72rem;
-  --sombra: 0 1px 2px rgb(28 32 37 / 6%), 0 4px 16px rgb(28 32 37 / 6%);
+  --ancho-maximo: 74rem;
+  /* Sobre fondo oscuro una sombra suave no se ve: va más densa y más abajo. */
+  --sombra: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
+  --curva-salida: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 60rem) {
   :root {
-    --texto-titulo: 2.25rem;
-    --texto-total: 2.75rem;
+    --texto-titulo: 3.5rem;
+    --texto-total: 3.75rem;
   }
 }
