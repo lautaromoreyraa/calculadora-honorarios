@@ -1,0 +1,122 @@
+/* Total y desglose del resultado. */
+
+.desglose {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: var(--espacio-4);
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+@media (min-width: 40rem) {
+  .desglose {
+    padding: var(--espacio-5);
+  }
+}
+
+.desglose__total-etiqueta {
+  font-size: var(--texto-chico);
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.desglose__total {
+  font-size: var(--texto-total);
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--color-acento-fuerte);
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__total--vacio {
+  color: var(--color-texto-suave);
+  font-size: var(--texto-titulo);
+}
+
+.desglose__contexto {
+  color: var(--color-texto-suave);
+  font-size: var(--texto-chico);
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__falta-titulo {
+  margin-top: var(--espacio-2);
+  font-weight: 600;
+}
+
+.desglose__falta {
+  margin: 0;
+  padding-left: var(--espacio-5);
+  display: grid;
+  gap: var(--espacio-1);
+}
+
+.desglose__avisos {
+  margin: var(--espacio-2) 0 0;
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-3) var(--espacio-6);
+  background: var(--color-aviso-suave);
+  color: var(--color-aviso);
+  border-radius: var(--radio-chico);
+  font-size: var(--texto-chico);
+  font-weight: 600;
+}
+
+.desglose__tabla {
+  width: 100%;
+  margin-top: var(--espacio-3);
+  border-collapse: collapse;
+  font-size: var(--texto-chico);
+}
+
+.desglose__renglon {
+  border-top: 1px solid var(--color-borde);
+}
+
+.desglose__concepto {
+  padding: var(--espacio-2) var(--espacio-3) var(--espacio-2) 0;
+  text-align: left;
+  font-weight: 600;
+  vertical-align: top;
+}
+
+.desglose__detalle {
+  display: block;
+  font-weight: 400;
+  color: var(--color-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__monto {
+  padding: var(--espacio-2) 0;
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__renglon--subtotal .desglose__concepto,
+.desglose__renglon--subtotal .desglose__monto {
+  font-weight: 600;
+}
+
+.desglose__renglon--total {
+  border-top: 2px solid var(--color-texto);
+}
+
+.desglose__renglon--total .desglose__concepto,
+.desglose__renglon--total .desglose__monto {
+  font-size: var(--texto-base);
+  font-weight: 700;
+}
+
+.presupuesto:empty {
+  display: none;
+}
+
+.presupuesto {
+  margin-top: var(--espacio-4);
+}
