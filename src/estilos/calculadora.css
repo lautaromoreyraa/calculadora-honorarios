@@ -526,6 +526,31 @@
   color: var(--color-texto);
 }
 
+.pie__monotributo {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.pie__categorias {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--espacio-1) var(--espacio-5);
+}
+
+.pie__categoria {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: var(--espacio-1) 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.pie__categoria dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Barra del total, sólo en el celular */
 
 .barra-del-total {
