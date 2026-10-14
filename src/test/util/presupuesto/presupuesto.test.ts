@@ -28,7 +28,7 @@ function resultado(cambios: Partial<Seleccion> = {}): Resultado {
     },
     datos,
   );
-  if (!calculo.ok) throw new Error(calculo.errores.join(' '));
+  if (!calculo.ok) throw new Error(calculo.errores.map((e) => e.mensaje).join(' '));
   return calculo.resultado;
 }
 

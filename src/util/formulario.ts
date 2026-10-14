@@ -56,6 +56,12 @@ export function leerNumero(texto: string | undefined): number {
   return /^-?\d+(\.\d+)?$/.test(normalizado) ? Number(normalizado) : Number.NaN;
 }
 
+/**
+ * Id del control de un campo del formulario, el mismo que usa el motor en
+ * `Falta.campo`: así la lista de lo que falta lleva a cada uno.
+ */
+export const idDeCampo = (campo: string) => `campo-${campo}`;
+
 /** Qué datos pide un ítem cuando se lo marca. */
 export function camposDeItem(item: Item): Campo[] {
   if (item.tipo === 'por-trabajo') return ['monto'];

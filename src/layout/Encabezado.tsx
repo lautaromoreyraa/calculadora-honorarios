@@ -16,6 +16,9 @@ export function Encabezado({ vigencia }: Props) {
         <h1 className="encabezado__titulo">Calculadora de honorarios</h1>
         <p className="encabezado__bajada">
           Para autónomos de la comunicación de Chaco y Corrientes.
+          {/* En el celular, una línea que diga qué suma: sin ella, quien entra por
+              primera vez no sabe que el total incluye sus costos. */}
+          <span className="encabezado__bajada-corta"> Tu hora de convenio, más lo que cuesta trabajar por tu cuenta.</span>
           <span className="encabezado__bajada-extendida">
             {' '}
             Parte del salario de convenio de tu rol y suma lo que pagás por trabajar por tu cuenta.

@@ -12,6 +12,7 @@
   margin: 0 auto;
   padding: var(--espacio-4);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-2);
 }
 
@@ -23,7 +24,9 @@
 }
 
 .encabezado__titulo {
-  font-size: var(--texto-titulo);
+  /* Con el texto agrandado, «honorarios» no entra en el celular y no se puede
+     cortar: el título no pasa de un ancho proporcional a la pantalla. */
+  font-size: min(var(--texto-titulo), 12vw);
   line-height: 1.05;
   font-weight: 560;
   letter-spacing: -0.025em;
@@ -55,6 +58,10 @@
   .encabezado__bajada-extendida {
     display: inline;
   }
+
+  .encabezado__bajada-corta {
+    display: none;
+  }
 }
 
 .calculadora {
@@ -67,6 +74,9 @@
 
 .calculadora__formulario {
   display: grid;
+  /* minmax(0, …): la columna no crece hasta el ancho mínimo del contenido,
+     que con el texto agrandado pasaba el de la pantalla. */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-4);
   min-width: 0;
 }
@@ -208,6 +218,7 @@
   border-radius: var(--radio);
   padding: var(--espacio-4);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-4);
 }
 
@@ -239,6 +250,7 @@
 
 .campo {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   align-content: start;
   gap: var(--espacio-1);
   min-width: 0;
@@ -275,7 +287,10 @@
 }
 
 .campo__entrada {
-  flex: 1;
+  /* Base 0 y ancho 0: con el texto agrandado, el ancho intrínseco del input
+     (size=20) empujaba la tarjeta y aparecía scroll horizontal. */
+  flex: 1 1 0;
+  width: 0;
   min-width: 0;
   min-height: calc(var(--alto-control) - 2px);
   padding: 0 var(--espacio-3);
@@ -317,6 +332,7 @@
 
 .campo__seleccion {
   width: 100%;
+  min-width: 0;
   min-height: var(--alto-control);
   padding: 0 var(--espacio-3);
   background: var(--color-fondo);
@@ -401,7 +417,26 @@
 
 .opcion-con-norma {
   display: grid;
-  gap: var(--espacio-1);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-chico);
+  transition:
+    background-color var(--duracion) var(--curva-salida),
+    border-color var(--duracion) var(--curva-salida);
+}
+
+.opcion-con-norma > .opcion {
+  border: 0;
+  padding-bottom: 0;
+}
+
+.opcion-con-norma:has(.opcion:hover) {
+  border-color: var(--color-borde-control);
+}
+
+.opcion-con-norma--elegida,
+.opcion-con-norma--elegida:has(.opcion:hover) {
+  border-color: var(--color-acento);
+  background: var(--color-acento-suave);
 }
 
 .opcion {
@@ -418,8 +453,9 @@
     border-color var(--duracion) var(--curva-salida);
 }
 
+/* Sólo resalta lo que responde al toque: la etiqueta, no la norma ni los campos. */
 .opcion:hover,
-.item:hover {
+.item:has(> .item__fila:hover) {
   border-color: var(--color-borde-control);
 }
 
@@ -474,8 +510,7 @@
 
 .item {
   display: grid;
-  gap: var(--espacio-1);
-  padding: var(--espacio-3);
+  padding: 0 0 var(--espacio-1);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-chico);
   transition:
@@ -484,7 +519,7 @@
 }
 
 .item--marcado,
-.item--marcado:hover {
+.item--marcado:has(> .item__fila:hover) {
   border-color: var(--color-acento);
   background: var(--color-acento-suave);
 }
@@ -493,6 +528,8 @@
   display: flex;
   gap: var(--espacio-3);
   align-items: flex-start;
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-1);
+  cursor: pointer;
 }
 
 .item__etiqueta {
@@ -512,8 +549,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+.item__aporte {
+  font-size: var(--texto-chico);
+  font-weight: 600;
+  color: var(--color-acento-fuerte);
+  font-variant-numeric: tabular-nums;
+}
+
 .item__descripcion {
-  margin-left: calc(1.375rem + var(--espacio-3));
+  margin-top: var(--espacio-1);
   font-size: var(--texto-chico);
   color: var(--color-texto-suave);
 }
@@ -521,7 +565,7 @@
 .item__campos {
   display: grid;
   gap: var(--espacio-3);
-  margin: var(--espacio-2) 0 0 calc(1.375rem + var(--espacio-3));
+  margin: var(--espacio-2) var(--espacio-3) var(--espacio-2) calc(1.375rem + 2 * var(--espacio-3));
 }
 
 @media (min-width: 30rem) {
@@ -532,13 +576,11 @@
 
 /* Norma de cada ítem (RF-19) */
 
+/* Alineada con el texto de su ítem u opción, dentro del mismo recuadro. */
 .norma {
-  margin-left: calc(1.375rem + var(--espacio-3));
+  margin-left: calc(1.375rem + 2 * var(--espacio-3));
+  margin-right: var(--espacio-3);
   font-size: var(--texto-chico);
-}
-
-.opcion-con-norma .norma {
-  margin-left: var(--espacio-3);
 }
 
 .norma__resumen {
@@ -557,10 +599,6 @@
 .norma__texto {
   padding: var(--espacio-1) 0 var(--espacio-2);
   color: var(--color-texto-suave);
-}
-
-.norma__vigencia {
-  white-space: nowrap;
 }
 
 /* Pie */
@@ -583,9 +621,14 @@
   margin: 0 auto;
   padding: var(--espacio-5) var(--espacio-4);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-3);
   font-size: var(--texto-chico);
   color: var(--color-texto-suave);
+}
+
+.pie__contenido > p {
+  max-width: 70ch;
 }
 
 .pie__aviso {
@@ -600,7 +643,7 @@
 .pie__categorias {
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(12rem, 100%), 1fr));
   gap: var(--espacio-1) var(--espacio-5);
 }
 
@@ -650,7 +693,30 @@
   color: var(--color-texto-suave);
 }
 
+.barra-del-total--oculta {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .barra-del-total {
+    transition:
+      opacity var(--duracion) var(--curva-salida),
+      visibility 0s linear var(--duracion);
+  }
+
+  .barra-del-total:not(.barra-del-total--oculta) {
+    transition-delay: 0s;
+  }
+}
+
+.barra-del-total__monto {
+  min-width: 0;
+}
+
 .barra-del-total__enlace {
+  flex: none;
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;

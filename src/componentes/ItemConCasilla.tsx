@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import type { Item } from '../util/datos/tipos.ts';
+import { formatearPesos } from '../util/formato.ts';
 import type { Campo } from '../util/formulario.ts';
 import { CampoNumerico } from './CampoNumerico.tsx';
 import { NormaDelItem } from './NormaDelItem.tsx';
@@ -16,6 +17,8 @@ interface Props {
   item: Item;
   resumen: string;
   marcado: boolean;
+  /** Cuánto suma a este trabajo, si está marcado y hay un cálculo. */
+  aporte?: number;
   alAlternar: (marcado: boolean) => void;
   campos: Campo[];
   describirCampo: (campo: Campo) => DescripcionDeCampo;
@@ -23,27 +26,29 @@ interface Props {
   alCargar: (campo: Campo, valor: string) => void;
 }
 
-export function ItemConCasilla({ item, resumen, marcado, alAlternar, campos, describirCampo, entradas, alCargar }: Props) {
+export function ItemConCasilla({ item, resumen, marcado, aporte, alAlternar, campos, describirCampo, entradas, alCargar }: Props) {
   const id = useId();
   return (
     <div className={`item${marcado ? ' item--marcado' : ''}`}>
-      <div className="item__fila">
+      {/* La etiqueta envuelve la casilla y ocupa todo el ancho de la tarjeta:
+          tocar cualquier parte del texto la marca, no sólo el cuadradito. */}
+      <label className="item__fila">
         <input
-          id={id}
           className="item__casilla"
           type="checkbox"
           checked={marcado}
           aria-describedby={`${id}-resumen`}
           onChange={(e) => alAlternar(e.target.checked)}
         />
-        <label className="item__etiqueta" htmlFor={id}>
+        <span className="item__etiqueta">
           <span className="item__nombre">{item.nombre}</span>
           <span className="item__resumen" id={`${id}-resumen`}>
             {resumen}
           </span>
-        </label>
-      </div>
-      {item.descripcion && <p className="item__descripcion">{item.descripcion}</p>}
+          {aporte !== undefined && <span className="item__aporte">Suma {formatearPesos(aporte)} a este trabajo</span>}
+          {item.descripcion && <span className="item__descripcion">{item.descripcion}</span>}
+        </span>
+      </label>
       <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
       {marcado && campos.length > 0 && (
         <div className="item__campos">
