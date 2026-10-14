@@ -1,22 +1,12 @@
 // Presupuesto en Word (RF-16). Arma un .docx editable con el resultado del motor
 // para que el profesional lo retoque y se lo mande a su cliente. Va sin marca
-// del proyecto: el documento es del profesional. Este módulo importa docx, que
+// del proyecto: el documento es del profesional. Lleva el trabajo y el total,
+// no el desglose: lo que le cuesta al profesional trabajar por su cuenta
+// (contador, fondos, impuestos) es suyo, no del cliente. Este módulo importa docx, que
 // es pesado; la interfaz lo carga con import() recién al pedir la descarga.
-import {
-  AlignmentType,
-  BorderStyle,
-  Document,
-  HeadingLevel,
-  Packer,
-  Paragraph,
-  Table,
-  TableCell,
-  TableRow,
-  TextRun,
-  WidthType,
-} from 'docx';
+import { BorderStyle, Document, HeadingLevel, Packer, Paragraph, TextRun } from 'docx';
 import type { Datos } from '../datos/tipos.ts';
-import type { Renglon, Resultado } from '../calculo/tipos.ts';
+import type { Resultado } from '../calculo/tipos.ts';
 import { formatearNumero, formatearPesos } from '../formato.ts';
 
 /** Lo que el profesional completa antes de descargar. Lo vacío sale como marcador. */
@@ -61,61 +51,30 @@ export function nombreDelArchivo(resultado: Resultado, fecha: Date = new Date())
   return `presupuesto-${resultado.rol.id}-${dia}.docx`;
 }
 
-const SIN_BORDE = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
-const LINEA = { style: BorderStyle.SINGLE, size: 4, color: 'BFBFBF' };
-
-function celda(texto: string, opciones: { negrita?: boolean; derecha?: boolean; ancho: number }) {
-  return new TableCell({
-    width: { size: opciones.ancho, type: WidthType.PERCENTAGE },
-    margins: { top: 60, bottom: 60, left: 80, right: 80 },
-    borders: { top: SIN_BORDE, left: SIN_BORDE, right: SIN_BORDE, bottom: LINEA },
-    children: [
-      new Paragraph({
-        alignment: opciones.derecha ? AlignmentType.RIGHT : AlignmentType.LEFT,
-        children: [new TextRun({ text: texto, bold: opciones.negrita })],
-      }),
-    ],
-  });
-}
-
-const fila = (concepto: string, detalle: string, monto: string, negrita = false) =>
-  new TableRow({
-    children: [
-      celda(concepto, { negrita, ancho: 32 }),
-      celda(detalle, { negrita, ancho: 48 }),
-      celda(monto, { negrita, derecha: true, ancho: 20 }),
-    ],
-  });
-
-const filaDeRenglon = (r: Renglon) => fila(r.concepto, r.detalle, formatearPesos(r.monto));
+// Cambria viene con Office y LibreOffice la reemplaza por Caladea, de la misma
+// métrica: una serifa como la de los títulos del sitio. El petróleo es el de la
+// franja del encabezado (RNF-10), así el documento se reconoce sin llevar marca.
+const FUENTE_DE_TITULOS = 'Cambria';
+const PETROLEO = '0C5952';
+const LINEA = { style: BorderStyle.SINGLE, size: 6, color: 'BFBFBF', space: 6 };
 
 const campo = (etiqueta: string, valor: string) =>
   new Paragraph({ children: [new TextRun({ text: `${etiqueta}: `, bold: true }), new TextRun(valor)] });
 
 /** Arma el documento. Pura: no toca el navegador ni la red. */
 export function armarPresupuesto(resultado: Resultado, datos: Datos, presupuesto: DatosDelPresupuesto): Document {
-  const filas = [
-    new TableRow({
-      tableHeader: true,
-      children: [
-        celda('Concepto', { negrita: true, ancho: 32 }),
-        celda('Cómo se calcula', { negrita: true, ancho: 48 }),
-        celda('Monto', { negrita: true, derecha: true, ancho: 20 }),
-      ],
-    }),
-    ...resultado.renglones.map(filaDeRenglon),
-  ];
-  if (resultado.ingresosBrutosSobreTotal) {
-    filas.push(fila('Subtotal', '', formatearPesos(resultado.subtotal), true));
-    filas.push(filaDeRenglon(resultado.ingresosBrutosSobreTotal));
-  }
-  filas.push(fila('Total', '', formatearPesos(resultado.total), true));
-
   return new Document({
     creator: completar(presupuesto.profesional, ''),
     title: 'Presupuesto',
     styles: {
-      default: { document: { run: { font: 'Calibri', size: 22 } } },
+      default: {
+        document: { run: { font: 'Calibri', size: 22 } },
+        title: { run: { font: FUENTE_DE_TITULOS, size: 52, color: PETROLEO } },
+        heading1: {
+          run: { font: FUENTE_DE_TITULOS, size: 30, color: PETROLEO },
+          paragraph: { spacing: { before: 360, after: 120 } },
+        },
+      },
     },
     sections: [
       {
@@ -127,8 +86,15 @@ export function armarPresupuesto(resultado: Resultado, datos: Datos, presupuesto
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Trabajo')] }),
           new Paragraph(completar(presupuesto.descripcion, MARCADORES.descripcion)),
           campo('Horas estimadas', `${formatearNumero(resultado.horas)} h`),
-          new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Detalle')] }),
-          new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: filas }),
+          new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Honorarios')] }),
+          new Paragraph({
+            spacing: { before: 120, after: 120 },
+            border: { top: LINEA, bottom: LINEA },
+            children: [
+              new TextRun({ text: 'Total del trabajo: ', bold: true, size: 28 }),
+              new TextRun({ text: formatearPesos(resultado.total), bold: true, size: 28, color: PETROLEO }),
+            ],
+          }),
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Condiciones')] }),
           campo('Validez de la oferta', completar(presupuesto.validez, MARCADORES.validez)),
           new Paragraph(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`),

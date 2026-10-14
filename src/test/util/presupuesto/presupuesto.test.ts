@@ -55,22 +55,21 @@ async function textoDelWord(r: Resultado, presupuesto: DatosDelPresupuesto): Pro
     .replace(/&apos;/g, "'");
 }
 
-/** Monto de la fila «Total» de la tabla: cada celda es un párrafo, y la del detalle va vacía. */
-function totalDeLaTabla(texto: string): string | undefined {
-  const lineas = texto.split('\n');
-  return lineas[lineas.lastIndexOf('Total') + 2];
-}
-
 describe('RF-16 · presupuesto en Word', () => {
-  it('tiene el total y cada renglón con los montos de la pantalla', async () => {
+  it('tiene el total de la pantalla', async () => {
     const r = resultado();
     const texto = await textoDelWord(r, completo);
-    expect(totalDeLaTabla(texto)).toBe(formatearPesos(r.total));
+    expect(texto).toContain(`Total del trabajo: ${formatearPesos(r.total)}`);
+  });
+
+  it('no muestra el desglose: ningún concepto ni monto de los renglones', async () => {
+    const r = resultado();
+    const texto = await textoDelWord(r, completo);
     for (const renglon of r.renglones) {
-      expect(texto).toContain(renglon.concepto);
-      expect(texto).toContain(renglon.detalle);
-      expect(texto).toContain(formatearPesos(renglon.monto));
+      expect(texto).not.toContain(renglon.detalle);
+      expect(texto).not.toContain(formatearPesos(renglon.monto));
     }
+    expect(texto).not.toContain('Tipo de cliente');
   });
 
   it('incluye profesional, rol, cliente, fecha, trabajo, horas, validez y vigencia', async () => {
@@ -84,26 +83,18 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`);
   });
 
-  it('con Corrientes muestra subtotal e ingresos brutos sobre el total', async () => {
+  it('con Corrientes el total ya incluye ingresos brutos y no se muestra el subtotal', async () => {
     const r = resultado({ provinciaId: 'corrientes' });
     expect(r.ingresosBrutosSobreTotal).toBeDefined();
     const texto = await textoDelWord(r, completo);
-    expect(texto).toContain(formatearPesos(r.subtotal));
-    expect(texto).toContain(r.ingresosBrutosSobreTotal!.detalle);
-    expect(texto).toContain(formatearPesos(r.ingresosBrutosSobreTotal!.monto));
-    expect(totalDeLaTabla(texto)).toBe(formatearPesos(r.total));
+    expect(texto).toContain(formatearPesos(r.total));
+    expect(texto).not.toContain(formatearPesos(r.subtotal));
   });
 
-  it('el total aparece una sola vez, en la tabla', async () => {
+  it('el total aparece una sola vez', async () => {
     const r = resultado();
     const texto = await textoDelWord(r, completo);
-    expect(texto).not.toContain('Total:');
     expect(texto.split(formatearPesos(r.total)).length - 1).toBe(1);
-  });
-
-  it('el tipo de cliente se lee con el nombre del conjunto', async () => {
-    const texto = await textoDelWord(resultado(), completo);
-    expect(texto).toContain('Tipo de cliente: D · Empresas privadas');
   });
 
   it('los campos vacíos salen como marcadores para completar', async () => {
