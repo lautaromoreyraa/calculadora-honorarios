@@ -69,17 +69,30 @@ export default function DescargaDePresupuesto({ resultado, profesional, alCambia
     setError('');
     setDescargado('');
     try {
-      // docx pesa: se baja recién cuando alguien pide el Word.
-      const { generarPresupuesto, nombreDelArchivo } = await import('../util/presupuesto/index.ts');
+      // docx pesa: se baja recién cuando alguien pide el Word. Si se publicó una
+      // versión nueva con la página abierta, ese archivo ya no existe con el
+      // nombre que esta página conoce: se pide recargar en vez de fallar mudo.
+      let modulo: typeof import('../util/presupuesto/index.ts');
+      try {
+        modulo = await import('../util/presupuesto/index.ts');
+      } catch {
+        setError('Hay una versión nueva de la calculadora. Recargá la página para descargar el presupuesto.');
+        return;
+      }
       const fecha = new Date();
-      const blob = await generarPresupuesto(resultado, datos, { profesional, cliente, descripcion, validez, fecha });
+      const blob = await modulo.generarPresupuesto(resultado, datos, { profesional, cliente, descripcion, validez, fecha });
       const url = URL.createObjectURL(blob);
+      const archivo = modulo.nombreDelArchivo(resultado, fecha);
+      // En el documento y revocado más tarde: un enlace suelto, o revocar la URL
+      // en el mismo instante, cancela la descarga en algunos navegadores.
       const enlace = document.createElement('a');
       enlace.href = url;
-      const archivo = nombreDelArchivo(resultado, fecha);
       enlace.download = archivo;
+      enlace.hidden = true;
+      document.body.append(enlace);
       enlace.click();
-      URL.revokeObjectURL(url);
+      enlace.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
       setDescargado(archivo);
     } catch {
       setError('No se pudo generar el presupuesto. Probá de nuevo.');
