@@ -5,6 +5,7 @@ import { formatearPesos } from '../../util/formato.ts';
 import {
   aSeleccion,
   camposDeItem,
+  conVehiculo,
   cuentaDelSubgrupo,
   estadoInicial,
   formatearFecha,
@@ -184,5 +185,29 @@ describe('RF-27 · cuenta de un subgrupo plegado', () => {
 
   it('sin cálculo todavía, sólo la cantidad', () => {
     expect(cuentaDelSubgrupo(operativos, { conectividad: true }, new Map())).toBe('1 marcado');
+  });
+});
+
+describe('RF-13 · auto o moto', () => {
+  it('arranca en auto con 8 l/100 km', () => {
+    const e = estadoInicial(datos);
+    expect(e.vehiculo).toBe('auto');
+    expect(e.entradas.movilidad?.consumo).toBe('8');
+  });
+
+  it('elegir moto carga 4 l/100 km, y volver a auto, 8', () => {
+    const moto = conVehiculo(estadoInicial(datos), 'moto', datos);
+    expect(moto.vehiculo).toBe('moto');
+    expect(moto.entradas.movilidad?.consumo).toBe('4');
+    expect(conVehiculo(moto, 'auto', datos).entradas.movilidad?.consumo).toBe('8');
+  });
+
+  it('cambiar de vehículo no borra los kilómetros', () => {
+    const e = { ...estadoInicial(datos), entradas: { movilidad: { km: '40', consumo: '8' } } };
+    expect(conVehiculo(e, 'moto', datos).entradas.movilidad).toEqual({ km: '40', consumo: '4' });
+  });
+
+  it('el auto lleva la aclaración del consumo en los datos', () => {
+    expect(datos.parametros.consumoDelAutoCada100Km.aclaracion).toMatch(/uso mixto \(ciudad \+ ruta\)/);
   });
 });

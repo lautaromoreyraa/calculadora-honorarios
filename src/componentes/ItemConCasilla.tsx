@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import type { Item } from '../util/datos/tipos.ts';
 import type { Aporte as DatosDelAporte, Campo } from '../util/formulario.ts';
 import { Aporte } from './Aporte.tsx';
@@ -24,9 +24,22 @@ interface Props {
   describirCampo: (campo: Campo) => DescripcionDeCampo;
   entradas: Partial<Record<Campo, string>>;
   alCargar: (campo: Campo, valor: string) => void;
+  /** Un control propio del ítem, antes de sus campos: el vehículo de la movilidad. */
+  antesDeLosCampos?: ReactNode;
 }
 
-export function ItemConCasilla({ item, resumen, marcado, aporte, alAlternar, campos, describirCampo, entradas, alCargar }: Props) {
+export function ItemConCasilla({
+  item,
+  resumen,
+  marcado,
+  aporte,
+  alAlternar,
+  campos,
+  describirCampo,
+  entradas,
+  alCargar,
+  antesDeLosCampos,
+}: Props) {
   const id = useId();
   return (
     <div className={`item${marcado ? ' item--marcado' : ''}`}>
@@ -56,6 +69,7 @@ export function ItemConCasilla({ item, resumen, marcado, aporte, alAlternar, cam
       </label>
       {marcado && campos.length > 0 && (
         <div className="item__campos">
+          {antesDeLosCampos}
           {campos.map((campo) => {
             const d = describirCampo(campo);
             return (

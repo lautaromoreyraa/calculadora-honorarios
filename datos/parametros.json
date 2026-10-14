@@ -13,7 +13,12 @@
   },
   "consumoDelAutoCada100Km": {
     "valor": 8,
-    "norma": "Auto compacto en uso mixto; el usuario lo puede cambiar"
+    "norma": "Auto naftero convencional en uso mixto, con el peso del equipo; el usuario lo puede cambiar",
+    "aclaracion": "Para un auto de uso diario con motor naftero convencional, 8 L / 100 km es un promedio razonable únicamente para un uso mixto (ciudad + ruta). Se contempla el peso del equipamiento a transportar."
+  },
+  "consumoDeLaMotoCada100Km": {
+    "valor": 4,
+    "norma": "Moto en uso mixto; el usuario lo puede cambiar"
   },
   "vacaciones": {
     "divisorDelDia": 25,
