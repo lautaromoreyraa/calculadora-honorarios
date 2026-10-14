@@ -111,7 +111,8 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `src/hooks/` | Estado de la interfaz |
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |
 | `src/test/` | Tests de Vitest, espejando `src/` |
-| `.github/workflows/` | Verificación de cada PR |
+| `.github/workflows/` | Verificación de cada PR y publicación desde `main` |
+| `wrangler.jsonc` | Worker de Cloudflare que sirve `dist/` |
 
 ## Cómo se corre
 
@@ -131,3 +132,12 @@ npm run build    # tipos + build de producción en dist/
 `develop` integra; `main` es lo publicado. Cada cambio entra a `develop` por PR
 desde una rama `feature/…`, y la verificación (lint, tipos, tests y build) tiene
 que pasar antes de mergear.
+
+## Despliegue
+
+El sitio es un Worker de Cloudflare sólo de archivos estáticos, configurado en
+`wrangler.jsonc`: sirve `dist/` y aplica los headers de `public/_headers`. Se
+publica solo al llegar un merge a `main`. La acción `Publicación` repite la
+verificación, construye y sube con `wrangler deploy`. Necesita dos secretos en el
+entorno `produccion` del repo: `CLOUDFLARE_API_TOKEN`, un token con permiso de
+edición de Workers, y `CLOUDFLARE_ACCOUNT_ID`.
