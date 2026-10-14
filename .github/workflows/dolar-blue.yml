@@ -1,0 +1,102 @@
+# Dólar blue del día (RF-29). Consulta dolarapi.com y, si la cotización cambió,
+# abre un PR a main que toca sólo ese valor, corre la verificación completa, lo
+# mergea y publica. Es la única excepción al pase a producción manual, decidida
+# por Lautaro el 2026-10-14. Si la API no responde o da un valor absurdo, el
+# script falla, no hay PR y la corrida queda en rojo a la vista.
+# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
+name: Dólar blue
+
+on:
+  schedule:
+    # 15:30 UTC = 12:30 en Argentina, con el mercado abierto.
+    - cron: '30 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dolar-blue
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      cambio: ${{ steps.cotizacion.outputs.cambio }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - id: cotizacion
+        run: npm run actualizar-dolar-blue
+      - name: Rama y commit
+        if: steps.cotizacion.outputs.cambio == 'true'
+        env:
+          VALOR: ${{ steps.cotizacion.outputs.valor }}
+          FECHA: ${{ steps.cotizacion.outputs.fecha }}
+        run: |
+          # El PR tiene que tocar sólo este archivo: si no, no se mergea solo.
+          test "$(git status --porcelain)" = " M datos/parametros.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "datos/dolar-blue-$FECHA"
+          git commit -am "RF-29: dólar blue a \$ $VALOR ($FECHA)"
+      # La misma verificación que un PR humano: un PR abierto con este token no
+      # dispara el workflow de verificación, así que corre acá.
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm ci
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm run validar-datos
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm run lint
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm test
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm run build
+      - name: PR a main y merge
+        if: steps.cotizacion.outputs.cambio == 'true'
+        env:
+          VALOR: ${{ steps.cotizacion.outputs.valor }}
+          FECHA: ${{ steps.cotizacion.outputs.fecha }}
+        run: |
+          rama="datos/dolar-blue-$FECHA"
+          git push origin "$rama"
+          gh pr create --base main --head "$rama" \
+            --title "RF-29: dólar blue a \$ $VALOR ($FECHA)" \
+            --body "Actualización diaria del dólar blue (venta) desde dolarapi.com. Toca sólo \`dolarBlue\` en \`datos/parametros.json\`; validación de datos, lint, tests y build pasaron en esta corrida."
+          gh pr merge "$rama" --merge --delete-branch
+      - name: Sincronizar develop
+        if: steps.cotizacion.outputs.cambio == 'true'
+        env:
+          FECHA: ${{ steps.cotizacion.outputs.fecha }}
+        run: |
+          # develop tiene que tener el mismo valor que main. Si no se puede
+          # mergear limpio, queda un PR de main a develop para resolverlo a mano.
+          git fetch origin main develop
+          git switch develop
+          if git merge --no-ff origin/main -m "Merge main: dólar blue del $FECHA"; then
+            git push origin develop
+          else
+            git merge --abort
+            gh pr create --base develop --head main --title "Sincronizar develop con el dólar blue del $FECHA" \
+              --body "El merge automático de main en develop tuvo conflictos: resolver a mano." || true
+          fi
+
+  publicar:
+    needs: actualizar
+    if: needs.actualizar.outputs.cambio == 'true'
+    uses: ./.github/workflows/publicacion.yml
+    with:
+      ref: main
+    secrets: inherit

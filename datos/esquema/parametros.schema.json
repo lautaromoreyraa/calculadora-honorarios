@@ -11,7 +11,8 @@
     "consumoDeLaMotoCada100Km",
     "vacaciones",
     "sueldoAnualComplementario",
-    "dolarOficial"
+    "dolarOficial",
+    "dolarBlue"
   ],
   "additionalProperties": false,
   "properties": {
@@ -50,6 +51,17 @@
       "properties": {
         "sueldosPorAnio": { "type": "number", "exclusiveMinimum": 0 },
         "norma": { "$ref": "comun.schema.json#/$defs/texto" }
+      }
+    },
+    "dolarBlue": {
+      "description": "Cotización para ver los montos en dólares (RF-28); la actualiza cada día la Action de RF-29",
+      "type": "object",
+      "required": ["valor", "fecha", "fuente"],
+      "additionalProperties": false,
+      "properties": {
+        "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
+        "fecha": { "$ref": "comun.schema.json#/$defs/fecha" },
+        "fuente": { "$ref": "comun.schema.json#/$defs/texto" }
       }
     },
     "dolarOficial": {
