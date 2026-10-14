@@ -34,6 +34,8 @@ export interface Renglon {
   detalle: string;
   /** En pesos enteros (RN-11). */
   monto: number;
+  /** Suma cero porque falta un dato del usuario, no porque valga cero. */
+  falta?: true;
 }
 
 export interface Resultado {

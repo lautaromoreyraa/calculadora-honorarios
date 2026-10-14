@@ -186,6 +186,7 @@ describe('RF-10 · título y antigüedad', () => {
     const r = resultado(seleccion({ horas: 180, antiguedad: 0 }, { antiguedad: {} }));
     expect(monto(r, 'antiguedad')).toBe(0);
     expect(r.avisos.join()).toMatch(/años de antigüedad/);
+    expect(r.renglones.find((x) => x.id === 'antiguedad')?.falta).toBe(true);
   });
 
   it('el productor usa su propio valor de antigüedad', () => {
