@@ -265,7 +265,8 @@
 
 .hoja__partes {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  /* min(): con el texto agrandado, 11rem pasa el ancho de la hoja. */
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 100%), 1fr));
   gap: var(--espacio-4);
   margin-top: var(--espacio-4);
 }
@@ -307,7 +308,6 @@
 
 .hoja__tabla .hoja__cifra {
   text-align: right;
-  white-space: nowrap;
 }
 
 .hoja__descripcion {
@@ -476,6 +476,11 @@
 /* Los títulos de sección van en Archivo: rótulos de una herramienta, no
    titulares. Alegreya queda para el título de la página y los montos. */
 .bloque__titulo {
+  /* Al lado del ícono, un título largo con el texto agrandado tiene que poder
+     partirse: si no, empuja el panel más allá de la pantalla. */
+  min-width: 0;
+  overflow-wrap: anywhere;
+  hyphens: auto;
   font-family: var(--fuente-base);
   font-size: 1.25rem;
   line-height: 1.2;
