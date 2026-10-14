@@ -65,7 +65,7 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
 }
 
 /** Consumo por defecto de cada vehículo, cada 100 km. */
-export function consumoDe(vehiculo: Vehiculo, datos: Datos): number {
+function consumoDe(vehiculo: Vehiculo, datos: Datos): number {
   const { consumoDelAutoCada100Km, consumoDeLaMotoCada100Km } = datos.parametros;
   return (vehiculo === 'moto' ? consumoDeLaMotoCada100Km : consumoDelAutoCada100Km).valor;
 }

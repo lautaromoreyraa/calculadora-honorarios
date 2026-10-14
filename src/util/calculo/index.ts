@@ -24,14 +24,14 @@ const renglonEn = (formato: Formato, item: Pick<Item, 'id' | 'nombre'>, pesos: n
  * privadas») no se entiende sola en el desglose ni en el Word: lleva adelante
  * el nombre del conjunto («Tipo de cliente: D · Empresas privadas»).
  */
-export function conceptoDe(item: Item, datos: Datos): string {
+function conceptoDe(item: Item, datos: Datos): string {
   const exclusion = datos.exclusiones.find((e) => e.id === item.exclusion);
   return exclusion?.obligatorio ? `${exclusion.nombre}: ${item.nombre}` : item.nombre;
 }
 
 const horasTexto =(h: number) => `${formatearNumero(h)} h`;
 
-export function pesosDeDolares(dolares: Dolares, cotizacion: number): number {
+function pesosDeDolares(dolares: Dolares, cotizacion: number): number {
   const usd = dolares.herramientas.reduce((total, h) => total + h.precio, 0);
   return usd * dolares.proporcion * cotizacion;
 }
@@ -51,7 +51,7 @@ export function diasDeVacaciones(antiguedad: number, datos: Datos): number {
 }
 
 /** Jornadas de 6 horas, redondeando hacia arriba (RN-14). */
-export function jornadas(horas: number, datos: Datos): number {
+function jornadas(horas: number, datos: Datos): number {
   return Math.ceil(horas / datos.parametros.horasPorJornada.valor);
 }
 
