@@ -100,12 +100,15 @@ Archivo (Omnibus-Type) para el resto. Las dos son variables y autoalojadas con
 `@fontsource-variable`: van dentro del bundle y se precargan en `index.html`.
 Los montos usan cifras tabulares para que no bailen al recalcular.
 
-**Composición.** Los bloques del formulario son secciones separadas por un
-filete, no tarjetas: las únicas cajas son lo que se toca (casillas, campos) y
-el panel del resultado.
+**Composición.** Cada sección del formulario es un panel con su ícono (Lucide,
+dentro del bundle); adentro, los ítems son filas de una lista separadas por
+filetes, sin tarjetas dentro de tarjetas. El panel del resultado muestra debajo
+del total una barra con su composición (honorario base, adicionales, impuestos
+y fondos, costos), que sale de `util/composicion.ts`.
 
-**Movimiento.** Uno solo: el total se asienta al cambiar. Con
-`prefers-reduced-motion` no hay animación.
+**Movimiento.** Uno solo: al cambiar, el total cuenta hasta su valor nuevo
+(`hooks/useNumeroAnimado.ts`) y la barra de la composición se reacomoda. Con
+`prefers-reduced-motion` el número salta directo y la barra no se anima.
 
 Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 

@@ -9,6 +9,7 @@ import { SelectorDeMoneda } from '../componentes/SelectorDeMoneda.tsx';
 import { SelectorDeVehiculo } from '../componentes/SelectorDeVehiculo.tsx';
 import { ProveedorDeFormato } from '../contexto/Moneda.tsx';
 import { SubgrupoPlegable } from '../componentes/SubgrupoPlegable.tsx';
+import { TituloDeSeccion } from '../componentes/TituloDeSeccion.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
 import { PieDePagina } from '../layout/PieDePagina.tsx';
@@ -174,9 +175,9 @@ export function Calculadora() {
             </p>
           )}
           <section className="bloque" aria-labelledby={`${idRol}-titulo`}>
-            <h2 className="bloque__titulo" id={`${idRol}-titulo`} tabIndex={-1}>
+            <TituloDeSeccion seccion="trabajo" id={`${idRol}-titulo`} enfocable>
               El trabajo
-            </h2>
+            </TituloDeSeccion>
 
             <div className="campo">
               <label className="campo__etiqueta" htmlFor={idDeCampo('rol')}>
@@ -255,9 +256,9 @@ export function Calculadora() {
             const idTitulo = `grupo-${grupo.id}`;
             return (
               <section key={grupo.id} className="bloque" aria-labelledby={idTitulo}>
-                <h2 className="bloque__titulo" id={idTitulo}>
+                <TituloDeSeccion seccion={grupo.id} id={idTitulo}>
                   {grupo.nombre}
-                </h2>
+                </TituloDeSeccion>
                 {exclusiones.map((exclusion) => (
                   <OpcionesExcluyentes
                     key={exclusion.id}
