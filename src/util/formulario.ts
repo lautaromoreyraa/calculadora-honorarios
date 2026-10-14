@@ -6,6 +6,7 @@ import type { EntradaDeItem, Seleccion } from './calculo/tipos.ts';
 import { diasDeVacaciones, valorMensual } from './calculo/index.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPorcentaje } from './formato.ts';
 import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
+import { CONDICIONES_POR_DEFECTO } from './presupuesto/contenido.ts';
 
 /** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
@@ -28,6 +29,11 @@ export interface EstadoDelFormulario {
   entradas: Record<string, Partial<Record<Campo, string>>>;
   /** Nombre del profesional para el presupuesto; vive acá para poder recordarlo (RF-26). */
   profesional: string;
+  /** Contacto del profesional y sus condiciones de pago: van en el presupuesto y se recuerdan (RF-16). */
+  email: string;
+  telefono: string;
+  cuit: string;
+  condiciones: string;
   vehiculo: Vehiculo;
   /** En qué moneda se muestran los montos (RF-28). Lo que se carga sigue en pesos. */
   moneda: Moneda;
@@ -49,6 +55,10 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
         .map((i) => [i.id, { consumo: formatearNumero(datos.parametros.consumoDelAutoCada100Km.valor) }]),
     ),
     profesional: '',
+    email: '',
+    telefono: '',
+    cuit: '',
+    condiciones: CONDICIONES_POR_DEFECTO,
     vehiculo: 'auto',
     moneda: 'ARS',
   };

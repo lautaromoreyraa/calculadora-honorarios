@@ -20,7 +20,17 @@ import {
   restaurar,
 } from '../util/memoria.ts';
 
-type CampoGeneral = 'rolId' | 'provinciaId' | 'categoria' | 'horas' | 'antiguedad' | 'profesional';
+export type CampoGeneral =
+  | 'rolId'
+  | 'provinciaId'
+  | 'categoria'
+  | 'horas'
+  | 'antiguedad'
+  | 'profesional'
+  | 'email'
+  | 'telefono'
+  | 'cuit'
+  | 'condiciones';
 
 /**
  * Estado del formulario y cálculo en vivo: cada cambio recalcula todo (RF-15).

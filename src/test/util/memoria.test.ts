@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { datos } from '../../util/datos/index.ts';
 import { estadoInicial, type EstadoDelFormulario } from '../../util/formulario.ts';
-import { CLAVE, guardarPerfil, leerPerfil, olvidarPerfil, perfilDe, puedeRecordar, restaurar } from '../../util/memoria.ts';
+import {
+  CLAVE,
+  guardarPerfil,
+  guardarUltimoNumero,
+  leerPerfil,
+  leerUltimoNumero,
+  olvidarPerfil,
+  perfilDe,
+  puedeRecordar,
+  restaurar,
+} from '../../util/memoria.ts';
+import { CONDICIONES_POR_DEFECTO } from '../../util/presupuesto/contenido.ts';
 
 // RF-26: recordar los datos del profesional entre visitas, sin los del trabajo.
 
@@ -35,6 +46,10 @@ const lleno = (): EstadoDelFormulario => ({
     'alquiler-kit-liviano': { monto: '50.000' },
   },
   profesional: 'Ana Gómez',
+  email: 'ana@ejemplo.com',
+  telefono: '362 412-3456',
+  cuit: '27-12345678-9',
+  condiciones: 'Todo por adelantado.',
   vehiculo: 'moto',
   moneda: 'USD',
 });
@@ -109,5 +124,31 @@ describe('RF-26 · recordar los datos del profesional', () => {
 
     a.setItem(CLAVE, JSON.stringify({ ...perfilDe(lleno()), version: 99 }));
     expect(restaurar(leerPerfil(a), datos)).toEqual(estadoInicial(datos));
+  });
+
+  it('RF-16 · recuerda el contacto y las condiciones de pago del presupuesto', () => {
+    const e = recargar(lleno());
+    expect(e.email).toBe('ana@ejemplo.com');
+    expect(e.telefono).toBe('362 412-3456');
+    expect(e.cuit).toBe('27-12345678-9');
+    expect(e.condiciones).toBe('Todo por adelantado.');
+  });
+
+  it('RF-16 · un perfil guardado antes, sin esos campos, arranca con las condiciones por defecto', () => {
+    const a = almacen();
+    const viejo: Record<string, unknown> = { ...perfilDe(lleno()) };
+    for (const campo of ['email', 'telefono', 'cuit', 'condiciones']) delete viejo[campo];
+    a.setItem(CLAVE, JSON.stringify(viejo));
+    const e = restaurar(leerPerfil(a), datos);
+    expect(e.email).toBe('');
+    expect(e.condiciones).toBe(CONDICIONES_POR_DEFECTO);
+  });
+
+  it('RF-16 · el último número se guarda aparte y «Empezar de nuevo» no lo borra', () => {
+    const a = almacen();
+    expect(leerUltimoNumero(a)).toBeNull();
+    guardarUltimoNumero(a, '2026-001');
+    olvidarPerfil(a);
+    expect(leerUltimoNumero(a)).toBe('2026-001');
   });
 });

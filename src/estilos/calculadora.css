@@ -98,17 +98,28 @@
     padding: var(--espacio-5) var(--espacio-4);
   }
 
-  .calculadora__formulario,
-  .calculadora__presupuesto {
+  .calculadora__formulario {
     grid-column: 1;
   }
 
-  /* El resultado ocupa la columna derecha a lo alto del formulario y del
-     presupuesto, y queda fijo mientras se marcan casillas. Sólo el desglose
-     puede necesitar scroll propio, si tiene muchos renglones. */
-  .calculadora__resultado {
+  /* El presupuesto va abajo a todo el ancho: necesita lugar para el formulario
+     y la hoja de la vista previa lado a lado. Ahí ya no hace falta el panel del
+     resultado, porque la hoja dice el total. */
+  .calculadora__presupuesto {
+    grid-column: 1 / -1;
+  }
+
+  /* El resultado ocupa la columna derecha a lo alto del formulario y queda fijo
+     mientras se marcan casillas; la columna lo frena al llegar al presupuesto.
+     Sólo el desglose puede necesitar scroll propio, si tiene muchos renglones. */
+  .calculadora__columna-resultado {
     grid-column: 2;
-    grid-row: 1 / span 2;
+    grid-row: 1;
+    align-self: stretch;
+    min-width: 0;
+  }
+
+  .calculadora__resultado {
     position: sticky;
     top: var(--espacio-4);
     max-height: calc(100vh - 2 * var(--espacio-4));
@@ -135,23 +146,177 @@
 .presupuesto {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--espacio-4);
-  max-width: 40rem;
+  gap: var(--espacio-6);
 }
 
-.presupuesto__campos {
+/* Formulario y hoja lado a lado sólo si los dos entran cómodos; si no, la hoja
+   va debajo, donde se la ve al terminar de completar. */
+@media (min-width: 68rem) {
+  .presupuesto {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .hoja-figura {
+    position: sticky;
+    top: var(--espacio-4);
+  }
+}
+
+.presupuesto__formulario {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espacio-4);
+  min-width: 0;
+}
+
+.presupuesto__grupo {
   display: grid;
   gap: var(--espacio-4);
+  min-width: 0;
+  margin: 0;
+  padding: var(--espacio-4) 0 0;
+  border: 0;
+  border-top: 1px solid var(--color-borde);
+}
+
+.presupuesto__leyenda {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--espacio-1);
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-medio);
+  font-weight: 560;
+  color: var(--color-texto);
 }
 
 @media (min-width: 40rem) {
-  .presupuesto__campos {
+  .presupuesto__grupo:not(.presupuesto__grupo--una-columna) {
     grid-template-columns: 1fr 1fr;
   }
 
-  .presupuesto__campos .campo:has(textarea) {
+  .presupuesto__leyenda,
+  .presupuesto__grupo .campo:has(textarea) {
     grid-column: 1 / -1;
   }
+}
+
+/* La hoja de la vista previa (RF-16): papel blanco como el Word, con su
+   serifa y su petróleo. No sigue el tema oscuro porque muestra un documento,
+   no la interfaz. Gris 7:1 y petróleo 8,9:1 sobre el blanco. */
+.hoja-figura {
+  display: grid;
+  gap: var(--espacio-2);
+  margin: 0;
+  min-width: 0;
+}
+
+.hoja-figura__titulo {
+  font-size: var(--texto-chico);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-texto-suave);
+}
+
+.hoja {
+  --hoja-petroleo: #0c5952;
+  --hoja-gris: #595959;
+
+  display: grid;
+  gap: 0.35em;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border-radius: var(--radio-chico);
+  background: #fff;
+  color: #1a1a1a;
+  font-family: Calibri, Carlito, 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.hoja p {
+  margin: 0;
+}
+
+.hoja__titulo {
+  font-family: Cambria, Caladea, Georgia, serif;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--hoja-petroleo);
+}
+
+.hoja__gris {
+  color: var(--hoja-gris);
+}
+
+.hoja__fuerte {
+  font-weight: 700;
+}
+
+.hoja__partes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--espacio-4);
+  margin-top: var(--espacio-4);
+}
+
+.hoja__rotulo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hoja-petroleo);
+}
+
+.hoja__seccion {
+  margin-top: var(--espacio-5) !important;
+  font-family: Cambria, Caladea, Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--hoja-petroleo);
+}
+
+.hoja__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.hoja__tabla th,
+.hoja__tabla td {
+  padding: 0.4em 0.6em;
+  border: 1px solid #bfbfbf;
+  text-align: left;
+  vertical-align: top;
+}
+
+.hoja__tabla th {
+  background: #eaf2f1;
+  color: var(--hoja-petroleo);
+  font-weight: 700;
+}
+
+.hoja__tabla .hoja__cifra {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.hoja__descripcion {
+  white-space: pre-line;
+}
+
+.hoja__total {
+  margin-top: var(--espacio-3) !important;
+  padding: 0.5em 0;
+  border-block: 1px solid #bfbfbf;
+  text-align: right;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.hoja__total strong {
+  color: var(--hoja-petroleo);
+  font-variant-numeric: tabular-nums;
 }
 
 .presupuesto__total {
