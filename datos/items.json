@@ -188,17 +188,6 @@
       "vigencia": "2026-10"
     },
     {
-      "id": "seguro-equipamiento",
-      "nombre": "Seguro de equipamiento",
-      "grupo": "operativos",
-      "subgrupo": "equipo",
-      "tipo": "mensual",
-      "valor": 9300,
-      "norma": "Costo de mercado",
-      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
-      "vigencia": "2026-10"
-    },
-    {
       "id": "amortizacion-domiciliario",
       "nombre": "Amortización del equipamiento propio",
       "descripcion": "Computadora, cámara o equipo de trabajo propio",
@@ -208,6 +197,17 @@
       "formula": "amortizacion",
       "norma": "Valor del equipo en 24 meses",
       "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "seguro-equipamiento",
+      "nombre": "Seguro de equipamiento",
+      "grupo": "operativos",
+      "subgrupo": "equipo",
+      "tipo": "mensual",
+      "valor": 9300,
+      "norma": "Costo de mercado",
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
       "vigencia": "2026-10"
     },
     {
