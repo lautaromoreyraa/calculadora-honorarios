@@ -756,6 +756,7 @@
 .items {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+  gap: var(--espacio-2);
 }
 
 /* RF-07: el selector aparece entre las tarjetas al marcar monotributo o IIBB;
@@ -776,45 +777,35 @@
   font-weight: 560;
 }
 
-/* Cada ítem es una fila: el filete de arriba la separa de la anterior y,
-   marcada, se tiñe del acento. */
+/* Cada ítem va en un marco como el de las opciones de «Uso del contenido y
+   plazos» (RNF-13): mismo borde, canto y separación, y al marcarlo el borde y
+   el fondo del acento. Lo que distingue sumar de elegir es la marca: cuadrado
+   en las casillas, círculo en los radios (y en los costos operativos). */
 .item {
   display: grid;
-  padding: 0 0 var(--espacio-2);
-  border-top: 1px solid var(--color-borde);
-  border-radius: 0;
+  padding: 0 0 var(--espacio-1);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-chico);
   transition:
     background-color var(--duracion) var(--curva-salida),
-    border-radius var(--duracion) var(--curva-salida);
-}
-
-.items > .item:first-child,
-.bloque__subtitulo + .item {
-  border-top-color: transparent;
+    border-color var(--duracion) var(--curva-salida);
 }
 
 .item:has(> .item__fila:hover) {
-  background: var(--color-superficie-elevada);
-  border-radius: var(--radio-chico);
+  border-color: var(--color-borde-control);
 }
 
 .item--marcado,
 .item--marcado:has(> .item__fila:hover) {
+  border-color: var(--color-acento);
   background: var(--color-acento-suave);
-  border-radius: var(--radio-chico);
-  border-top-color: transparent;
-}
-
-/* La fila que sigue a una marcada no necesita filete: el tinte ya separa. */
-.item--marcado + .item {
-  border-top-color: transparent;
 }
 
 .item__fila {
   display: flex;
   gap: var(--espacio-3);
   align-items: flex-start;
-  padding: var(--espacio-4) var(--espacio-3) var(--espacio-1);
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-1);
   cursor: pointer;
 }
 
@@ -1163,37 +1154,4 @@
   .bloque--casillas-redondas .item__casilla::before {
     background: CanvasText;
   }
-}
-
-/* Marco de los costos operativos (RNF-13): cada ítem va en una tarjeta como
-   las opciones de «Uso del contenido y plazos», con el mismo borde, separación
-   y estado marcado, en vez de las filas con filete del resto. */
-.bloque--casillas-redondas .items {
-  gap: var(--espacio-2);
-  padding-bottom: var(--espacio-2);
-}
-
-.bloque--casillas-redondas .item,
-.bloque--casillas-redondas .items > .item:first-child,
-.bloque--casillas-redondas .item--marcado + .item {
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-chico);
-  transition:
-    background-color var(--duracion) var(--curva-salida),
-    border-color var(--duracion) var(--curva-salida);
-}
-
-.bloque--casillas-redondas .item__fila {
-  padding: var(--espacio-3) var(--espacio-3) var(--espacio-1);
-}
-
-.bloque--casillas-redondas .item:has(> .item__fila:hover) {
-  background: transparent;
-  border-color: var(--color-borde-control);
-}
-
-.bloque--casillas-redondas .item--marcado,
-.bloque--casillas-redondas .item--marcado:has(> .item__fila:hover) {
-  border-color: var(--color-acento);
-  background: var(--color-acento-suave);
 }
