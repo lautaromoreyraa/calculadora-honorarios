@@ -114,24 +114,21 @@
     grid-column: 1 / -1;
   }
 
-  /* El resultado ocupa la columna derecha a lo alto del formulario y queda fijo
-     mientras se marcan casillas; la columna lo frena al llegar al presupuesto.
-     Sólo el desglose puede necesitar scroll propio, si tiene muchos renglones. */
+  /* El resultado ocupa la columna derecha a lo alto del formulario; la columna
+     lo frena al llegar al presupuesto. Columna, panel y desglose se estiran a
+     ese alto para que la cabeza del desglose (el total) quede fija mientras se
+     marcan casillas y el resto siga el scroll de la página: el panel fijo
+     entero pasaba el alto de la pantalla y necesitaba una segunda barra. */
   .calculadora__columna-resultado {
     grid-column: 2;
     grid-row: 1;
     align-self: stretch;
+    display: grid;
     min-width: 0;
   }
 
   .calculadora__resultado {
-    position: sticky;
-    top: var(--espacio-4);
-    max-height: calc(100vh - 2 * var(--espacio-4));
-    overflow-y: auto;
-    /* Con la composición el panel puede pasar el alto de la pantalla: la barra
-       de scroll propia va fina, para no competir con el total. */
-    scrollbar-width: thin;
+    display: grid;
   }
 }
 
@@ -189,13 +186,14 @@
   border-top: 1px solid var(--color-borde);
 }
 
+/* Subtítulo dentro de un panel: en Archivo, como el título del panel. Alegreya
+   queda para el título de la página y los montos. */
 .presupuesto__leyenda {
   float: left;
   width: 100%;
   margin-bottom: var(--espacio-1);
-  font-family: var(--fuente-titulos);
-  font-size: var(--texto-medio);
-  font-weight: 560;
+  font-size: var(--texto-base);
+  font-weight: 600;
   color: var(--color-texto);
 }
 
@@ -347,8 +345,9 @@
   margin-top: calc(-1 * var(--espacio-4));
 }
 
+/* En el color del texto: el acento fuerte es sólo del total. */
 .presupuesto__listo {
-  color: var(--color-acento-fuerte);
+  color: var(--color-texto);
   font-weight: 600;
 }
 
@@ -626,7 +625,9 @@
   font-size: min(var(--texto-monto), 9vw);
   line-height: 1.1;
   font-weight: 560;
-  color: var(--color-acento-fuerte);
+  /* Monto en Alegreya pero en el color del texto: el acento fuerte es sólo del
+     total, para que no haya dos cifras disputándose el resultado. */
+  color: var(--color-texto);
   font-variant-numeric: lining-nums tabular-nums;
 }
 
@@ -677,6 +678,7 @@
 
 .opcion-con-norma {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-chico);
   transition:
@@ -685,8 +687,9 @@
 }
 
 .opcion-con-norma > .opcion {
+  grid-column: 1;
+  grid-row: 1;
   border: 0;
-  padding-bottom: 0;
 }
 
 .opcion-con-norma:has(.opcion:hover) {
@@ -724,14 +727,91 @@
   background: var(--color-acento-suave);
 }
 
+/* Casillas y radios dibujados con la paleta (RNF-13): los nativos salían en el
+   gris de cada navegador, sin el tinte del resto. Cuadrado con tilde para lo
+   que se suma, círculo con punto para lo que se elige. Borde 4,6:1 sobre la
+   superficie y 3,5:1 sobre el tinte de lo marcado. */
 .opcion__radio,
 .item__casilla {
+  appearance: none;
   flex: none;
+  display: grid;
+  place-content: center;
   width: 1.375rem;
   height: 1.375rem;
   margin: 0.0625rem 0 0;
-  accent-color: var(--color-acento);
+  border: 2px solid var(--color-borde-control);
+  border-radius: 4px;
+  background: var(--color-fondo);
   cursor: pointer;
+  transition:
+    background-color var(--duracion) var(--curva-salida),
+    border-color var(--duracion) var(--curva-salida);
+}
+
+.opcion__radio:hover,
+.item__casilla:hover {
+  border-color: var(--color-texto-suave);
+}
+
+.opcion__radio:focus-visible,
+.item__casilla:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+/* La tilde: dos bordes de un rectángulo girado, sin recursos de afuera. */
+.item__casilla::before {
+  content: '';
+  width: 0.35rem;
+  height: 0.7rem;
+  border: solid var(--color-sobre-acento);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg) scale(0);
+  transition: transform var(--duracion) var(--curva-salida);
+}
+
+.item__casilla:checked {
+  border-color: var(--color-acento);
+  background: var(--color-acento);
+}
+
+.item__casilla:checked::before {
+  transform: translateY(-1px) rotate(45deg) scale(1);
+}
+
+.opcion__radio {
+  border-radius: 50%;
+}
+
+.opcion__radio::before {
+  content: '';
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--color-acento);
+  transform: scale(0);
+  transition: transform var(--duracion) var(--curva-salida);
+}
+
+.opcion__radio:checked {
+  border-color: var(--color-acento);
+}
+
+.opcion__radio:checked::before {
+  transform: scale(1);
+}
+
+/* Con colores forzados (alto contraste de Windows) la tilde y el punto toman
+   el color del sistema. */
+@media (forced-colors: active) {
+  .item__casilla::before {
+    border-color: CanvasText;
+  }
+
+  .opcion__radio::before {
+    background: CanvasText;
+  }
 }
 
 .opcion__texto {
@@ -770,11 +850,10 @@
   border-top: 1px solid var(--color-borde);
 }
 
+/* En Archivo, como el título del panel: en Alegreya hablaba con otra voz. */
 .bloque__subtitulo {
-  /* En la voz de titulares, para que agrupe a las leyendas y no se lea como una más. */
-  font-family: var(--fuente-titulos);
-  font-size: var(--texto-medio);
-  font-weight: 560;
+  font-size: var(--texto-base);
+  font-weight: 600;
 }
 
 /* Cada ítem va en un marco como el de las opciones de «Uso del contenido y
@@ -783,7 +862,7 @@
    en las casillas, círculo en los radios (y en los costos operativos). */
 .item {
   display: grid;
-  padding: 0 0 var(--espacio-1);
+  grid-template-columns: minmax(0, 1fr) auto;
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-chico);
   transition:
@@ -805,7 +884,9 @@
   display: flex;
   gap: var(--espacio-3);
   align-items: flex-start;
-  padding: var(--espacio-3) var(--espacio-3) var(--espacio-1);
+  grid-column: 1;
+  grid-row: 1;
+  padding: var(--espacio-3);
   cursor: pointer;
 }
 
@@ -829,10 +910,11 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Se lee como dato del ítem, no como resultado: en el color del texto. */
 .item__aporte {
   font-size: var(--texto-chico);
   font-weight: 600;
-  color: var(--color-acento-fuerte);
+  color: var(--color-texto);
   font-variant-numeric: tabular-nums;
 }
 
@@ -847,9 +929,10 @@
 }
 
 .item__campos {
+  grid-column: 1 / -1;
   display: grid;
   gap: var(--espacio-3);
-  margin: var(--espacio-2) var(--espacio-3) var(--espacio-2) calc(1.375rem + 2 * var(--espacio-3));
+  margin: 0 var(--espacio-3) var(--espacio-3) calc(1.375rem + 2 * var(--espacio-3));
 }
 
 @media (min-width: 30rem) {
@@ -912,9 +995,8 @@
 }
 
 .subgrupo__nombre {
-  font-family: var(--fuente-titulos);
-  font-size: var(--texto-medio);
-  font-weight: 560;
+  font-size: var(--texto-base);
+  font-weight: 600;
 }
 
 .subgrupo__cuenta {
@@ -938,11 +1020,20 @@
 
 /* Norma de cada ítem (RF-19) */
 
-/* Alineada con el texto de su ítem u opción, dentro del mismo recuadro. */
+/* Cerrada, va en la esquina de la primera fila de su ítem u opción, en gris:
+   en una fila propia ocupaba un tercio de cada marco y repetía el acento en
+   cada ítem. Abierta, baja justo debajo, alineada con el texto. */
 .norma {
-  margin-left: calc(1.375rem + 2 * var(--espacio-3));
-  margin-right: var(--espacio-3);
+  grid-column: 2;
+  grid-row: 1;
+  margin: var(--espacio-1) var(--espacio-2) 0 0;
   font-size: var(--texto-chico);
+}
+
+.norma[open] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  margin: calc(-1 * var(--espacio-2)) var(--espacio-3) 0 calc(1.375rem + 2 * var(--espacio-3));
 }
 
 .norma__resumen {
@@ -951,11 +1042,14 @@
   align-items: center;
   min-height: 2.75rem;
   padding: 0 var(--espacio-2);
-  margin-left: calc(-1 * var(--espacio-2));
-  color: var(--color-acento);
+  color: var(--color-texto-suave);
   cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 0.15em;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+
+.norma[open] .norma__resumen {
+  margin-left: calc(-1 * var(--espacio-2));
 }
 
 .norma__texto {
@@ -1112,40 +1206,24 @@
    un círculo con un punto al marcarla, igual que los radios del resto. Sigue
    siendo una casilla: el lector anuncia «casilla» y se marcan varias. */
 .bloque--casillas-redondas .item__casilla {
-  appearance: none;
-  display: grid;
-  place-content: center;
-  border: 2px solid var(--color-borde-control);
   border-radius: 50%;
-  background: var(--color-fondo);
-  transition: border-color var(--duracion) var(--curva-salida);
 }
 
 .bloque--casillas-redondas .item__casilla::before {
-  content: '';
   width: 0.625rem;
   height: 0.625rem;
+  border: 0;
   border-radius: 50%;
   background: var(--color-acento);
   transform: scale(0);
-  transition: transform var(--duracion) var(--curva-salida);
-}
-
-.bloque--casillas-redondas .item__casilla:hover {
-  border-color: var(--color-texto-suave);
 }
 
 .bloque--casillas-redondas .item__casilla:checked {
-  border-color: var(--color-acento);
+  background: var(--color-fondo);
 }
 
 .bloque--casillas-redondas .item__casilla:checked::before {
   transform: scale(1);
-}
-
-.bloque--casillas-redondas .item__casilla:focus-visible {
-  outline: 3px solid var(--color-foco);
-  outline-offset: 2px;
 }
 
 /* Con colores forzados (alto contraste de Windows) el punto tiene que seguir

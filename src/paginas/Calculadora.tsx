@@ -329,8 +329,11 @@ export function Calculadora() {
             <h2 className="solo-lectores" id={idTituloResultado}>
               Resultado
             </h2>
-            <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
-            <Desglose calculo={calculo} />
+            {/* La moneda va debajo del desglose: arriba era lo más fuerte de la
+                columna y se leía antes que el total. */}
+            <Desglose calculo={calculo}>
+              <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
+            </Desglose>
           </aside>
         </div>
         {/* RF-16: sólo con un resultado válido hay algo para presupuestar. Va fuera

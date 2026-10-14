@@ -1,6 +1,6 @@
 import { useNumeroAnimado } from '../hooks/useNumeroAnimado.ts';
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import type { Calculo, Falta } from '../util/calculo/tipos.ts';
 import { useFormato } from '../contexto/Moneda.tsx';
 import { composicionDelTotal } from '../util/composicion.ts';
@@ -11,10 +11,16 @@ import { idDeCampo } from '../util/formulario.ts';
 
 interface Props {
   calculo: Calculo;
+  /** Lo que va debajo del desglose, fuera de la cabeza fija: el selector de moneda. */
+  children?: ReactNode;
 }
 
-/** Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. */
-export function Desglose({ calculo }: Props) {
+/**
+ * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Dos
+ * paneles: la cabeza (total y composición), que en escritorio queda fija, y el
+ * cuerpo con los renglones, que sigue el scroll de la página.
+ */
+export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
   // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
   // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
@@ -29,6 +35,7 @@ export function Desglose({ calculo }: Props) {
         {anuncio}
       </p>
       {calculo.ok ? <Resultado calculo={calculo} /> : <Pendiente errores={calculo.errores} />}
+      {children}
     </div>
   );
 }
@@ -44,7 +51,7 @@ function irAlCampo(evento: MouseEvent<HTMLAnchorElement>, campo: string) {
 
 function Pendiente({ errores }: { errores: Falta[] }) {
   return (
-    <>
+    <div className="desglose__cabeza">
       <p className="desglose__total-etiqueta">Total del trabajo</p>
       <p className="desglose__total desglose__total--vacio">Faltan datos para calcular</p>
       <ul className="desglose__falta">
@@ -56,7 +63,7 @@ function Pendiente({ errores }: { errores: Falta[] }) {
           </li>
         ))}
       </ul>
-    </>
+    </div>
   );
 }
 
@@ -69,68 +76,72 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
   const totalMostrado = useNumeroAnimado(r.total);
   return (
     <>
-      <p className="desglose__total-etiqueta">Total del trabajo</p>
-      <p className="desglose__total" aria-hidden="true">
-        {formato.monto(formato.redondear(totalMostrado))}
-      </p>
-      <p className="desglose__contexto">
-        {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
-      </p>
-      <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
+      <div className="desglose__cabeza">
+        <p className="desglose__total-etiqueta">Total del trabajo</p>
+        <p className="desglose__total" aria-hidden="true">
+          {formato.monto(formato.redondear(totalMostrado))}
+        </p>
+        <p className="desglose__contexto">
+          {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
+        </p>
+        <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
+      </div>
 
-      {r.avisos.length > 0 && (
-        <ul className="desglose__avisos">
-          {r.avisos.map((a) => (
-            <li key={a}>{a}</li>
-          ))}
-        </ul>
-      )}
+      <div className="desglose__cuerpo">
+        {r.avisos.length > 0 && (
+          <ul className="desglose__avisos">
+            {r.avisos.map((a) => (
+              <li key={a}>{a}</li>
+            ))}
+          </ul>
+        )}
 
-      <table className="desglose__tabla">
-        <caption className="solo-lectores">Desglose del honorario</caption>
-        <thead className="solo-lectores">
-          <tr>
-            <th scope="col">Concepto</th>
-            <th scope="col">Monto</th>
-          </tr>
-        </thead>
-        <tbody>
-          {r.renglones.map((renglon) => (
-            <tr key={renglon.id} className="desglose__renglon">
-              <th scope="row" className="desglose__concepto">
-                {renglon.concepto}
-                <span className="desglose__detalle">{renglon.detalle}</span>
-              </th>
-              <td className="desglose__monto">{formato.monto(renglon.monto)}</td>
+        <table className="desglose__tabla">
+          <caption className="solo-lectores">Desglose del honorario</caption>
+          <thead className="solo-lectores">
+            <tr>
+              <th scope="col">Concepto</th>
+              <th scope="col">Monto</th>
             </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          {iibb && (
-            <>
-              <tr className="desglose__renglon desglose__renglon--subtotal">
+          </thead>
+          <tbody>
+            {r.renglones.map((renglon) => (
+              <tr key={renglon.id} className="desglose__renglon">
                 <th scope="row" className="desglose__concepto">
-                  Subtotal
+                  {renglon.concepto}
+                  <span className="desglose__detalle">{renglon.detalle}</span>
                 </th>
-                <td className="desglose__monto">{formato.monto(r.subtotal)}</td>
+                <td className="desglose__monto">{formato.monto(renglon.monto)}</td>
               </tr>
-              <tr className="desglose__renglon">
-                <th scope="row" className="desglose__concepto">
-                  {iibb.concepto}
-                  <span className="desglose__detalle">{iibb.detalle}</span>
-                </th>
-                <td className="desglose__monto">{formato.monto(iibb.monto)}</td>
-              </tr>
-            </>
-          )}
-          <tr className="desglose__renglon desglose__renglon--total">
-            <th scope="row" className="desglose__concepto">
-              Total
-            </th>
-            <td className="desglose__monto">{formato.monto(r.total)}</td>
-          </tr>
-        </tfoot>
-      </table>
+            ))}
+          </tbody>
+          <tfoot>
+            {iibb && (
+              <>
+                <tr className="desglose__renglon desglose__renglon--subtotal">
+                  <th scope="row" className="desglose__concepto">
+                    Subtotal
+                  </th>
+                  <td className="desglose__monto">{formato.monto(r.subtotal)}</td>
+                </tr>
+                <tr className="desglose__renglon">
+                  <th scope="row" className="desglose__concepto">
+                    {iibb.concepto}
+                    <span className="desglose__detalle">{iibb.detalle}</span>
+                  </th>
+                  <td className="desglose__monto">{formato.monto(iibb.monto)}</td>
+                </tr>
+              </>
+            )}
+            <tr className="desglose__renglon desglose__renglon--total">
+              <th scope="row" className="desglose__concepto">
+                Total
+              </th>
+              <td className="desglose__monto">{formato.monto(r.total)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
     </>
   );
 }
