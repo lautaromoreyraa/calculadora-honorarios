@@ -92,7 +92,9 @@ cada cambio.
 (`color-scheme: dark`). La paleta vive en `src/estilos/tokens.css` con los
 contrastes calculados de cada par: base verde azulada casi negra, el petróleo
 de marca en la franja del encabezado, un único verde agua para lo elegido y un
-ámbar para el foco del teclado.
+ámbar para el foco del teclado y los avisos. El verde agua más luminoso es sólo
+del total. Las casillas y los radios se dibujan con esos colores, iguales en
+todos los navegadores.
 
 **Tipografía.** Dos familias de diseñadores argentinos: Alegreya (Juan Pablo
 del Peral, Huerta Tipográfica) para títulos, el valor hora y el total, y
@@ -105,7 +107,9 @@ dentro del bundle); adentro, cada ítem va en un marco como el de las opciones,
 y la marca dice si suma (cuadrado) o si se elige (círculo; también en los
 costos operativos, por pedido del cliente). El panel del resultado muestra debajo
 del total una barra con su composición (honorario base, adicionales, impuestos
-y fondos, costos), que sale de `util/composicion.ts`.
+y fondos, costos), que sale de `util/composicion.ts`: lo que queda para el
+profesional en verde, lo que se va en grises. En escritorio esa cabeza queda
+fija y el desglose sigue el scroll de la página.
 
 **Movimiento.** Uno solo: al cambiar, el total cuenta hasta su valor nuevo
 (`hooks/useNumeroAnimado.ts`) y la barra de la composición se reacomoda. Con

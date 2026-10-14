@@ -75,13 +75,15 @@
   --radio: 14px;
   --radio-chico: 8px;
 
-  /* Las cuatro partes de la barra del total (RNF-13). Dos verdes del acento que
-     se separan por luminosidad, el ámbar del aviso y el gris del texto suave:
-     la leyenda dice cada parte en texto, el color sólo acompaña. */
+  /* Las cuatro partes de la barra del total (RNF-13). Lo que queda para el
+     profesional en dos verdes del acento; lo que se va, en dos grises: el ámbar
+     es del foco y los avisos, y en la barra leía los impuestos como alerta.
+     Contra el riel: impuestos 13,15:1, costos 4,00:1; vecinos separados en
+     OKLab aun con daltonismo. La leyenda dice cada parte en texto. */
   --color-parte-base: #54d3c0;
   --color-parte-adicionales: #2b8f83;
-  --color-parte-impuestos: #f8ce73;
-  --color-parte-costos: #8fa2a1;
+  --color-parte-impuestos: #d2dbda;
+  --color-parte-costos: #677877;
   --alto-control: 3rem;
   --ancho-maximo: 74rem;
   /* Sobre un fondo casi negro una sombra no se ve (1,05:1): la elevación la da
