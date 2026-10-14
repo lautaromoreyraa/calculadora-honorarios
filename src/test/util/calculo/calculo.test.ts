@@ -131,8 +131,8 @@ describe('RF-07 · monotributo por categoría', () => {
 });
 
 describe('RF-08 · ingresos brutos según la provincia', () => {
-  it('Chaco, categoría A, 18 horas: renglón de $801', () => {
-    expect(monto(resultado(seleccion({ horas: 18 }, { 'ingresos-brutos': {} })), 'ingresos-brutos')).toBe(801);
+  it('Chaco, categoría A, 18 horas: renglón de $1.042', () => {
+    expect(monto(resultado(seleccion({ horas: 18 }, { 'ingresos-brutos': {} })), 'ingresos-brutos')).toBe(1042);
   });
 
   it('Corrientes con 3 % y subtotal de $100.000: total de $103.093', () => {
