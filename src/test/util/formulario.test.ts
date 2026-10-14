@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { datos } from '../../util/datos/index.ts';
 import { calcular } from '../../util/calculo/index.ts';
+import { formatearPesos } from '../../util/formato.ts';
 import {
   aSeleccion,
   camposDeItem,
@@ -125,7 +126,11 @@ describe('resumenDelItem', () => {
 
   it('los calculados reflejan la categoría, la provincia y la antigüedad elegidas', () => {
     expect(resumenDelItem(item('monotributo'), estado({ categoria: 'B' }), datos)).toMatch(/56\.379 por mes en la categoría B$/);
-    expect(resumenDelItem(item('ingresos-brutos'), estado(), datos)).toMatch(/^Chaco: .*8\.012 por mes en la categoría A$/);
+    const chaco = datos.provincias.find((p) => p.id === 'chaco')!.ingresosBrutos;
+    const fijoA = chaco.modo === 'fijo-por-categoria' ? chaco.montos.A : 0;
+    expect(resumenDelItem(item('ingresos-brutos'), estado(), datos)).toBe(
+      `Chaco: ${formatearPesos(fijoA)} por mes en la categoría A`,
+    );
     expect(resumenDelItem(item('ingresos-brutos'), estado({ provinciaId: 'corrientes' }), datos)).toBe(
       'Corrientes: 3 % sobre el total facturado',
     );
