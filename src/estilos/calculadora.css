@@ -138,7 +138,9 @@
 
 .campo__control--error {
   border-color: var(--color-error);
-  border-width: 2px;
+  /* Un borde más grueso cambiaría el alto del control y el texto saltaría
+     al aparecer o desaparecer el error mientras se escribe. */
+  box-shadow: inset 0 0 0 1px var(--color-error);
 }
 
 .campo__entrada {
@@ -153,6 +155,13 @@
 
 .campo__entrada:focus {
   outline: none;
+}
+
+/* Safari y Firefox aclaran el placeholder por debajo de AA (2,35:1 y 3,62:1).
+   #6b7079 da 4,98:1 y se sigue distinguiendo de un valor cargado. */
+.campo__entrada::placeholder {
+  color: #6b7079;
+  opacity: 1;
 }
 
 .campo__afijo {
@@ -364,8 +373,12 @@
 }
 
 .norma__resumen {
-  display: inline-block;
-  padding: var(--espacio-1) 0;
+  /* 44 px de alto: es un objetivo táctil, no sólo un enlace de texto. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--espacio-2);
+  margin-left: calc(-1 * var(--espacio-2));
   color: var(--color-acento);
   cursor: pointer;
   text-decoration: underline;
@@ -446,5 +459,13 @@
 @media (min-width: 60rem) {
   .barra-del-total {
     display: none;
+  }
+}
+
+/* Al tabular o usar «siguiente» en el teclado del celular, el navegador lleva
+   el campo al borde inferior: sin este margen, la barra fija lo tapa. */
+@media (max-width: 59.99rem) {
+  html {
+    scroll-padding-bottom: 5.5rem;
   }
 }

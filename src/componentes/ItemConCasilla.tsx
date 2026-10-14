@@ -44,7 +44,7 @@ export function ItemConCasilla({ item, resumen, marcado, alAlternar, campos, des
         </label>
       </div>
       {item.descripcion && <p className="item__descripcion">{item.descripcion}</p>}
-      <NormaDelItem norma={item.norma} vigencia={item.vigencia} />
+      <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
       {marcado && campos.length > 0 && (
         <div className="item__campos">
           {campos.map((campo) => {

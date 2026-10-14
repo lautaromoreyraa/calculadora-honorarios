@@ -1,3 +1,4 @@
+import { useValorDiferido } from '../hooks/useValorDiferido.ts';
 import type { Calculo } from '../util/calculo/tipos.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos } from '../util/formato.ts';
 
@@ -7,33 +8,46 @@ interface Props {
 
 /** Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. */
 export function Desglose({ calculo }: Props) {
-  if (!calculo.ok) {
-    return (
-      <div className="desglose desglose--pendiente">
-        <p className="desglose__total-etiqueta">Total</p>
-        <p className="desglose__total desglose__total--vacio" role="status">
-          Faltan datos
-        </p>
-        <p className="desglose__falta-titulo">Para calcular, completá:</p>
-        <ul className="desglose__falta">
-          {calculo.errores.map((e) => (
-            <li key={e}>{e}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
+  // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
+  // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
+  const anuncio = useValorDiferido(
+    calculo.ok ? `Total del trabajo: ${formatearPesos(calculo.resultado.total)}` : 'Faltan datos para calcular el total',
+    600,
+  );
 
+  return (
+    <div className="desglose">
+      <p className="solo-lectores" role="status">
+        {anuncio}
+      </p>
+      {calculo.ok ? <Resultado calculo={calculo} /> : <Pendiente errores={calculo.errores} />}
+    </div>
+  );
+}
+
+function Pendiente({ errores }: { errores: string[] }) {
+  return (
+    <>
+      <p className="desglose__total-etiqueta">Total del trabajo</p>
+      <p className="desglose__total desglose__total--vacio">Faltan datos para calcular</p>
+      <ul className="desglose__falta">
+        {errores.map((e) => (
+          <li key={e}>{e}</li>
+        ))}
+      </ul>
+    </>
+  );
+}
+
+function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
   const r = calculo.resultado;
   const iibb = r.ingresosBrutosSobreTotal;
   return (
-    <div className="desglose">
+    <>
       <p className="desglose__total-etiqueta">Total del trabajo</p>
-      <p className="desglose__total" role="status">
-        {formatearPesos(r.total)}
-      </p>
+      <p className="desglose__total">{formatearPesos(r.total)}</p>
       <p className="desglose__contexto">
-        {r.rol.nombre} · {formatearNumero(r.horas)} h a {formatearPesosConCentavos(r.valorHora)} la hora
+        {r.rol.nombre}, {formatearNumero(r.horas)} h a {formatearPesosConCentavos(r.valorHora)} la hora
       </p>
 
       {r.avisos.length > 0 && (
@@ -89,6 +103,6 @@ export function Desglose({ calculo }: Props) {
           </tr>
         </tfoot>
       </table>
-    </div>
+    </>
   );
 }
