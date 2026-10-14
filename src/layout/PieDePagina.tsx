@@ -9,7 +9,7 @@ interface Props {
 
 /** Crédito, aviso y de dónde salen los valores (RF-19). */
 export function PieDePagina({ datos, vigencia }: Props) {
-  const { dolarOficial } = datos.parametros;
+  const { dolarOficial, dolarBlue } = datos.parametros;
   return (
     <footer className="pie">
       <div className="pie__contenido">
@@ -20,7 +20,8 @@ export function PieDePagina({ datos, vigencia }: Props) {
         <p>
           Valores vigentes a {formatearVigencia(vigencia)}. Dólar oficial de referencia:{' '}
           {formatearPesosConCentavos(dolarOficial.valor)} ({dolarOficial.fuente}, {formatearFecha(dolarOficial.fecha)}).
-          Nafta súper: mediana de las estaciones de cada provincia ({datos.combustible.fuente}).
+          Nafta súper: mediana de las estaciones de cada provincia ({datos.combustible.fuente}). Para ver los montos en
+          dólares: {formatearPesos(dolarBlue.valor)} ({dolarBlue.fuente}, {formatearFecha(dolarBlue.fecha)}).
         </p>
         <div className="pie__monotributo">
           <p>Cuota mensual del monotributo para servicios, según ARCA:</p>

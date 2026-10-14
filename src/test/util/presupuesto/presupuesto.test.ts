@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { calcular, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
 import { datos } from '../../../util/datos/index.ts';
 import { formatearPesos } from '../../../util/formato.ts';
+import { enDolares } from '../../../util/moneda.ts';
 import {
   armarPresupuesto,
   MARCADORES,
@@ -119,5 +120,18 @@ describe('RF-16 · presupuesto en Word', () => {
   it('la validez por defecto es 15 días después de hoy, también al cruzar de mes y de año', () => {
     expect(fechaDentroDe(15, new Date(2026, 9, 14))).toBe('2026-10-29');
     expect(fechaDentroDe(15, new Date(2026, 11, 20))).toBe('2027-01-04');
+  });
+
+  it('RF-28 · en dólares el total sale en dólares y dice la cotización y su fecha', async () => {
+    const cotizacion = { valor: 1550, fecha: '2026-10-14', fuente: 'dolarapi.com, dólar blue (venta)' };
+    const c = calcular(
+      { rolId: 'productor', provinciaId: 'chaco', categoria: 'A', horas: 12, antiguedad: 3, items: { 'cliente-d': {} } },
+      datos,
+      enDolares(cotizacion),
+    );
+    if (!c.ok) throw new Error('no calculó');
+    const texto = await textoDelWord(c.resultado, completo);
+    expect(texto).toContain(`Total del trabajo: ${enDolares(cotizacion).monto(c.resultado.total)}`);
+    expect(texto).toContain(`dólar blue de ${formatearPesos(1550)} del 14 de octubre de 2026`);
   });
 });

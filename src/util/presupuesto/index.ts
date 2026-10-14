@@ -8,6 +8,7 @@ import { BorderStyle, Document, HeadingLevel, Packer, Paragraph, TextRun } from 
 import type { Datos } from '../datos/tipos.ts';
 import type { Resultado } from '../calculo/tipos.ts';
 import { formatearNumero, formatearPesos } from '../formato.ts';
+import { formatoDe } from '../moneda.ts';
 import { textoDeValidez } from './fechas.ts';
 
 /** Lo que el profesional completa antes de descargar. Lo vacío sale como marcador. */
@@ -94,9 +95,19 @@ export function armarPresupuesto(resultado: Resultado, datos: Datos, presupuesto
             border: { top: LINEA, bottom: LINEA },
             children: [
               new TextRun({ text: 'Total del trabajo: ', bold: true, size: 28 }),
-              new TextRun({ text: formatearPesos(resultado.total), bold: true, size: 28, color: PETROLEO }),
+              new TextRun({ text: formatoDe(resultado).monto(resultado.total), bold: true, size: 28, color: PETROLEO }),
             ],
           }),
+          // En dólares, el cliente tiene que saber a qué cotización se tomó (RF-28).
+          ...(resultado.cotizacion
+            ? [
+                new Paragraph(
+                  `Montos en dólares al dólar blue de ${formatearPesos(resultado.cotizacion.valor)} del ${fechaLarga.format(
+                    new Date(`${resultado.cotizacion.fecha}T12:00:00`),
+                  )}.`,
+                ),
+              ]
+            : []),
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Condiciones')] }),
           campo('Validez de la oferta', completar(textoDeValidez(presupuesto.validez), MARCADORES.validez)),
           new Paragraph(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`),

@@ -112,6 +112,7 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `src/util/` | Funciones puras: motor de cálculo, armado del presupuesto y `memoria.ts`, lo que se recuerda entre visitas |
 | `src/paginas/` · `src/componentes/` · `src/layout/` | Interfaz |
 | `src/hooks/` | Estado de la interfaz |
+| `src/contexto/` | `Moneda.tsx`: el formato de la moneda elegida, que usan todos los montos de la pantalla |
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |
 | `src/test/` | Tests de Vitest, espejando `src/` |
 | `.github/workflows/` | Verificación de cada PR, publicación desde `main` y dólar blue diario |
@@ -147,7 +148,11 @@ edición de Workers, y `CLOUDFLARE_ACCOUNT_ID`.
 
 ### Dólar blue diario
 
-La conversión a dólares usa el dólar blue (venta) de `datos/parametros.json`.
+Un selector «Pesos / Dólares» muestra todos los montos del resultado y del Word
+en dólares. El motor calcula en pesos y recibe un `Formato` (`src/util/moneda.ts`)
+que convierte cada renglón y lo redondea a centavos; el total es la suma de los
+renglones, como en pesos. La conversión usa el dólar blue (venta) de
+`datos/parametros.json`.
 El sitio no consulta ninguna API: todos los días, la Action `Dólar blue`
 corre `npm run actualizar-dolar-blue`, que lee dolarapi.com. Si la cotización
 cambió, abre un PR a `main` que toca sólo ese valor, corre la verificación

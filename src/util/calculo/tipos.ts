@@ -1,3 +1,5 @@
+import type { Cotizacion, Moneda } from '../moneda.ts';
+
 // Entrada y salida del motor de cálculo. La entrada es lo que el profesional
 // eligió en la pantalla; la salida, el desglose que se muestra y se exporta.
 
@@ -40,7 +42,7 @@ export interface Renglon {
 
 export interface Resultado {
   rol: { id: string; nombre: string; convenio: string; valorBaseMensual: number };
-  /** Sin redondear: se muestra con centavos. */
+  /** Sin redondear, en la moneda del resultado: se muestra con centavos. */
   valorHora: number;
   horas: number;
   renglones: Renglon[];
@@ -51,6 +53,10 @@ export interface Resultado {
   total: number;
   /** Ítems marcados a los que les falta un dato: suman cero. */
   avisos: string[];
+  /** En qué moneda están los montos (RF-28). */
+  moneda: Moneda;
+  /** La cotización usada, si no es en pesos. */
+  cotizacion?: Cotizacion;
 }
 
 /**

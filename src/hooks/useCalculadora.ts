@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { calcular } from '../util/calculo/index.ts';
+import { formatoPara, type Moneda } from '../util/moneda.ts';
 import type { Datos } from '../util/datos/tipos.ts';
 import {
   aSeleccion,
@@ -37,7 +38,8 @@ export function useCalculadora(datos: Datos) {
   // montar el formulario entero, con los plegables y los campos del presupuesto.
   const [vuelta, setVuelta] = useState(0);
   const [recuerda] = useState(() => puedeRecordar(almacenDelNavegador()));
-  const calculo = useMemo(() => calcular(aSeleccion(estado, datos), datos), [estado, datos]);
+  const formato = useMemo(() => formatoPara(estado.moneda, datos), [estado.moneda, datos]);
+  const calculo = useMemo(() => calcular(aSeleccion(estado, datos), datos, formato), [estado, datos, formato]);
 
   useEffect(() => {
     guardarPerfil(almacenDelNavegador(), perfilDe(estado));
@@ -51,6 +53,7 @@ export function useCalculadora(datos: Datos) {
   return {
     estado,
     calculo,
+    formato,
     vuelta,
     /** Si el navegador deja guardar: si no, la página no promete recordar nada. */
     recuerda,
@@ -63,6 +66,7 @@ export function useCalculadora(datos: Datos) {
       actualizar((e) => ({ ...e, elegidos: { ...e.elegidos, [exclusionId]: itemId } })),
     cargar: (itemId: string, campo: Campo, valor: string) =>
       actualizar((e) => ({ ...e, entradas: { ...e.entradas, [itemId]: { ...e.entradas[itemId], [campo]: valor } } })),
+    elegirMoneda: (moneda: Moneda) => actualizar((e) => ({ ...e, moneda })),
     elegirVehiculo: (vehiculo: Vehiculo) => actualizar((e) => conVehiculo(e, vehiculo, datos)),
     empezarDeNuevo: () => {
       olvidarPerfil(almacenDelNavegador());

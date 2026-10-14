@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Calculo } from '../util/calculo/tipos.ts';
-import { formatearPesos } from '../util/formato.ts';
+import { useFormato } from '../contexto/Moneda.tsx';
 
 interface Props {
   calculo: Calculo;
@@ -13,6 +13,7 @@ const QUE_MUESTRAN_EL_TOTAL = ['resultado', 'presupuesto'];
 // total mientras se marcan casillas y lleva al desglose. No anuncia cambios a
 // los lectores de pantalla: eso lo hace el total del desglose.
 export function BarraDelTotal({ calculo }: Props) {
+  const formato = useFormato();
   const barra = useRef<HTMLDivElement>(null);
   const [totalALaVista, setTotalALaVista] = useState(false);
 
@@ -58,7 +59,7 @@ export function BarraDelTotal({ calculo }: Props) {
       aria-hidden={totalALaVista || undefined}
     >
       {calculo.ok ? (
-        <span className="barra-del-total__monto">{formatearPesos(calculo.resultado.total)}</span>
+        <span className="barra-del-total__monto">{formato.monto(calculo.resultado.total)}</span>
       ) : (
         <span className="barra-del-total__monto barra-del-total__monto--vacio">Faltan datos</span>
       )}

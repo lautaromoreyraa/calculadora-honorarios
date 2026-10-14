@@ -1,7 +1,7 @@
 import { useId, useState } from 'react';
 import type { Resultado } from '../util/calculo/tipos.ts';
 import { datos } from '../util/datos/index.ts';
-import { formatearPesos } from '../util/formato.ts';
+import { useFormato } from '../contexto/Moneda.tsx';
 import { fechaDentroDe } from '../util/presupuesto/fechas.ts';
 
 interface Props {
@@ -61,6 +61,7 @@ function CampoDeTexto({ id, etiqueta, valor, alCambiar, autoComplete = 'off', mu
  */
 export default function DescargaDePresupuesto({ resultado, profesional, alCambiarProfesional }: Props) {
   const id = useId();
+  const formato = useFormato();
   const [cliente, setCliente] = useState('');
   const [descripcion, setDescripcion] = useState('');
   // La validez es una fecha: el cliente lee «hasta el 29 de octubre», no «15 días» desde quién sabe cuándo.
@@ -144,7 +145,7 @@ export default function DescargaDePresupuesto({ resultado, profesional, alCambia
       {/* El total a la vista junto al botón: en escritorio, al llegar acá el panel
           del resultado ya quedó arriba. */}
       <p className="presupuesto__total">
-        Total a presupuestar: <strong>{formatearPesos(resultado.total)}</strong>
+        Total a presupuestar: <strong>{formato.monto(resultado.total)}</strong>
       </p>
       <button type="button" className="boton" onClick={descargar} disabled={generando}>
         {generando ? 'Generando…' : 'Descargar presupuesto (.docx)'}
