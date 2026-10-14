@@ -68,11 +68,84 @@
     padding: var(--espacio-5) var(--espacio-4);
   }
 
+  .calculadora__formulario,
+  .calculadora__presupuesto {
+    grid-column: 1;
+  }
+
+  /* El resultado ocupa la columna derecha a lo alto del formulario y del
+     presupuesto, y queda fijo mientras se marcan casillas. Sólo el desglose
+     puede necesitar scroll propio, si tiene muchos renglones. */
   .calculadora__resultado {
+    grid-column: 2;
+    grid-row: 1 / span 2;
     position: sticky;
     top: var(--espacio-4);
     max-height: calc(100vh - 2 * var(--espacio-4));
     overflow-y: auto;
+  }
+}
+
+/* Presupuesto en Word (RF-16): misma tarjeta que los bloques del formulario. */
+
+.calculadora__presupuesto {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--espacio-4);
+  min-width: 0;
+}
+
+@media (min-width: 40rem) {
+  .calculadora__presupuesto {
+    padding: var(--espacio-5);
+  }
+}
+
+.presupuesto {
+  display: grid;
+  gap: var(--espacio-4);
+  max-width: 40rem;
+}
+
+.presupuesto__campos {
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+@media (min-width: 40rem) {
+  .presupuesto__campos {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .presupuesto__campos .campo:has(textarea) {
+    grid-column: 1 / -1;
+  }
+}
+
+.boton {
+  min-height: var(--alto-control);
+  padding: 0 var(--espacio-5);
+  border: 0;
+  border-radius: var(--radio-chico);
+  background: var(--color-acento);
+  color: var(--color-sobre-acento);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: var(--color-acento-fuerte);
+}
+
+.boton:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+@media (max-width: 39.99rem) {
+  .boton {
+    width: 100%;
   }
 }
 
@@ -155,6 +228,12 @@
 
 .campo__entrada:focus {
   outline: none;
+}
+
+.campo__entrada--multilinea {
+  padding: var(--espacio-2) var(--espacio-3);
+  resize: vertical;
+  line-height: 1.5;
 }
 
 /* Safari y Firefox aclaran el placeholder por debajo de AA (2,35:1 y 3,62:1).

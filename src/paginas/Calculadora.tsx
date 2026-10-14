@@ -211,11 +211,15 @@ export function Calculadora() {
             Resultado
           </h2>
           <Desglose calculo={calculo} />
-          <div id="presupuesto" className="calculadora__presupuesto">
-            {/* RF-16: sólo con un resultado válido hay algo para presupuestar. */}
-            {calculo.ok && <DescargaDePresupuesto resultado={calculo.resultado} />}
-          </div>
         </aside>
+        {/* RF-16: sólo con un resultado válido hay algo para presupuestar. Va fuera
+            del panel del resultado: en escritorio ese panel queda fijo, y el
+            formulario adentro quedaba al fondo de un segundo scroll. */}
+        {calculo.ok && (
+          <div id="presupuesto" className="calculadora__presupuesto">
+            <DescargaDePresupuesto resultado={calculo.resultado} />
+          </div>
+        )}
       </main>
       <PieDePagina datos={datos} vigencia={vigencia} />
       <BarraDelTotal calculo={calculo} />
