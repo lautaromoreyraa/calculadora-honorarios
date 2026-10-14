@@ -1,0 +1,27 @@
+node_modules/
+dist/
+coverage/
+
+.env
+.env.local
+.env.*.local
+!.env.example
+
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+### Notas de trabajo — no se versionan
+plan.md
+handoff.md
+CLAUDE.md
+AGENTS.md
+MEMORY.md
+.claude/
+.cursorrules
+notas/
+*.tsbuildinfo
+!README.md

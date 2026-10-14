@@ -1,0 +1,7 @@
+/* Valores de diseño en un solo lugar: el resto de las hojas sólo usa estas variables. */
+:root {
+  --color-fondo: #ffffff;
+  --color-texto: #1a1a1a;
+  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --espacio: 1rem;
+}
