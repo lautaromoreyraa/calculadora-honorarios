@@ -2,7 +2,7 @@
 // para que el profesional lo retoque y se lo mande a su cliente. Va sin marca
 // del proyecto: el documento es del profesional. Lleva el trabajo y el total,
 // no el desglose: lo que le cuesta al profesional trabajar por su cuenta
-// (contador, fondos, impuestos) es suyo, no del cliente. Qué dice sale de
+// (fondos, impuestos, equipo) es suyo, no del cliente. Qué dice sale de
 // contenido.ts, lo mismo que la vista previa; acá sólo se dibuja. Este módulo
 // importa docx, que es pesado; la interfaz lo carga con import() recién al
 // pedir la descarga.
