@@ -60,7 +60,7 @@ export function Calculadora() {
           etiqueta: 'Kilómetros a recorrer',
           unidad: 'km',
           ayuda: nafta
-            ? `Nafta súper en ${provincia.nombre}: ${formatearPesos(nafta.precio)} el litro, al ${formatearFecha(nafta.fecha)}.`
+            ? `Nafta súper en ${provincia.nombre}: ${formatearPesos(nafta.precio)} el litro, precio al ${formatearFecha(nafta.fecha)}.`
             : undefined,
         };
       case 'consumo':

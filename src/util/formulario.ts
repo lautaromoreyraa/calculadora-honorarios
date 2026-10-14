@@ -143,8 +143,10 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
           return 'Un sueldo por año, repartido por mes';
         case 'amortizacion':
           return `Precio del equipo en ${datos.parametros.vidaUtilDeEquiposEnMeses.valor} meses`;
-        case 'movilidad':
-          return 'Nafta para los kilómetros del trabajo';
+        case 'movilidad': {
+          const nafta = datos.combustible.precios[estado.provinciaId];
+          return nafta ? `Nafta súper a ${formatearPesos(nafta.precio)} el litro` : 'Nafta para los kilómetros del trabajo';
+        }
       }
   }
 }

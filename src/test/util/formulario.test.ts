@@ -135,6 +135,9 @@ describe('resumenDelItem', () => {
       'Corrientes: 3 % sobre el total facturado',
     );
     expect(resumenDelItem(item('fondo-vacaciones'), estado({ antiguedad: '12' }), datos)).toMatch(/^28 días/);
+    expect(resumenDelItem(item('movilidad'), estado({ provinciaId: 'corrientes' }), datos)).toBe(
+      `Nafta súper a ${formatearPesos(datos.combustible.precios.corrientes.precio)} el litro`,
+    );
   });
 
   it('el valor hora del rol es el base mensual sobre las horas de referencia', () => {
