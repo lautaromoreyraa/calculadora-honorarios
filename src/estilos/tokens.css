@@ -16,7 +16,7 @@
    - borde de control sobre fondo, superficie, elevada y acento suave: 5,1 / 4,6 / 3,9 / 3,5:1;
    - foco sobre fondo, superficie, elevada y franja: 10,4 / 9,4 / 7,9 / 4,6:1;
    - placeholder sobre el fondo del campo: 6,5:1;
-   - texto sobre la selección de texto: 6,5:1.
+   - texto oscuro sobre la selección de texto (el acento): 9,8:1.
    El borde tenue (1,8:1 sobre la superficie) sólo separa tarjetas y renglones; nunca es el único
    borde de un control. */
 :root {
@@ -41,7 +41,10 @@
   --color-error: #fa8880;
   --color-aviso: #f8ce73;
   --color-aviso-suave: #3b2b0d;
-  --color-seleccion: #1f5f57;
+  /* La selección va en el acento con texto oscuro: el petróleo de antes casi no
+     se distinguía del tinte de las filas marcadas. */
+  --color-seleccion: var(--color-acento);
+  --color-sobre-seleccion: var(--color-sobre-acento);
 
   /* Dos voces argentinas (RNF-12). Alegreya, de Juan Pablo del Peral (Huerta
      Tipográfica), es una serifa de trazo caligráfico pensada para leer largo:
