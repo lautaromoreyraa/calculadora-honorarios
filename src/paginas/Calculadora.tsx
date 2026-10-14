@@ -2,6 +2,7 @@ import { useId } from 'react';
 import { BarraDelTotal } from '../componentes/BarraDelTotal.tsx';
 import { CampoNumerico } from '../componentes/CampoNumerico.tsx';
 import { Desglose } from '../componentes/Desglose.tsx';
+import DescargaDePresupuesto from '../componentes/DescargaDePresupuesto.tsx';
 import { ItemConCasilla, type DescripcionDeCampo } from '../componentes/ItemConCasilla.tsx';
 import { OpcionesExcluyentes } from '../componentes/OpcionesExcluyentes.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
@@ -210,9 +211,10 @@ export function Calculadora() {
             Resultado
           </h2>
           <Desglose calculo={calculo} />
-          <section id="presupuesto" className="presupuesto">
-            {/* RF-16: descarga del presupuesto */}
-          </section>
+          <div id="presupuesto" className="calculadora__presupuesto">
+            {/* RF-16: sólo con un resultado válido hay algo para presupuestar. */}
+            {calculo.ok && <DescargaDePresupuesto resultado={calculo.resultado} />}
+          </div>
         </aside>
       </main>
       <PieDePagina datos={datos} vigencia={vigencia} />

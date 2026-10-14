@@ -14,6 +14,8 @@
   --color-acento-fuerte: #0a4541;
   --color-acento-suave: #e4efed;
   --color-sobre-acento: #ffffff;
+  /* Alias con el nombre que usa el componente de descarga del presupuesto. */
+  --color-acento-texto: var(--color-sobre-acento);
   --color-foco: #c2410c;
   --color-error: #a3261b;
   --color-error-suave: #fbeceb;
