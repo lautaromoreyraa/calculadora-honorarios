@@ -7,6 +7,9 @@
   box-shadow: var(--realce);
   padding: var(--espacio-4);
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  /* Contenedor de consulta: la tabla se apila según el ancho que le queda. */
+  container-type: inline-size;
   gap: var(--espacio-2);
 }
 
@@ -25,7 +28,9 @@
 /* El total es el protagonista: la voz de titular, en el acento más luminoso. */
 .desglose__total {
   font-family: var(--fuente-titulos);
-  font-size: var(--texto-total);
+  /* Con el texto agrandado, un total de seis cifras no se puede cortar: no pasa
+     de un ancho proporcional a la pantalla. */
+  font-size: min(var(--texto-total), 14vw);
   line-height: 1;
   font-weight: 560;
   letter-spacing: -0.02em;
@@ -69,7 +74,13 @@
   margin: 0;
   padding-left: var(--espacio-5);
   display: grid;
-  gap: var(--espacio-1);
+}
+
+/* Llevan al campo: son objetivos táctiles, no sólo texto. */
+.desglose__falta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
 }
 
 .desglose__avisos {
@@ -128,4 +139,29 @@
 .desglose__renglon--total .desglose__monto {
   font-size: var(--texto-base);
   font-weight: 700;
+}
+
+/* Con poco lugar en relación al tamaño de letra (texto agrandado en el
+   celular), concepto y monto no entran lado a lado: cada renglón se apila, con
+   el monto debajo. En em, para que dependa de la letra y no sólo de la pantalla:
+   a 360 px con el texto normal sigue en dos columnas. */
+@container (max-width: 18em) {
+  .desglose__tabla,
+  .desglose__tabla tbody,
+  .desglose__tabla tfoot,
+  .desglose__renglon {
+    display: block;
+  }
+
+  .desglose__concepto,
+  .desglose__monto {
+    display: block;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .desglose__concepto {
+    padding-bottom: 0;
+    overflow-wrap: anywhere;
+  }
 }

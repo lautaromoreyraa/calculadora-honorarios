@@ -134,6 +134,7 @@
 
 .presupuesto {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-4);
   max-width: 40rem;
 }
@@ -160,7 +161,7 @@
 
 .presupuesto__total strong {
   font-family: var(--fuente-titulos);
-  font-size: var(--texto-monto);
+  font-size: min(var(--texto-monto), 9vw);
   font-weight: 560;
   color: var(--color-acento-fuerte);
   font-variant-numeric: lining-nums tabular-nums;
@@ -214,6 +215,32 @@
   background: var(--color-acento-suave);
 }
 
+/* Botón con aspecto de enlace, para una acción dentro de una frase. */
+.boton-de-texto {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--espacio-2);
+  border: 0;
+  background: none;
+  color: var(--color-acento);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.aviso-de-reinicio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--espacio-2);
+  padding: var(--espacio-2) var(--espacio-4);
+  background: var(--color-acento-suave);
+  border: 1px solid var(--color-acento);
+  border-radius: var(--radio-chico);
+}
+
 @media (max-width: 39.99rem) {
   .boton {
     width: 100%;
@@ -224,7 +251,13 @@
   display: grid;
   justify-items: start;
   gap: var(--espacio-3);
-  padding: var(--espacio-2) var(--espacio-1) 0;
+  padding-top: var(--espacio-2);
+}
+
+/* Borra lo recordado: no ocupa todo el ancho como la acción principal, para
+   no ser lo más fuerte entre el formulario y el resultado. */
+.reinicio .boton {
+  width: auto;
 }
 
 /* Bloques del formulario */
@@ -375,6 +408,7 @@
 
 .ficha-del-rol {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-1);
   margin-top: var(--espacio-2);
   padding: var(--espacio-4);
@@ -384,7 +418,7 @@
 
 .ficha-del-rol__valor {
   font-family: var(--fuente-titulos);
-  font-size: var(--texto-monto);
+  font-size: min(var(--texto-monto), 9vw);
   line-height: 1.1;
   font-weight: 560;
   color: var(--color-acento-fuerte);
@@ -422,6 +456,10 @@
   margin-top: calc(-1 * var(--espacio-2));
   font-size: var(--texto-chico);
   color: var(--color-texto-suave);
+}
+
+.opciones:not(.opciones--en-linea) {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .opciones--en-linea {
@@ -494,11 +532,14 @@
 
 .opcion__texto {
   display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
   gap: 0.125rem;
 }
 
 .opcion__nombre {
   font-weight: 600;
+  hyphens: auto;
 }
 
 .opcion__resumen {
@@ -510,6 +551,7 @@
 
 .items {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-2);
 }
 
@@ -551,6 +593,8 @@
 
 .item__etiqueta {
   display: grid;
+  min-width: 0;
+  overflow-wrap: anywhere;
   gap: 0.125rem;
   flex: 1;
   cursor: pointer;
@@ -558,6 +602,7 @@
 
 .item__nombre {
   font-weight: 600;
+  hyphens: auto;
 }
 
 .item__resumen {
@@ -571,6 +616,10 @@
   font-weight: 600;
   color: var(--color-acento-fuerte);
   font-variant-numeric: tabular-nums;
+}
+
+.item__aporte--falta {
+  color: var(--color-aviso);
 }
 
 .item__descripcion {
@@ -651,6 +700,15 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* En el celular la cuenta va siempre abajo, alineada con el nombre: si no,
+   unos subgrupos la ponían al costado y otros abajo, según el largo del nombre. */
+@media (max-width: 39.99rem) {
+  .subgrupo__cuenta {
+    flex-basis: 100%;
+    padding-left: calc(0.5em + var(--espacio-2));
+  }
+}
+
 .subgrupo__items {
   padding-bottom: var(--espacio-3);
 }
@@ -688,7 +746,7 @@
   margin-top: var(--espacio-6);
   border-top: 1px solid var(--color-borde);
   /* Lugar para la barra del total en el celular. */
-  padding-bottom: 5rem;
+  padding-bottom: calc(var(--alto-barra, 4.5rem) + var(--espacio-3));
 }
 
 @media (min-width: 60rem) {
@@ -744,6 +802,7 @@
 /* Barra del total, sólo en el celular */
 
 .barra-del-total {
+  flex-wrap: wrap;
   position: fixed;
   inset: auto 0 0;
   z-index: 5;
@@ -760,7 +819,7 @@
 
 .barra-del-total__monto {
   font-family: var(--fuente-titulos);
-  font-size: var(--texto-monto);
+  font-size: min(var(--texto-monto), 9vw);
   line-height: 1.1;
   font-weight: 560;
   color: var(--color-acento-fuerte);
@@ -791,8 +850,11 @@
   }
 }
 
+/* El total no se parte: «$ 4 / 0.6 / 40» en tres renglones se leía como otro número. */
 .barra-del-total__monto {
   min-width: 0;
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 
 .barra-del-total__enlace {
@@ -819,6 +881,6 @@
    el campo al borde inferior: sin este margen, la barra fija lo tapa. */
 @media (max-width: 59.99rem) {
   html {
-    scroll-padding-bottom: 5.5rem;
+    scroll-padding-bottom: calc(var(--alto-barra, 4.5rem) + var(--espacio-4));
   }
 }

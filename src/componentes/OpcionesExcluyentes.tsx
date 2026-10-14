@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import type { Exclusion, Item } from '../util/datos/tipos.ts';
-import { formatearPesos } from '../util/formato.ts';
-import { idDeCampo } from '../util/formulario.ts';
+import { idDeCampo, type Aporte as DatosDelAporte } from '../util/formulario.ts';
+import { Aporte } from './Aporte.tsx';
 import { NormaDelItem } from './NormaDelItem.tsx';
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
   elegido: string | null;
   alElegir: (itemId: string | null) => void;
   /** Cuánto suma la opción elegida a este trabajo, si hay un cálculo. */
-  aporte?: number;
+  aporte?: DatosDelAporte;
   /** Si el título repite el de la sección, se oculta a la vista pero queda para lectores de pantalla. */
   tituloOculto?: boolean;
 }
@@ -58,15 +58,19 @@ export function OpcionesExcluyentes({ exclusion, opciones, resumen, elegido, alE
               type="radio"
               name={nombre}
               required={exclusion.obligatorio}
+              aria-labelledby={`${nombre}-${item.id}-nombre`}
+              aria-describedby={`${nombre}-${item.id}-resumen ${nombre}-${item.id}-aporte`}
               checked={elegido === item.id}
               onChange={() => alElegir(item.id)}
             />
             <span className="opcion__texto">
-              <span className="opcion__nombre">{item.nombre}</span>
-              <span className="opcion__resumen">{resumen(item)}</span>
-              {elegido === item.id && aporte !== undefined && (
-                <span className="item__aporte">Suma {formatearPesos(aporte)} a este trabajo</span>
-              )}
+              <span className="opcion__nombre" id={`${nombre}-${item.id}-nombre`}>
+                {item.nombre}
+              </span>
+              <span className="opcion__resumen" id={`${nombre}-${item.id}-resumen`}>
+                {resumen(item)}
+              </span>
+              <Aporte id={`${nombre}-${item.id}-aporte`} aporte={elegido === item.id ? aporte : undefined} />
             </span>
           </label>
           <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />

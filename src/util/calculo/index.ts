@@ -12,6 +12,9 @@ import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
 
 export type * from './tipos.ts';
 
+/** Un renglón que suma cero porque falta un dato: la pantalla lo dice en vez de mostrar «$ 0». */
+const faltante = (r: Renglon): Renglon => ({ ...r, falta: true });
+
 /** Renglón ya redondeado a pesos (RN-11). */
 const renglon = (item: Pick<Item, 'id' | 'nombre'>, monto: number, detalle: string): Renglon => ({
   id: item.id,
@@ -140,7 +143,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         const vidaUtil = datos.parametros.vidaUtilDeEquiposEnMeses.valor; // RN-08
         if (!entrada.precio || entrada.precio <= 0) {
           avisos.push(`${item.nombre}: falta el precio del equipo.`);
-          return renglon(item, 0, 'Falta el precio del equipo');
+          return faltante(renglon(item, 0, 'Falta el precio del equipo'));
         }
         const mensual = entrada.precio / vidaUtil;
         return renglon(
@@ -154,7 +157,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         const consumo = entrada.consumo ?? datos.parametros.consumoDelAutoCada100Km.valor;
         if (!entrada.km || entrada.km <= 0) {
           avisos.push(`${item.nombre}: faltan los kilómetros.`);
-          return renglon(item, 0, 'Faltan los kilómetros');
+          return faltante(renglon(item, 0, 'Faltan los kilómetros'));
         }
         const litros = (entrada.km * consumo) / 100;
         return renglon(
@@ -191,7 +194,8 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
           prefijo = `${formatearNumero(antiguedad)} años × ${formatearPesos(mensual)}: `;
           mensual *= antiguedad;
         }
-        renglones.push(renglon(item, prorratear(mensual), prefijo + prorrateoTexto(mensual)));
+        const r = renglon(item, prorratear(mensual), prefijo + prorrateoTexto(mensual));
+        renglones.push(item.multiplicaPor === 'antiguedad' && antiguedad === 0 ? faltante(r) : r);
         break;
       }
       case 'por-jornada': {
@@ -204,7 +208,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
       case 'por-trabajo': {
         if (!entrada.monto || entrada.monto <= 0) {
           avisos.push(`${item.nombre}: falta el monto.`);
-          renglones.push(renglon(item, 0, 'Falta el monto'));
+          renglones.push(faltante(renglon(item, 0, 'Falta el monto')));
         } else {
           renglones.push(renglon(item, entrada.monto, 'Una vez por trabajo'));
         }

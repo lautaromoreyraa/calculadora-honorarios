@@ -160,21 +160,30 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
   }
 }
 
+/** Lo que un ítem marcado suma a este trabajo, según el último cálculo. */
+export interface Aporte {
+  monto: number;
+  /** Suma cero porque falta un dato, no porque valga cero. */
+  falta?: boolean;
+}
+
 /**
- * Lo que dice un subgrupo plegado (RF-27): cuántos ítems tiene marcados y, si
- * hay un cálculo, cuánto suman a este trabajo.
+ * Lo que dice un subgrupo plegado (RF-27): cuántos ítems tiene marcados, cuánto
+ * suman a este trabajo si hay un cálculo, y cuántos esperan un dato.
  */
 export function cuentaDelSubgrupo(
   items: Item[],
   marcados: Record<string, boolean>,
-  aportes: ReadonlyMap<string, number>,
+  aportes: ReadonlyMap<string, Aporte>,
 ): string {
   const elegidos = items.filter((i) => marcados[i.id]);
   if (elegidos.length === 0) return 'Ninguno marcado';
   const cantidad = elegidos.length === 1 ? '1 marcado' : `${elegidos.length} marcados`;
-  const montos = elegidos.map((i) => aportes.get(i.id));
-  if (montos.some((m) => m === undefined)) return cantidad;
-  return `${cantidad} · ${formatearPesos(montos.reduce((a, m) => a! + m!, 0)!)}`;
+  const del = elegidos.map((i) => aportes.get(i.id));
+  if (del.some((a) => a === undefined)) return cantidad;
+  const suma = del.reduce((total, a) => total + a!.monto, 0);
+  const sinCompletar = del.filter((a) => a!.falta).length;
+  return `${cantidad} · ${formatearPesos(suma)}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
 }
 
 const meses = [

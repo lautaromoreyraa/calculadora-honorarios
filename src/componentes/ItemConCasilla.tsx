@@ -1,7 +1,7 @@
 import { useId } from 'react';
 import type { Item } from '../util/datos/tipos.ts';
-import { formatearPesos } from '../util/formato.ts';
-import type { Campo } from '../util/formulario.ts';
+import type { Aporte as DatosDelAporte, Campo } from '../util/formulario.ts';
+import { Aporte } from './Aporte.tsx';
 import { CampoNumerico } from './CampoNumerico.tsx';
 import { NormaDelItem } from './NormaDelItem.tsx';
 
@@ -18,7 +18,7 @@ interface Props {
   resumen: string;
   marcado: boolean;
   /** Cuánto suma a este trabajo, si está marcado y hay un cálculo. */
-  aporte?: number;
+  aporte?: DatosDelAporte;
   alAlternar: (marcado: boolean) => void;
   campos: Campo[];
   describirCampo: (campo: Campo) => DescripcionDeCampo;
@@ -37,19 +37,23 @@ export function ItemConCasilla({ item, resumen, marcado, aporte, alAlternar, cam
           className="item__casilla"
           type="checkbox"
           checked={marcado}
-          aria-describedby={`${id}-resumen`}
+          // La etiqueta envuelve toda la tarjeta: el nombre accesible es sólo el
+          // nombre del ítem, y lo demás va como descripción, una sola vez.
+          aria-labelledby={`${id}-nombre`}
+          aria-describedby={`${id}-resumen ${id}-aporte`}
           onChange={(e) => alAlternar(e.target.checked)}
         />
         <span className="item__etiqueta">
-          <span className="item__nombre">{item.nombre}</span>
+          <span className="item__nombre" id={`${id}-nombre`}>
+            {item.nombre}
+          </span>
           <span className="item__resumen" id={`${id}-resumen`}>
             {resumen}
           </span>
-          {aporte !== undefined && <span className="item__aporte">Suma {formatearPesos(aporte)} a este trabajo</span>}
+          <Aporte id={`${id}-aporte`} aporte={aporte} />
           {item.descripcion && <span className="item__descripcion">{item.descripcion}</span>}
         </span>
       </label>
-      <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
       {marcado && campos.length > 0 && (
         <div className="item__campos">
           {campos.map((campo) => {
@@ -68,6 +72,7 @@ export function ItemConCasilla({ item, resumen, marcado, aporte, alAlternar, cam
           })}
         </div>
       )}
+      <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
     </div>
   );
 }

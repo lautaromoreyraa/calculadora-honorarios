@@ -113,6 +113,18 @@ export function olvidarPerfil(almacen: Pick<Storage, 'removeItem'> | undefined):
   }
 }
 
+/** Si se puede escribir de verdad: en algunas ventanas privadas el objeto existe pero no guarda. */
+export function puedeRecordar(almacen: Pick<Storage, 'setItem' | 'removeItem'> | undefined): boolean {
+  try {
+    if (!almacen) return false;
+    almacen.setItem(`${CLAVE}:prueba`, '1');
+    almacen.removeItem(`${CLAVE}:prueba`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** localStorage, o undefined si el navegador ni siquiera deja acceder a él. */
 export function almacenDelNavegador(): Storage | undefined {
   try {

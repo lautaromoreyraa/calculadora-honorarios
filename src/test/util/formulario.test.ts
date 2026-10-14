@@ -172,8 +172,14 @@ describe('RF-27 · cuenta de un subgrupo plegado', () => {
 
   it('con dos marcados dice cuántos y cuánto suman', () => {
     const marcados = { conectividad: true, licencias: true };
-    const aportes = new Map([['conectividad', 1600], ['licencias', 7400]]);
+    const aportes = new Map([['conectividad', { monto: 1600 }], ['licencias', { monto: 7400 }]]);
     expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(9000)}`);
+  });
+
+  it('avisa cuántos esperan un dato', () => {
+    const marcados = { conectividad: true, licencias: true };
+    const aportes = new Map([['conectividad', { monto: 1600 }], ['licencias', { monto: 0, falta: true }]]);
+    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(1600)} · 1 sin completar`);
   });
 
   it('sin cálculo todavía, sólo la cantidad', () => {

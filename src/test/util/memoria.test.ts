@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { datos } from '../../util/datos/index.ts';
 import { estadoInicial, type EstadoDelFormulario } from '../../util/formulario.ts';
-import { CLAVE, guardarPerfil, leerPerfil, olvidarPerfil, perfilDe, restaurar } from '../../util/memoria.ts';
+import { CLAVE, guardarPerfil, leerPerfil, olvidarPerfil, perfilDe, puedeRecordar, restaurar } from '../../util/memoria.ts';
 
 // RF-26: recordar los datos del profesional entre visitas, sin los del trabajo.
 
@@ -86,6 +86,9 @@ describe('RF-26 · recordar los datos del profesional', () => {
       },
     };
     expect(() => guardarPerfil(bloqueado, perfilDe(lleno()))).not.toThrow();
+    expect(puedeRecordar({ ...bloqueado, removeItem: () => undefined })).toBe(false);
+    expect(puedeRecordar(undefined)).toBe(false);
+    expect(puedeRecordar(almacen())).toBe(true);
     expect(restaurar(leerPerfil(bloqueado), datos)).toEqual(estadoInicial(datos));
     expect(restaurar(leerPerfil(undefined), datos)).toEqual(estadoInicial(datos));
   });

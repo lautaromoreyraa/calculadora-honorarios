@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId } from 'react';
 import { BarraDelTotal } from '../componentes/BarraDelTotal.tsx';
 import { CampoNumerico } from '../componentes/CampoNumerico.tsx';
 import { Desglose } from '../componentes/Desglose.tsx';
@@ -21,6 +21,7 @@ import {
   resumenDelItem,
   valorHoraDelRol,
   vigenciaDeLosDatos,
+  type Aporte,
   type Campo,
 } from '../util/formulario.ts';
 import '../estilos/calculadora.css';
@@ -39,7 +40,8 @@ function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): strin
 }
 
 export function Calculadora() {
-  const { estado, calculo, vuelta, cambiar, alternar, elegir, cargar, empezarDeNuevo } = useCalculadora(datos);
+  const { estado, calculo, vuelta, recuerda, reiniciado, cambiar, alternar, elegir, cargar, empezarDeNuevo, deshacer } =
+    useCalculadora(datos);
   const idRol = useId();
   const idTituloResultado = useId();
 
@@ -73,12 +75,21 @@ export function Calculadora() {
   const resumen = (item: Item) => resumenDelItem(item, estado, datos);
 
   // Cuánto suma cada ítem a este trabajo, para mostrarlo junto a su casilla.
-  const aportes = new Map<string, number>();
+  const aportes = new Map<string, Aporte>();
   if (calculo.ok) {
-    for (const r of calculo.resultado.renglones) aportes.set(r.id, r.monto);
+    for (const r of calculo.resultado.renglones) aportes.set(r.id, { monto: r.monto, falta: r.falta });
     const iibb = calculo.resultado.ingresosBrutosSobreTotal;
-    if (iibb) aportes.set(iibb.id, iibb.monto);
+    if (iibb) aportes.set(iibb.id, { monto: iibb.monto });
   }
+
+  // Al reiniciar o deshacer, el formulario se vuelve a montar: la página sube y
+  // el foco va al aviso (o al primer bloque), para no quedar en medio de la nada.
+  const idAviso = `${idRol}-aviso`;
+  useEffect(() => {
+    if (vuelta === 0) return;
+    window.scrollTo(0, 0);
+    (document.getElementById(idAviso) ?? document.getElementById(`${idRol}-titulo`))?.focus();
+  }, [vuelta, idAviso, idRol]);
 
   const itemConCasilla = (item: Item) => (
     <ItemConCasilla
@@ -98,10 +109,20 @@ export function Calculadora() {
   return (
     <>
       <Encabezado vigencia={vigencia} />
-      <main className="calculadora" key={vuelta}>
+      {/* Las keys llevan prefijo: son hermanos en el mismo fragmento y una key repetida
+          hace que React no sepa cuál quitar y deje el formulario viejo en la página. */}
+      <main className="calculadora" key={`formulario-${vuelta}`}>
         <form className="calculadora__formulario" aria-label="Datos del trabajo" onSubmit={(e) => e.preventDefault()}>
+          {reiniciado && (
+            <p className="aviso-de-reinicio" id={idAviso} tabIndex={-1}>
+              Se borraron tus datos guardados.{' '}
+              <button type="button" className="boton-de-texto" onClick={deshacer}>
+                Deshacer
+              </button>
+            </p>
+          )}
           <section className="bloque" aria-labelledby={`${idRol}-titulo`}>
-            <h2 className="bloque__titulo" id={`${idRol}-titulo`}>
+            <h2 className="bloque__titulo" id={`${idRol}-titulo`} tabIndex={-1}>
               El trabajo
             </h2>
 
@@ -247,9 +268,11 @@ export function Calculadora() {
 
           {/* RF-26: lo recordado se borra desde acá, al final de lo que se cargó. */}
           <div className="reinicio">
-            <p className="campo__ayuda">
-              Tu rol, tus costos marcados y tu nombre quedan guardados en este navegador para la próxima vez.
-            </p>
+            {recuerda && (
+              <p className="campo__ayuda">
+                Tu rol, tus costos marcados y tu nombre quedan guardados en este navegador para la próxima vez.
+              </p>
+            )}
             <button type="button" className="boton boton--secundario" onClick={empezarDeNuevo}>
               Empezar de nuevo
             </button>
@@ -276,7 +299,8 @@ export function Calculadora() {
         )}
       </main>
       <PieDePagina datos={datos} vigencia={vigencia} />
-      <BarraDelTotal calculo={calculo} />
+      {/* Con la misma key que el formulario: si no, sigue observando el resultado viejo. */}
+      <BarraDelTotal key={`barra-${vuelta}`} calculo={calculo} />
     </>
   );
 }
