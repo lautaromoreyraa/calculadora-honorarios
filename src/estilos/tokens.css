@@ -13,11 +13,11 @@
    - sobre-acento sobre acento: 9,8:1;
    - texto del encabezado sobre la franja: 7,6:1 (el suave, 6,3:1);
    - error sobre superficie: 7,1:1; aviso sobre su fondo: 9,2:1;
-   - borde de control sobre superficie y elevada: 4,6 / 3,9:1;
+   - borde de control sobre fondo, superficie, elevada y acento suave: 5,1 / 4,6 / 3,9 / 3,5:1;
    - foco sobre fondo, superficie, elevada y franja: 10,4 / 9,4 / 7,9 / 4,6:1;
-   - placeholder sobre superficie y elevada: 5,8 / 4,9:1;
+   - placeholder sobre el fondo del campo: 6,5:1;
    - texto sobre la selección de texto: 6,5:1.
-   El borde tenue (1,5:1) sólo separa tarjetas y renglones; nunca es el único
+   El borde tenue (1,8:1 sobre la superficie) sólo separa tarjetas y renglones; nunca es el único
    borde de un control. */
 :root {
   color-scheme: dark;
@@ -25,7 +25,7 @@
   --color-fondo: #0b1515;
   --color-superficie: #132020;
   --color-superficie-elevada: #1d2e2e;
-  --color-borde: #313f3f;
+  --color-borde: #3a4a4a;
   --color-borde-control: #798a8a;
   --color-texto: #eaf2f1;
   --color-texto-suave: #b3c1c1;
@@ -39,7 +39,6 @@
   --color-encabezado-suave: #cfe6e2;
   --color-foco: #fab45f;
   --color-error: #fa8880;
-  --color-error-suave: #411e1c;
   --color-aviso: #f8ce73;
   --color-aviso-suave: #3b2b0d;
   --color-seleccion: #1f5f57;
@@ -56,6 +55,7 @@
   --texto-subtitulo: 1.5rem;
   --texto-titulo: 2.375rem;
   --texto-total: 3rem;
+  --texto-monto: 1.75rem;
 
   --espacio-1: 0.25rem;
   --espacio-2: 0.5rem;
@@ -69,14 +69,17 @@
   --radio-chico: 8px;
   --alto-control: 3rem;
   --ancho-maximo: 74rem;
-  /* Sobre fondo oscuro una sombra suave no se ve: va más densa y más abajo. */
-  --sombra: 0 1px 2px rgb(0 0 0 / 40%), 0 8px 24px rgb(0 0 0 / 35%);
+  /* Sobre un fondo casi negro una sombra no se ve (1,05:1): la elevación la da
+     el paso a la superficie elevada, y el realce marca el canto de arriba. */
+  --realce: inset 0 1px 0 rgb(234 242 241 / 6%);
+  --duracion: 160ms;
   --curva-salida: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 60rem) {
   :root {
-    --texto-titulo: 3.5rem;
+    /* Por debajo del total, que no puede crecer más sin salirse de su columna. */
+    --texto-titulo: 3rem;
     --texto-total: 3.75rem;
   }
 }

@@ -5,7 +5,6 @@
   position: relative;
   background: var(--color-encabezado);
   color: var(--color-sobre-encabezado);
-  border-bottom: 1px solid var(--color-borde);
 }
 
 .encabezado__contenido {
@@ -154,8 +153,8 @@
   font-weight: 650;
   cursor: pointer;
   transition:
-    background-color 160ms var(--curva-salida),
-    transform 160ms var(--curva-salida);
+    background-color var(--duracion) var(--curva-salida),
+    transform var(--duracion) var(--curva-salida);
 }
 
 .boton:hover {
@@ -232,7 +231,7 @@
   background: var(--color-fondo);
   border: 1px solid var(--color-borde-control);
   border-radius: var(--radio-chico);
-  transition: border-color 160ms var(--curva-salida);
+  transition: border-color var(--duracion) var(--curva-salida);
 }
 
 .campo__control:hover {
@@ -328,7 +327,7 @@
 
 .ficha-del-rol__valor {
   font-family: var(--fuente-titulos);
-  font-size: 1.75rem;
+  font-size: var(--texto-monto);
   line-height: 1.1;
   font-weight: 560;
   color: var(--color-acento-fuerte);
@@ -391,8 +390,8 @@
   border-radius: var(--radio-chico);
   cursor: pointer;
   transition:
-    background-color 180ms var(--curva-salida),
-    border-color 180ms var(--curva-salida);
+    background-color var(--duracion) var(--curva-salida),
+    border-color var(--duracion) var(--curva-salida);
 }
 
 .opcion:hover,
@@ -443,8 +442,10 @@
 }
 
 .bloque__subtitulo {
-  font-size: var(--texto-base);
-  font-weight: 700;
+  /* En la voz de titulares, para que agrupe a las leyendas y no se lea como una más. */
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-medio);
+  font-weight: 560;
 }
 
 .item {
@@ -454,8 +455,8 @@
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-chico);
   transition:
-    background-color 180ms var(--curva-salida),
-    border-color 180ms var(--curva-salida);
+    background-color var(--duracion) var(--curva-salida),
+    border-color var(--duracion) var(--curva-salida);
 }
 
 .item--marcado,
@@ -607,12 +608,11 @@
   background: var(--color-superficie-elevada);
   color: var(--color-texto);
   border-top: 1px solid var(--color-borde);
-  box-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
 }
 
 .barra-del-total__monto {
   font-family: var(--fuente-titulos);
-  font-size: 1.625rem;
+  font-size: var(--texto-monto);
   line-height: 1.1;
   font-weight: 560;
   color: var(--color-acento-fuerte);
