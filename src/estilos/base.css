@@ -35,7 +35,7 @@ body {
 
 ::selection {
   background: var(--color-seleccion);
-  color: var(--color-texto);
+  color: var(--color-sobre-seleccion);
 }
 
 h1,
