@@ -36,7 +36,7 @@ agregar un rol, un ítem o una categoría es agregar un dato.
 | Archivo | Qué guarda |
 |---|---|
 | `roles.json` | Los roles, con su valor base mensual y el convenio del que sale |
-| `items.json` | Los ítems del honorario, sus grupos y los conjuntos excluyentes (plazo, tipo de cliente) |
+| `items.json` | Los ítems del honorario, sus grupos (con sus subgrupos plegables) y los conjuntos excluyentes (plazo, tipo de cliente) |
 | `monotributo.json` | Categorías del monotributo: impuesto integrado, SIPA, obra social y tope |
 | `provincias.json` | Cómo tributa ingresos brutos un monotributista en cada provincia |
 | `combustible.json` | Precio del litro de nafta por provincia |

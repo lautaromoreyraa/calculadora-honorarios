@@ -157,6 +157,23 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
   }
 }
 
+/**
+ * Lo que dice un subgrupo plegado (RF-27): cuántos ítems tiene marcados y, si
+ * hay un cálculo, cuánto suman a este trabajo.
+ */
+export function cuentaDelSubgrupo(
+  items: Item[],
+  marcados: Record<string, boolean>,
+  aportes: ReadonlyMap<string, number>,
+): string {
+  const elegidos = items.filter((i) => marcados[i.id]);
+  if (elegidos.length === 0) return 'Ninguno marcado';
+  const cantidad = elegidos.length === 1 ? '1 marcado' : `${elegidos.length} marcados`;
+  const montos = elegidos.map((i) => aportes.get(i.id));
+  if (montos.some((m) => m === undefined)) return cantidad;
+  return `${cantidad} · ${formatearPesos(montos.reduce((a, m) => a! + m!, 0)!)}`;
+}
+
 const meses = [
   'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
