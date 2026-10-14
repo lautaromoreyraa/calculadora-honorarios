@@ -143,6 +143,30 @@
   }
 }
 
+.presupuesto__total {
+  font-size: var(--texto-medio);
+  color: var(--color-texto-suave);
+}
+
+.presupuesto__total strong {
+  font-family: var(--fuente-titulos);
+  font-size: var(--texto-monto);
+  font-weight: 560;
+  color: var(--color-acento-fuerte);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Vacío sigue en el árbol de accesibilidad, para que el lector anuncie el
+   mensaje cuando aparece; sólo se descuenta el espacio de la grilla. */
+.presupuesto__listo:empty {
+  margin-top: calc(-1 * var(--espacio-4));
+}
+
+.presupuesto__listo {
+  color: var(--color-acento-fuerte);
+  font-weight: 600;
+}
+
 .boton {
   min-height: var(--alto-control);
   padding: 0 var(--espacio-5);

@@ -9,7 +9,8 @@ El honorario parte del salario del convenio colectivo de cada rol y le suma,
 según lo que el usuario marque, los adicionales de convenio, los costos que el
 autónomo paga de su bolsillo (monotributo, ingresos brutos, equipo,
 conectividad, movilidad), los fondos de vacaciones y aguinaldo y un ajuste por
-tipo de cliente. El resultado se descarga como presupuesto en Word, editable.
+tipo de cliente. El resultado se descarga como presupuesto en Word, editable,
+con el trabajo y el total: el desglose de costos queda en la pantalla.
 
 ## Arquitectura
 
