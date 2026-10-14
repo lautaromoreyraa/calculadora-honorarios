@@ -1,5 +1,56 @@
 /* Total y desglose del resultado. */
 
+/* Pesos o dólares (RF-28): un control segmentado sobre el desglose. */
+.selector-de-moneda {
+  display: grid;
+  gap: var(--espacio-2);
+  margin-bottom: var(--espacio-3);
+}
+
+.selector-de-moneda__opciones {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  justify-self: start;
+  margin: 0;
+  padding: 0.1875rem;
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-chico);
+  background: var(--color-fondo);
+}
+
+.selector-de-moneda__opcion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 var(--espacio-4);
+  border-radius: calc(var(--radio-chico) - 3px);
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+}
+
+.selector-de-moneda__opcion:hover {
+  color: var(--color-texto);
+}
+
+.selector-de-moneda__opcion--elegida,
+.selector-de-moneda__opcion--elegida:hover {
+  background: var(--color-acento);
+  color: var(--color-sobre-acento);
+}
+
+/* El radio está oculto a la vista: el foco se muestra en la etiqueta. */
+.selector-de-moneda__opcion:has(input:focus-visible) {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+.selector-de-moneda__nota {
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
 .desglose {
   background: var(--color-superficie-elevada);
   border: 1px solid var(--color-borde);

@@ -4,6 +4,7 @@
 // bloqueados—, todo sigue funcionando sin recordar nada.
 import type { Datos } from './datos/tipos.ts';
 import { camposDeItem, estadoInicial, type Campo, type EstadoDelFormulario, type Vehiculo } from './formulario.ts';
+import type { Moneda } from './moneda.ts';
 
 export const CLAVE = 'calculadora-honorarios:perfil';
 /** Si cambia la forma del perfil, se sube y lo guardado antes se descarta. */
@@ -27,6 +28,7 @@ export interface Perfil {
   profesional: string;
   /** Opcional: los perfiles guardados antes de RF-13 no lo tienen. */
   vehiculo?: Vehiculo;
+  moneda?: Moneda;
 }
 
 /** La parte del estado que se recuerda. Horas, tipo de cliente y plazo quedan afuera. */
@@ -48,6 +50,7 @@ export function perfilDe(estado: EstadoDelFormulario): Perfil {
     entradas,
     profesional: estado.profesional,
     vehiculo: estado.vehiculo,
+    moneda: estado.moneda,
   };
 }
 
@@ -88,6 +91,7 @@ export function restaurar(guardado: unknown, datos: Datos): EstadoDelFormulario 
     entradas,
     profesional: esTexto(p.profesional) ? p.profesional : '',
     vehiculo: p.vehiculo === 'moto' ? 'moto' : 'auto',
+    moneda: p.moneda === 'USD' ? 'USD' : 'ARS',
   };
 }
 

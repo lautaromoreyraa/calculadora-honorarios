@@ -1,7 +1,8 @@
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
 import type { MouseEvent } from 'react';
 import type { Calculo, Falta } from '../util/calculo/tipos.ts';
-import { formatearNumero, formatearPesos, formatearPesosConCentavos } from '../util/formato.ts';
+import { useFormato } from '../contexto/Moneda.tsx';
+import { formatearNumero } from '../util/formato.ts';
 import { idDeCampo } from '../util/formulario.ts';
 
 interface Props {
@@ -10,10 +11,11 @@ interface Props {
 
 /** Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. */
 export function Desglose({ calculo }: Props) {
+  const formato = useFormato();
   // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
   // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
   const anuncio = useValorDiferido(
-    calculo.ok ? `Total del trabajo: ${formatearPesos(calculo.resultado.total)}` : 'Faltan datos para calcular el total',
+    calculo.ok ? `Total del trabajo: ${formato.monto(calculo.resultado.total)}` : 'Faltan datos para calcular el total',
     600,
   );
 
@@ -55,6 +57,7 @@ function Pendiente({ errores }: { errores: Falta[] }) {
 }
 
 function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
+  const formato = useFormato();
   const r = calculo.resultado;
   const iibb = r.ingresosBrutosSobreTotal;
   return (
@@ -62,10 +65,10 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
       <p className="desglose__total-etiqueta">Total del trabajo</p>
       {/* La key cambia con el monto: React remonta el nodo y la animación corre una vez. */}
       <p key={r.total} className="desglose__total desglose__total--animado">
-        {formatearPesos(r.total)}
+        {formato.monto(r.total)}
       </p>
       <p className="desglose__contexto">
-        {r.rol.nombre}, {formatearNumero(r.horas)} h a {formatearPesosConCentavos(r.valorHora)} la hora
+        {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
       </p>
 
       {r.avisos.length > 0 && (
@@ -91,7 +94,7 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
                 {renglon.concepto}
                 <span className="desglose__detalle">{renglon.detalle}</span>
               </th>
-              <td className="desglose__monto">{formatearPesos(renglon.monto)}</td>
+              <td className="desglose__monto">{formato.monto(renglon.monto)}</td>
             </tr>
           ))}
         </tbody>
@@ -102,14 +105,14 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
                 <th scope="row" className="desglose__concepto">
                   Subtotal
                 </th>
-                <td className="desglose__monto">{formatearPesos(r.subtotal)}</td>
+                <td className="desglose__monto">{formato.monto(r.subtotal)}</td>
               </tr>
               <tr className="desglose__renglon">
                 <th scope="row" className="desglose__concepto">
                   {iibb.concepto}
                   <span className="desglose__detalle">{iibb.detalle}</span>
                 </th>
-                <td className="desglose__monto">{formatearPesos(iibb.monto)}</td>
+                <td className="desglose__monto">{formato.monto(iibb.monto)}</td>
               </tr>
             </>
           )}
@@ -117,7 +120,7 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
             <th scope="row" className="desglose__concepto">
               Total
             </th>
-            <td className="desglose__monto">{formatearPesos(r.total)}</td>
+            <td className="desglose__monto">{formato.monto(r.total)}</td>
           </tr>
         </tfoot>
       </table>

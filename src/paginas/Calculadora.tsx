@@ -5,14 +5,16 @@ import { Desglose } from '../componentes/Desglose.tsx';
 import DescargaDePresupuesto from '../componentes/DescargaDePresupuesto.tsx';
 import { ItemConCasilla, type DescripcionDeCampo } from '../componentes/ItemConCasilla.tsx';
 import { OpcionesExcluyentes } from '../componentes/OpcionesExcluyentes.tsx';
+import { SelectorDeMoneda } from '../componentes/SelectorDeMoneda.tsx';
 import { SelectorDeVehiculo } from '../componentes/SelectorDeVehiculo.tsx';
+import { ProveedorDeFormato } from '../contexto/Moneda.tsx';
 import { SubgrupoPlegable } from '../componentes/SubgrupoPlegable.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
 import { PieDePagina } from '../layout/PieDePagina.tsx';
 import { datos } from '../util/datos/index.ts';
 import type { Item } from '../util/datos/tipos.ts';
-import { formatearPesos, formatearPesosConCentavos } from '../util/formato.ts';
+import { formatearPesos } from '../util/formato.ts';
 import {
   camposDeItem,
   cuentaDelSubgrupo,
@@ -41,7 +43,7 @@ function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): strin
 }
 
 export function Calculadora() {
-  const { estado, calculo, vuelta, recuerda, reiniciado, cambiar, alternar, elegir, cargar, elegirVehiculo, empezarDeNuevo, deshacer } =
+  const { estado, calculo, formato, vuelta, recuerda, reiniciado, cambiar, alternar, elegir, cargar, elegirVehiculo, elegirMoneda, empezarDeNuevo, deshacer } =
     useCalculadora(datos);
   const idRol = useId();
   const idTituloResultado = useId();
@@ -119,7 +121,7 @@ export function Calculadora() {
   );
 
   return (
-    <>
+    <ProveedorDeFormato value={formato}>
       <Encabezado vigencia={vigencia} />
       {/* Las keys llevan prefijo: son hermanos en el mismo fragmento y una key repetida
           hace que React no sepa cuál quitar y deje el formulario viejo en la página. */}
@@ -157,10 +159,10 @@ export function Calculadora() {
               </select>
               <p className="ficha-del-rol" id={`${idRol}-ficha`}>
                 <span className="ficha-del-rol__valor">
-                  {formatearPesosConCentavos(valorHoraDelRol(rol.id, datos))} la hora
+                  {formato.desdePesosConCentavos(valorHoraDelRol(rol.id, datos))} la hora
                 </span>
                 <span className="ficha-del-rol__convenio">
-                  {formatearPesos(rol.valorBaseMensual)} por mes de convenio
+                  {formato.desdePesos(rol.valorBaseMensual)} por mes de convenio
                 </span>
                 <span className="ficha-del-rol__convenio">{rol.convenio}</span>
               </p>
@@ -257,7 +259,7 @@ export function Calculadora() {
                     <SubgrupoPlegable
                       key={subgrupo.id}
                       nombre={subgrupo.nombre}
-                      cuenta={cuentaDelSubgrupo(delSubgrupo, estado.marcados, aportes)}
+                      cuenta={cuentaDelSubgrupo(delSubgrupo, estado.marcados, aportes, formato)}
                       abiertoAlInicio={delSubgrupo.some((i) => estado.marcados[i.id])}
                     >
                       {delSubgrupo.map(itemConCasilla)}
@@ -295,6 +297,7 @@ export function Calculadora() {
           <h2 className="solo-lectores" id={idTituloResultado}>
             Resultado
           </h2>
+          <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
           <Desglose calculo={calculo} />
         </aside>
         {/* RF-16: sólo con un resultado válido hay algo para presupuestar. Va fuera
@@ -313,6 +316,6 @@ export function Calculadora() {
       <PieDePagina datos={datos} vigencia={vigencia} />
       {/* Con la misma key que el formulario: si no, sigue observando el resultado viejo. */}
       <BarraDelTotal key={`barra-${vuelta}`} calculo={calculo} />
-    </>
+    </ProveedorDeFormato>
   );
 }

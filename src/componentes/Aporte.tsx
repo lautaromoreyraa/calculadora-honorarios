@@ -1,4 +1,4 @@
-import { formatearPesos } from '../util/formato.ts';
+import { useFormato } from '../contexto/Moneda.tsx';
 import type { Aporte as DatosDelAporte } from '../util/formulario.ts';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
  * se leía como un error del cálculo.
  */
 export function Aporte({ id, aporte }: Props) {
+  const formato = useFormato();
   if (!aporte) return null;
   if (aporte.falta) {
     return (
@@ -23,7 +24,7 @@ export function Aporte({ id, aporte }: Props) {
   if (aporte.monto === 0) return null;
   return (
     <span className="item__aporte" id={id}>
-      Suma {formatearPesos(aporte.monto)} a este trabajo
+      Suma {formato.monto(aporte.monto)} a este trabajo
     </span>
   );
 }

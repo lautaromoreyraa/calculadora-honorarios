@@ -5,6 +5,7 @@ import type { Datos, Item } from './datos/tipos.ts';
 import type { EntradaDeItem, Seleccion } from './calculo/tipos.ts';
 import { diasDeVacaciones, valorMensual } from './calculo/index.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPorcentaje } from './formato.ts';
+import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
 
 /** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
@@ -28,6 +29,8 @@ export interface EstadoDelFormulario {
   /** Nombre del profesional para el presupuesto; vive acá para poder recordarlo (RF-26). */
   profesional: string;
   vehiculo: Vehiculo;
+  /** En qué moneda se muestran los montos (RF-28). Lo que se carga sigue en pesos. */
+  moneda: Moneda;
 }
 
 export function estadoInicial(datos: Datos): EstadoDelFormulario {
@@ -47,6 +50,7 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
     ),
     profesional: '',
     vehiculo: 'auto',
+    moneda: 'ARS',
   };
 }
 
@@ -199,6 +203,7 @@ export function cuentaDelSubgrupo(
   items: Item[],
   marcados: Record<string, boolean>,
   aportes: ReadonlyMap<string, Aporte>,
+  formato: Formato = EN_PESOS,
 ): string {
   const elegidos = items.filter((i) => marcados[i.id]);
   if (elegidos.length === 0) return 'Ninguno marcado';
@@ -207,7 +212,7 @@ export function cuentaDelSubgrupo(
   if (del.some((a) => a === undefined)) return cantidad;
   const suma = del.reduce((total, a) => total + a!.monto, 0);
   const sinCompletar = del.filter((a) => a!.falta).length;
-  return `${cantidad} · ${formatearPesos(suma)}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
+  return `${cantidad} · ${formato.monto(formato.redondear(suma))}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
 }
 
 const meses = [

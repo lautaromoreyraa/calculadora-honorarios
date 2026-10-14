@@ -2,12 +2,8 @@
 // que eligió el profesional. Funciones puras, sin React: todo lo que entra son
 // datos y una selección, y lo que sale es el desglose.
 import type { Datos, Dolares, Item, ItemCalculado, ItemMensual } from '../datos/tipos.ts';
-import {
-  formatearNumero,
-  formatearPesos,
-  formatearPesosConCentavos,
-  formatearPorcentaje,
-} from '../formato.ts';
+import { formatearNumero, formatearPorcentaje } from '../formato.ts';
+import { EN_PESOS, type Formato } from '../moneda.ts';
 import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
 
 export type * from './tipos.ts';
@@ -16,11 +12,11 @@ export type * from './tipos.ts';
 const faltante = (r: Renglon): Renglon => ({ ...r, falta: true });
 
 /** Renglón ya redondeado a pesos (RN-11). */
-const renglon = (item: Pick<Item, 'id' | 'nombre'>, monto: number, detalle: string): Renglon => ({
+const renglonEn = (formato: Formato, item: Pick<Item, 'id' | 'nombre'>, pesos: number, detalle: string): Renglon => ({
   id: item.id,
   concepto: item.nombre,
   detalle,
-  monto: Math.round(monto),
+  monto: formato.redondear(pesos / formato.factor),
 });
 
 /**
@@ -83,7 +79,15 @@ function validar(seleccion: Seleccion, datos: Datos): Falta[] {
   return errores;
 }
 
-export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
+/**
+ * El desglose de lo elegido. Todo se calcula en pesos; `formato` decide en qué
+ * moneda salen los montos y los textos del detalle (RF-28). Cada renglón se
+ * redondea en esa moneda y el total es la suma de los renglones (RN-11), así la
+ * suma de lo que se ve da el total que se ve, también en dólares.
+ */
+export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = EN_PESOS): Calculo {
+  const renglon = (item: Pick<Item, 'id' | 'nombre'>, pesos: number, detalle: string) =>
+    renglonEn(formato, item, pesos, detalle);
   const errores = validar(seleccion, datos);
   if (errores.length > 0) return { ok: false, errores };
 
@@ -96,15 +100,15 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
   /** Costo mensual llevado a las horas del trabajo (RN-03). */
   const prorratear = (mensual: number) => (mensual / horasMensuales) * horas;
   const prorrateoTexto = (mensual: number) =>
-    `${formatearPesos(mensual)} por mes ÷ ${horasMensuales} h × ${horasTexto(horas)}`;
+    `${formato.desdePesos(mensual)} por mes ÷ ${horasMensuales} h × ${horasTexto(horas)}`;
 
   const avisos: string[] = [];
   const renglones: Renglon[] = [
     {
       id: 'honorario-base',
       concepto: 'Honorario base',
-      detalle: `${formatearPesosConCentavos(valorHora)} por hora × ${horasTexto(horas)}`,
-      monto: Math.round(valorHora * horas),
+      detalle: `${formato.desdePesosConCentavos(valorHora)} por hora × ${horasTexto(horas)}`,
+      monto: formato.redondear((valorHora * horas) / formato.factor),
     },
   ];
   let ingresosBrutosSobreTotal: number | undefined;
@@ -149,7 +153,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         return renglon(
           item,
           prorratear(mensual),
-          `${formatearPesos(entrada.precio)} en ${vidaUtil} meses: ${prorrateoTexto(mensual)}`,
+          `${formato.desdePesos(entrada.precio)} en ${vidaUtil} meses: ${prorrateoTexto(mensual)}`,
         );
       }
       case 'movilidad': {
@@ -163,7 +167,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         return renglon(
           item,
           litros * nafta.precio,
-          `${formatearNumero(entrada.km)} km a ${formatearNumero(consumo)} l/100 km = ${formatearNumero(litros)} l × ${formatearPesos(nafta.precio)}`,
+          `${formatearNumero(entrada.km)} km a ${formatearNumero(consumo)} l/100 km = ${formatearNumero(litros)} l × ${formato.desdePesos(nafta.precio)}`,
         );
       }
     }
@@ -180,7 +184,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
           renglon(
             item,
             valorHora * porcentaje * horas,
-            `${formatearPorcentaje(porcentaje)} de ${formatearPesosConCentavos(valorHora)} × ${horasTexto(horas)}`,
+            `${formatearPorcentaje(porcentaje)} de ${formato.desdePesosConCentavos(valorHora)} × ${horasTexto(horas)}`,
           ),
         );
         break;
@@ -191,7 +195,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         if (item.multiplicaPor === 'antiguedad') {
           // Marcado con 0 años suma cero: se avisa, porque el dato está en otro bloque.
           if (antiguedad === 0) avisos.push(`${item.nombre}: cargá tus años de antigüedad en «El trabajo».`);
-          prefijo = `${formatearNumero(antiguedad)} años × ${formatearPesos(mensual)}: `;
+          prefijo = `${formatearNumero(antiguedad)} años × ${formato.desdePesos(mensual)}: `;
           mensual *= antiguedad;
         }
         const r = renglon(item, prorratear(mensual), prefijo + prorrateoTexto(mensual));
@@ -201,7 +205,7 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
       case 'por-jornada': {
         const n = jornadas(horas, datos);
         renglones.push(
-          renglon(item, item.valor * n, `${n} ${n === 1 ? 'jornada' : 'jornadas'} × ${formatearPesos(item.valor)}`),
+          renglon(item, item.valor * n, `${n} ${n === 1 ? 'jornada' : 'jornadas'} × ${formato.desdePesos(item.valor)}`),
         );
         break;
       }
@@ -223,18 +227,22 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
   }
 
   // RN-11: el total es la suma de los renglones ya redondeados.
-  const subtotal = renglones.reduce((total, r) => total + r.monto, 0);
+  const subtotal = formato.redondear(renglones.reduce((total, r) => total + r.monto, 0));
   let total = subtotal;
   let renglonDeIngresosBrutos: Renglon | undefined;
   if (ingresosBrutosSobreTotal !== undefined) {
     // RN-07, Corrientes: el total se eleva para que, descontado el impuesto, quede el subtotal.
-    const bruto = Math.round(subtotal / (1 - ingresosBrutosSobreTotal));
+    // El subtotal ya está en la moneda que se muestra: no se vuelve a convertir.
+    const bruto = formato.redondear(subtotal / (1 - ingresosBrutosSobreTotal));
     const item = datos.items.find((i) => i.id === 'ingresos-brutos')!;
-    renglonDeIngresosBrutos = renglon(
-      item,
-      bruto - subtotal,
-      `${provincia.nombre}: ${formatearPorcentaje(ingresosBrutosSobreTotal)} sobre el total facturado`,
-    );
+    renglonDeIngresosBrutos = {
+      ...renglon(
+        item,
+        0,
+        `${provincia.nombre}: ${formatearPorcentaje(ingresosBrutosSobreTotal)} sobre el total facturado`,
+      ),
+      monto: formato.redondear(bruto - subtotal),
+    };
     total = bruto;
   }
 
@@ -247,13 +255,15 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         convenio: rol.convenio,
         valorBaseMensual: rol.valorBaseMensual,
       },
-      valorHora,
+      valorHora: valorHora / formato.factor,
       horas,
       renglones,
       subtotal,
       ingresosBrutosSobreTotal: renglonDeIngresosBrutos,
       total,
       avisos,
+      moneda: formato.moneda,
+      cotizacion: formato.cotizacion,
     },
   };
 }

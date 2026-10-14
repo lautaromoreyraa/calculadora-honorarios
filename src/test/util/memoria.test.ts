@@ -36,6 +36,7 @@ const lleno = (): EstadoDelFormulario => ({
   },
   profesional: 'Ana Gómez',
   vehiculo: 'moto',
+  moneda: 'USD',
 });
 
 /** Guardar y volver a abrir la página. */
@@ -59,6 +60,7 @@ describe('RF-26 · recordar los datos del profesional', () => {
     expect(e.antiguedad).toBe('6');
     expect(e.profesional).toBe('Ana Gómez');
     expect(e.vehiculo).toBe('moto');
+    expect(e.moneda).toBe('USD');
     expect(e.entradas['amortizacion-domiciliario']).toEqual({ precio: '1.200.000' });
     expect(e.entradas.movilidad?.consumo).toBe('7,5');
   });

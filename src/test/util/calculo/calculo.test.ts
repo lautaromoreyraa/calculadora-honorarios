@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { datos } from '../../../util/datos/index.ts';
+import { enDolares } from '../../../util/moneda.ts';
 import type { Datos } from '../../../util/datos/tipos.ts';
 import { calcular, type EntradaDeItem, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
 
@@ -266,5 +267,44 @@ describe('RF-15 · desglose y total', () => {
     const r = resultado(seleccion({}, { conectividad: {} }));
     expect(r.renglones[0].id).toBe('honorario-base');
     expect(r.renglones.every((x) => x.detalle.length > 0)).toBe(true);
+  });
+});
+
+describe('RF-28 · montos en dólares', () => {
+  const cotizacion = { valor: 1550, fecha: '2026-10-14', fuente: 'dolarapi.com, dólar blue (venta)' };
+  const enUsd = enDolares(cotizacion);
+  const items = { conectividad: {}, monotributo: {}, 'fondo-sac': {}, refrigerio: {} };
+
+  it('cada renglón es el de pesos dividido por la cotización, a centavos', () => {
+    const pesos = resultado(seleccion({ horas: 12 }, items));
+    const dolares = calcular(seleccion({ horas: 12 }, items), datos, enUsd);
+    if (!dolares.ok) throw new Error('no calculó');
+    for (const r of dolares.resultado.renglones) {
+      const enPesos = pesos.renglones.find((x) => x.id === r.id)!;
+      expect(Math.abs(r.monto - enPesos.monto / 1550)).toBeLessThanOrEqual(0.01);
+    }
+    expect(dolares.resultado.moneda).toBe('USD');
+    expect(dolares.resultado.cotizacion).toEqual(cotizacion);
+  });
+
+  it('la suma de los renglones en dólares es el total en dólares, también en Corrientes', () => {
+    for (const provinciaId of ['chaco', 'corrientes']) {
+      const c = calcular(seleccion({ horas: 13.5, provinciaId }, { ...items, 'ingresos-brutos': {} }), datos, enUsd);
+      if (!c.ok) throw new Error('no calculó');
+      const r = c.resultado;
+      const suma = r.renglones.reduce((s, x) => s + x.monto, 0) + (r.ingresosBrutosSobreTotal?.monto ?? 0);
+      expect(Math.round(suma * 100) / 100).toBe(r.total);
+    }
+  });
+
+  it('con el blue a $ 1.550, $ 155.000 son US$ 100,00', () => {
+    expect(enUsd.desdePesos(155000)).toBe(enUsd.monto(100));
+    expect(enUsd.monto(100)).toMatch(/US\$\s?100,00/);
+  });
+
+  it('el detalle también sale en dólares', () => {
+    const c = calcular(seleccion({ horas: 12 }, items), datos, enUsd);
+    if (!c.ok) throw new Error('no calculó');
+    expect(c.resultado.renglones.find((r) => r.id === 'conectividad')!.detalle).toMatch(/US\$/);
   });
 });
