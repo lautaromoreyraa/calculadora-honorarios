@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { datos } from '../../../util/datos/index.ts';
 import { enDolares } from '../../../util/moneda.ts';
 import type { Datos } from '../../../util/datos/tipos.ts';
-import { calcular, type EntradaDeItem, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
+import { calcular, necesitaCategoria, type EntradaDeItem, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
 
 // Un test por criterio de aceptación del SRS (RNF-05). Los números esperados
 // salen del SRS, no de correr el código.
@@ -141,6 +141,27 @@ describe('RF-07 · monotributo por categoría', () => {
       vigencia: '2026-08',
     });
     expect(monto(resultado(seleccion({ categoria: 'C', horas: 180 }, { monotributo: {} }), conC), 'monotributo')).toBe(1800);
+  });
+
+  it('sin monotributo ni ingresos brutos de Chaco, la categoría no se pide ni suma', () => {
+    const r = resultado(seleccion({ categoria: '' }, { 'fondo-sac': {} }));
+    expect(monto(r, 'monotributo')).toBeUndefined();
+    expect(r.total).toBe(r.renglones.reduce((s, x) => s + x.monto, 0));
+  });
+
+  it('con el monotributo marcado, una categoría inexistente se pide', () => {
+    const c = calcular(seleccion({ categoria: '' }, { monotributo: {} }), datos);
+    expect(c.ok).toBe(false);
+    if (!c.ok) expect(c.errores.map((e) => e.campo)).toContain('categoria');
+  });
+
+  it('la piden el monotributo y los ingresos brutos de Chaco, no los de Corrientes', () => {
+    const marcados = (ids: string[]) => (id: string) => ids.includes(id);
+    expect(necesitaCategoria(marcados([]), 'chaco', datos)).toBe(false);
+    expect(necesitaCategoria(marcados(['fondo-sac']), 'chaco', datos)).toBe(false);
+    expect(necesitaCategoria(marcados(['monotributo']), 'corrientes', datos)).toBe(true);
+    expect(necesitaCategoria(marcados(['ingresos-brutos']), 'chaco', datos)).toBe(true);
+    expect(necesitaCategoria(marcados(['ingresos-brutos']), 'corrientes', datos)).toBe(false);
   });
 });
 

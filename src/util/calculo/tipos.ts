@@ -18,7 +18,7 @@ export interface EntradaDeItem {
 export interface Seleccion {
   rolId: string;
   provinciaId: string;
-  /** Letra de la categoría de monotributo. */
+  /** Letra de la categoría de monotributo; sólo cuenta si algo la usa (RF-07). */
   categoria: string;
   /** Horas del trabajo; hasta dos decimales. */
   horas: number;

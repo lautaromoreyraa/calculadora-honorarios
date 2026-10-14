@@ -1,4 +1,4 @@
-import { useEffect, useId } from 'react';
+import { Fragment, useEffect, useId } from 'react';
 import { BarraDelTotal } from '../componentes/BarraDelTotal.tsx';
 import { CampoNumerico } from '../componentes/CampoNumerico.tsx';
 import { Desglose } from '../componentes/Desglose.tsx';
@@ -12,6 +12,7 @@ import { SubgrupoPlegable } from '../componentes/SubgrupoPlegable.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
 import { PieDePagina } from '../layout/PieDePagina.tsx';
+import { necesitaCategoria } from '../util/calculo/index.ts';
 import { datos } from '../util/datos/index.ts';
 import type { Item } from '../util/datos/tipos.ts';
 import { formatearPesos } from '../util/formato.ts';
@@ -31,6 +32,15 @@ import '../estilos/calculadora.css';
 import '../estilos/desglose.css';
 
 const vigencia = vigenciaDeLosDatos(datos);
+
+/**
+ * El último ítem que puede usar la categoría de monotributo: el selector va
+ * debajo, junto a las casillas que lo hacen aparecer (RF-07). Debajo y no
+ * arriba, para que marcar la casilla no la corra de lugar.
+ */
+const ultimoConCategoria = datos.items
+  .filter((i) => i.tipo === 'calculado' && (i.formula === 'monotributo' || i.formula === 'ingresos-brutos'))
+  .at(-1)?.id;
 
 /** Error de un campo numérico escrito: vacío no es error todavía, sólo «falta». */
 function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): string | undefined {
@@ -100,7 +110,35 @@ export function Calculadora() {
     (document.getElementById(idAviso) ?? document.getElementById(`${idRol}-titulo`))?.focus();
   }, [vuelta, idAviso, idRol]);
 
+  const conCategoria = necesitaCategoria((id) => Boolean(estado.marcados[id]), estado.provinciaId, datos);
+  const selectorDeCategoria = (
+    <div className="campo campo--categoria">
+      <label className="campo__etiqueta" htmlFor={idDeCampo('categoria')}>
+        Categoría de monotributo
+      </label>
+      <select
+        id={idDeCampo('categoria')}
+        className="campo__seleccion"
+        value={estado.categoria}
+        onChange={(e) => cambiar('categoria', e.target.value)}
+      >
+        {datos.monotributo.categorias.map((c) => (
+          <option key={c.letra} value={c.letra}>
+            {c.letra} · hasta {formatearPesos(c.topeAnual)} al año
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+
   const itemConCasilla = (item: Item) => (
+    <Fragment key={item.id}>
+      {itemSolo(item)}
+      {item.id === ultimoConCategoria && conCategoria && selectorDeCategoria}
+    </Fragment>
+  );
+
+  const itemSolo = (item: Item) => (
     <ItemConCasilla
       key={item.id}
       item={item}
@@ -208,23 +246,6 @@ export function Calculadora() {
               ))}
             </fieldset>
 
-            <div className="campo">
-              <label className="campo__etiqueta" htmlFor={idDeCampo('categoria')}>
-                Categoría de monotributo
-              </label>
-              <select
-                id={idDeCampo('categoria')}
-                className="campo__seleccion"
-                value={estado.categoria}
-                onChange={(e) => cambiar('categoria', e.target.value)}
-              >
-                {datos.monotributo.categorias.map((c) => (
-                  <option key={c.letra} value={c.letra}>
-                    {c.letra} · hasta {formatearPesos(c.topeAnual)} al año
-                  </option>
-                ))}
-              </select>
-            </div>
           </section>
 
           {datos.grupos.map((grupo) => {

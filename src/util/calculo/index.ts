@@ -55,12 +55,31 @@ export function jornadas(horas: number, datos: Datos): number {
   return Math.ceil(horas / datos.parametros.horasPorJornada.valor);
 }
 
+/**
+ * Si algo de lo marcado usa la categoría de monotributo (RF-07): el ítem
+ * «Monotributo», o ingresos brutos en una provincia de monto fijo por
+ * categoría. Quien no es monotributista no marca ninguno y no se le pide.
+ */
+export function necesitaCategoria(marcado: (itemId: string) => boolean, provinciaId: string, datos: Datos): boolean {
+  const provincia = datos.provincias.find((p) => p.id === provinciaId);
+  return datos.items.some(
+    (i) =>
+      i.tipo === 'calculado' &&
+      marcado(i.id) &&
+      (i.formula === 'monotributo' ||
+        (i.formula === 'ingresos-brutos' && provincia?.ingresosBrutos.modo === 'fijo-por-categoria')),
+  );
+}
+
 function validar(seleccion: Seleccion, datos: Datos): Falta[] {
   const errores: Falta[] = [];
   const falta = (campo: string, mensaje: string) => errores.push({ campo, mensaje });
   if (!datos.roles.some((r) => r.id === seleccion.rolId)) falta('rol', 'Elegí un rol.');
   if (!datos.provincias.some((p) => p.id === seleccion.provinciaId)) falta('provincia', 'Elegí una provincia.');
-  if (!datos.monotributo.categorias.some((c) => c.letra === seleccion.categoria)) {
+  if (
+    necesitaCategoria((id) => id in seleccion.items, seleccion.provinciaId, datos) &&
+    !datos.monotributo.categorias.some((c) => c.letra === seleccion.categoria)
+  ) {
     falta('categoria', 'Elegí una categoría de monotributo.');
   }
   // Vacío todavía no es un error: es algo por cargar, y se dice así.
@@ -93,7 +112,8 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
 
   const rol = datos.roles.find((r) => r.id === seleccion.rolId)!;
   const provincia = datos.provincias.find((p) => p.id === seleccion.provinciaId)!;
-  const categoria = datos.monotributo.categorias.find((c) => c.letra === seleccion.categoria)!;
+  // Sólo está garantizada si algo la usa (validar): se lee dentro de esos casos.
+  const categoria = datos.monotributo.categorias.find((c) => c.letra === seleccion.categoria);
   const { horas, antiguedad } = seleccion;
   const horasMensuales = datos.parametros.horasMensuales.valor;
   const valorHora = rol.valorBaseMensual / horasMensuales; // RN-01
@@ -117,8 +137,9 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
     const entrada = seleccion.items[item.id] ?? {};
     switch (item.formula) {
       case 'monotributo': {
-        const cuota = categoria.impuestoIntegrado + categoria.sipa + categoria.obraSocial; // RN-06
-        return renglon(item, prorratear(cuota), `Categoría ${categoria.letra}: ${prorrateoTexto(cuota)}`);
+        const { letra, impuestoIntegrado, sipa, obraSocial } = categoria!;
+        const cuota = impuestoIntegrado + sipa + obraSocial; // RN-06
+        return renglon(item, prorratear(cuota), `Categoría ${letra}: ${prorrateoTexto(cuota)}`);
       }
       case 'ingresos-brutos': {
         const iibb = provincia.ingresosBrutos; // RN-07
@@ -126,11 +147,12 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
           ingresosBrutosSobreTotal = iibb.alicuota;
           return undefined;
         }
-        const fijo = iibb.montos[categoria.letra] ?? 0;
+        const { letra } = categoria!;
+        const fijo = iibb.montos[letra] ?? 0;
         return renglon(
           item,
           prorratear(fijo),
-          `${provincia.nombre}, categoría ${categoria.letra}: ${prorrateoTexto(fijo)}`,
+          `${provincia.nombre}, categoría ${letra}: ${prorrateoTexto(fijo)}`,
         );
       }
       case 'fondo-vacaciones': {

@@ -555,6 +555,12 @@
   gap: var(--espacio-2);
 }
 
+/* RF-07: el selector aparece entre las tarjetas al marcar monotributo o IIBB;
+   sin aire de más se lee pegado a la tarjeta de arriba. */
+.campo--categoria {
+  padding-block: var(--espacio-2);
+}
+
 .items--separados {
   padding-top: var(--espacio-4);
   border-top: 1px solid var(--color-borde);
