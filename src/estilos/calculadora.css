@@ -204,10 +204,27 @@
   cursor: progress;
 }
 
+.boton--secundario {
+  background: transparent;
+  color: var(--color-acento);
+  border: 1px solid var(--color-acento);
+}
+
+.boton--secundario:hover {
+  background: var(--color-acento-suave);
+}
+
 @media (max-width: 39.99rem) {
   .boton {
     width: 100%;
   }
+}
+
+.reinicio {
+  display: grid;
+  justify-items: start;
+  gap: var(--espacio-3);
+  padding: var(--espacio-2) var(--espacio-1) 0;
 }
 
 /* Bloques del formulario */

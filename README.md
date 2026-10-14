@@ -16,6 +16,8 @@ con el trabajo y el total: el desglose de costos queda en la pantalla.
 
 Sitio estático, sin backend ni base de datos. El cálculo y el documento Word se
 generan en el navegador: nada de lo que carga el usuario sale de su equipo.
+Los datos fijos del profesional (rol, costos marcados, nombre) se recuerdan en
+el `localStorage` de su navegador; las horas y el cliente de cada trabajo, no.
 
 ```mermaid
 flowchart LR
@@ -107,7 +109,7 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `scripts/` | `validar-datos.mjs`; más adelante, el actualizador de valores indexados |
 | `src/main.tsx` · `src/App.tsx` | Arranque |
 | `src/util/datos/` | Carga tipada de `datos/` |
-| `src/util/` | Funciones puras: motor de cálculo y armado del presupuesto |
+| `src/util/` | Funciones puras: motor de cálculo, armado del presupuesto y `memoria.ts`, lo que se recuerda entre visitas |
 | `src/paginas/` · `src/componentes/` · `src/layout/` | Interfaz |
 | `src/hooks/` | Estado de la interfaz |
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |

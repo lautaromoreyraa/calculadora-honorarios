@@ -35,7 +35,10 @@ export function PieDePagina({ datos, vigencia }: Props) {
           </dl>
         </div>
         <p>Basada en la investigación de alumnos de Comunicación de la Universidad Nacional del Nordeste (UNNE).</p>
-        <p>Lo que cargás no sale de tu navegador: no se guarda ni se envía a ningún lado.</p>
+        <p>
+          Lo que cargás no sale de tu navegador: no se envía a ningún lado. Tu rol, tus costos y tu nombre se recuerdan
+          sólo en este equipo, y «Empezar de nuevo» los borra.
+        </p>
       </div>
     </footer>
   );
