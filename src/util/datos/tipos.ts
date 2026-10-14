@@ -16,6 +16,8 @@ export interface Rol {
 export interface Grupo {
   id: string;
   nombre: string;
+  /** Subtítulo de las casillas cuando el grupo también tiene opciones excluyentes. */
+  tituloDeLosItems?: string;
 }
 
 /** Conjunto de ítems de los que se elige uno solo. */

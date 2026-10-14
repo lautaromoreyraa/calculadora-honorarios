@@ -186,7 +186,12 @@ export function Calculadora() {
                   />
                 ))}
                 {sueltos.length > 0 && (
-                  <div className="items">
+                  // Si el grupo también tiene opciones excluyentes, las casillas van
+                  // separadas y con su subtítulo: si no, se leen como una opción más.
+                  <div className={exclusiones.length > 0 ? 'items items--separados' : 'items'}>
+                    {exclusiones.length > 0 && grupo.tituloDeLosItems && (
+                      <h3 className="bloque__subtitulo">{grupo.tituloDeLosItems}</h3>
+                    )}
                     {sueltos.map((item) => (
                       <ItemConCasilla
                         key={item.id}
