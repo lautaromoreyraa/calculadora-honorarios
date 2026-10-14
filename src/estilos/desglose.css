@@ -20,8 +20,6 @@
   font-size: var(--texto-chico);
   font-weight: 600;
   color: var(--color-texto-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .desglose__total {
@@ -32,20 +30,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Sin resultado, lo principal es la lista de lo que falta, no el aviso. */
 .desglose__total--vacio {
   color: var(--color-texto-suave);
-  font-size: var(--texto-titulo);
+  font-size: var(--texto-medio);
+  line-height: 1.4;
 }
 
 .desglose__contexto {
   color: var(--color-texto-suave);
   font-size: var(--texto-chico);
   font-variant-numeric: tabular-nums;
-}
-
-.desglose__falta-titulo {
-  margin-top: var(--espacio-2);
-  font-weight: 600;
 }
 
 .desglose__falta {

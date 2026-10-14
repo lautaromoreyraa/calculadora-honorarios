@@ -10,9 +10,16 @@
 .encabezado__contenido {
   max-width: var(--ancho-maximo);
   margin: 0 auto;
-  padding: var(--espacio-6) var(--espacio-4) var(--espacio-5);
+  padding: var(--espacio-4);
   display: grid;
-  gap: var(--espacio-2);
+  gap: var(--espacio-1);
+}
+
+@media (min-width: 40rem) {
+  .encabezado__contenido {
+    padding: var(--espacio-6) var(--espacio-4) var(--espacio-5);
+    gap: var(--espacio-2);
+  }
 }
 
 .encabezado__sobre {
@@ -26,15 +33,21 @@
   font-size: var(--texto-titulo);
   line-height: 1.15;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .encabezado__bajada {
   max-width: 40rem;
 }
 
-.encabezado__vigencia {
-  font-size: var(--texto-chico);
-  opacity: 0.85;
+.encabezado__bajada-extendida {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .encabezado__bajada-extendida {
+    display: inline;
+  }
 }
 
 .calculadora {
@@ -167,8 +180,10 @@
 }
 
 .bloque__titulo {
-  font-size: var(--texto-medio);
+  font-size: var(--texto-subtitulo);
+  line-height: 1.25;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .bloque__fila {

@@ -102,8 +102,9 @@ export function Calculadora() {
                   {formatearPesosConCentavos(valorHoraDelRol(rol.id, datos))} la hora
                 </span>
                 <span className="ficha-del-rol__convenio">
-                  {formatearPesos(rol.valorBaseMensual)} por mes · {rol.convenio}
+                  {formatearPesos(rol.valorBaseMensual)} por mes de convenio
                 </span>
+                <span className="ficha-del-rol__convenio">{rol.convenio}</span>
               </p>
             </div>
 
@@ -156,7 +157,7 @@ export function Calculadora() {
               >
                 {datos.monotributo.categorias.map((c) => (
                   <option key={c.letra} value={c.letra}>
-                    {c.letra} · facturación de hasta {formatearPesos(c.topeAnual)} al año
+                    {c.letra}: facturación de hasta {formatearPesos(c.topeAnual)} al año
                   </option>
                 ))}
               </select>
