@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "provincias.schema.json",
+  "title": "Provincias y cómo tributa ingresos brutos un monotributista en cada una",
+  "type": "object",
+  "required": ["provincias"],
+  "additionalProperties": false,
+  "properties": {
+    "provincias": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "nombre", "ingresosBrutos"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "comun.schema.json#/$defs/id" },
+          "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+          "ingresosBrutos": {
+            "oneOf": [
+              {
+                "description": "Régimen simplificado: monto fijo mensual por categoría de monotributo",
+                "type": "object",
+                "required": ["modo", "montos", "norma", "vigencia"],
+                "additionalProperties": false,
+                "properties": {
+                  "modo": { "const": "fijo-por-categoria" },
+                  "montos": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "propertyNames": { "pattern": "^[A-K]$" },
+                    "additionalProperties": { "$ref": "comun.schema.json#/$defs/pesos" }
+                  },
+                  "norma": { "$ref": "comun.schema.json#/$defs/texto" },
+                  "fuente": { "$ref": "comun.schema.json#/$defs/texto" },
+                  "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
+                }
+              },
+              {
+                "description": "Régimen general: alícuota sobre el total facturado",
+                "type": "object",
+                "required": ["modo", "alicuota", "norma", "vigencia"],
+                "additionalProperties": false,
+                "properties": {
+                  "modo": { "const": "alicuota" },
+                  "alicuota": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.2 },
+                  "norma": { "$ref": "comun.schema.json#/$defs/texto" },
+                  "fuente": { "$ref": "comun.schema.json#/$defs/texto" },
+                  "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}
