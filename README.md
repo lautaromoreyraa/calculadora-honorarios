@@ -167,8 +167,9 @@ renglones, como en pesos. La conversión usa el dólar blue (venta) de
 `datos/parametros.json`.
 El sitio no consulta ninguna API: todos los días, la Action `Dólar blue`
 corre `npm run actualizar-dolar-blue`, que lee dolarapi.com. Si la cotización
-cambió, abre un PR a `main` que toca sólo ese valor, corre la verificación
-completa, lo mergea, sincroniza `develop` y publica. Un valor menos de la
+cambió, un primer job corre la verificación completa sobre ese cambio; un
+segundo, que no instala dependencias, abre un PR a `main` que toca sólo ese
+valor, lo mergea, sincroniza `develop` y publica. Un valor menos de la
 mitad o más del doble que el anterior frena la corrida sin tocar nada. La
 Action necesita que el repo permita a GitHub Actions crear PR (*Settings →
 Actions → General*).
