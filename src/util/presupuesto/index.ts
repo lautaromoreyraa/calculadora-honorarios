@@ -8,12 +8,14 @@ import { BorderStyle, Document, HeadingLevel, Packer, Paragraph, TextRun } from 
 import type { Datos } from '../datos/tipos.ts';
 import type { Resultado } from '../calculo/tipos.ts';
 import { formatearNumero, formatearPesos } from '../formato.ts';
+import { textoDeValidez } from './fechas.ts';
 
 /** Lo que el profesional completa antes de descargar. Lo vacío sale como marcador. */
 export interface DatosDelPresupuesto {
   profesional: string;
   cliente: string;
   descripcion: string;
+  /** Hasta cuándo vale la oferta, AAAA-MM-DD como lo da el calendario; vacío sale como marcador. */
   validez: string;
   /** Fecha del presupuesto; por defecto, hoy. */
   fecha?: Date;
@@ -96,7 +98,7 @@ export function armarPresupuesto(resultado: Resultado, datos: Datos, presupuesto
             ],
           }),
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Condiciones')] }),
-          campo('Validez de la oferta', completar(presupuesto.validez, MARCADORES.validez)),
+          campo('Validez de la oferta', completar(textoDeValidez(presupuesto.validez), MARCADORES.validez)),
           new Paragraph(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`),
         ],
       },

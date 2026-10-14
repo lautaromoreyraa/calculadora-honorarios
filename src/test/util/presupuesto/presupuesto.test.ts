@@ -11,6 +11,7 @@ import {
   vigenciaDeLosValores,
   type DatosDelPresupuesto,
 } from '../../../util/presupuesto/index.ts';
+import { fechaDentroDe } from '../../../util/presupuesto/fechas.ts';
 
 // RF-16: el Word tiene que decir lo mismo que la pantalla. Se genera el .docx
 // de verdad y se lee su XML.
@@ -36,7 +37,7 @@ const completo: DatosDelPresupuesto = {
   profesional: 'Ana Gómez',
   cliente: 'Radio Ciudad',
   descripcion: 'Producción de un programa especial',
-  validez: '15 días',
+  validez: '2026-10-28',
   fecha: new Date(2026, 9, 13),
 };
 
@@ -79,7 +80,7 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain('13 de octubre de 2026');
     expect(texto).toContain('Producción de un programa especial');
     expect(texto).toContain('12 h');
-    expect(texto).toContain('15 días');
+    expect(texto).toContain('Validez de la oferta: hasta el 28 de octubre de 2026');
     expect(texto).toContain(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`);
   });
 
@@ -113,5 +114,10 @@ describe('RF-16 · presupuesto en Word', () => {
 
   it('el archivo se llama presupuesto-<rol>-<AAAA-MM-DD>.docx', () => {
     expect(nombreDelArchivo(resultado(), new Date(2026, 0, 5))).toBe('presupuesto-productor-2026-01-05.docx');
+  });
+
+  it('la validez por defecto es 15 días después de hoy, también al cruzar de mes y de año', () => {
+    expect(fechaDentroDe(15, new Date(2026, 9, 14))).toBe('2026-10-29');
+    expect(fechaDentroDe(15, new Date(2026, 11, 20))).toBe('2027-01-04');
   });
 });
