@@ -139,6 +139,8 @@ export interface PrecioDeCombustible {
 export interface Parametro {
   valor: number;
   norma: string;
+  /** Lo que la interfaz muestra junto al campo que usa el valor. */
+  aclaracion?: string;
 }
 
 export interface Parametros {
@@ -146,6 +148,7 @@ export interface Parametros {
   horasPorJornada: Parametro;
   vidaUtilDeEquiposEnMeses: Parametro;
   consumoDelAutoCada100Km: Parametro;
+  consumoDeLaMotoCada100Km: Parametro;
   vacaciones: {
     divisorDelDia: number;
     diasPorAntiguedad: { desdeAnios: number; dias: number }[];

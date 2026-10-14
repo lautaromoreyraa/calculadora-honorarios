@@ -5,6 +5,7 @@ import { Desglose } from '../componentes/Desglose.tsx';
 import DescargaDePresupuesto from '../componentes/DescargaDePresupuesto.tsx';
 import { ItemConCasilla, type DescripcionDeCampo } from '../componentes/ItemConCasilla.tsx';
 import { OpcionesExcluyentes } from '../componentes/OpcionesExcluyentes.tsx';
+import { SelectorDeVehiculo } from '../componentes/SelectorDeVehiculo.tsx';
 import { SubgrupoPlegable } from '../componentes/SubgrupoPlegable.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
@@ -40,7 +41,7 @@ function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): strin
 }
 
 export function Calculadora() {
-  const { estado, calculo, vuelta, recuerda, reiniciado, cambiar, alternar, elegir, cargar, empezarDeNuevo, deshacer } =
+  const { estado, calculo, vuelta, recuerda, reiniciado, cambiar, alternar, elegir, cargar, elegirVehiculo, empezarDeNuevo, deshacer } =
     useCalculadora(datos);
   const idRol = useId();
   const idTituloResultado = useId();
@@ -68,7 +69,13 @@ export function Calculadora() {
             : undefined,
         };
       case 'consumo':
-        return { etiqueta: 'Consumo del auto', unidad: 'l/100 km' };
+        return estado.vehiculo === 'moto'
+          ? { etiqueta: 'Consumo de la moto', unidad: 'l/100 km' }
+          : {
+              etiqueta: 'Consumo del auto',
+              unidad: 'l/100 km',
+              ayuda: datos.parametros.consumoDelAutoCada100Km.aclaracion,
+            };
     }
   };
 
@@ -103,6 +110,11 @@ export function Calculadora() {
       describirCampo={describirCampo}
       entradas={estado.entradas[item.id] ?? {}}
       alCargar={(campo, v) => cargar(item.id, campo, v)}
+      antesDeLosCampos={
+        camposDeItem(item).includes('consumo') ? (
+          <SelectorDeVehiculo valor={estado.vehiculo} alElegir={elegirVehiculo} />
+        ) : undefined
+      }
     />
   );
 

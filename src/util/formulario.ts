@@ -9,6 +9,9 @@ import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPo
 /** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
 
+/** Con qué se hace la movilidad (RN-10): decide el consumo por defecto. */
+export type Vehiculo = 'auto' | 'moto';
+
 export interface EstadoDelFormulario {
   rolId: string;
   provinciaId: string;
@@ -24,6 +27,7 @@ export interface EstadoDelFormulario {
   entradas: Record<string, Partial<Record<Campo, string>>>;
   /** Nombre del profesional para el presupuesto; vive acá para poder recordarlo (RF-26). */
   profesional: string;
+  vehiculo: Vehiculo;
 }
 
 export function estadoInicial(datos: Datos): EstadoDelFormulario {
@@ -42,7 +46,27 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
         .map((i) => [i.id, { consumo: formatearNumero(datos.parametros.consumoDelAutoCada100Km.valor) }]),
     ),
     profesional: '',
+    vehiculo: 'auto',
   };
+}
+
+/** Consumo por defecto de cada vehículo, cada 100 km. */
+export function consumoDe(vehiculo: Vehiculo, datos: Datos): number {
+  const { consumoDelAutoCada100Km, consumoDeLaMotoCada100Km } = datos.parametros;
+  return (vehiculo === 'moto' ? consumoDeLaMotoCada100Km : consumoDelAutoCada100Km).valor;
+}
+
+/**
+ * Cambia el vehículo y carga su consumo por defecto en cada ítem de movilidad
+ * (RF-13). Pisa el consumo escrito: el de un auto no sirve para una moto.
+ */
+export function conVehiculo(estado: EstadoDelFormulario, vehiculo: Vehiculo, datos: Datos): EstadoDelFormulario {
+  const consumo = formatearNumero(consumoDe(vehiculo, datos));
+  const entradas = { ...estado.entradas };
+  for (const item of datos.items.filter((i) => camposDeItem(i).includes('consumo'))) {
+    entradas[item.id] = { ...entradas[item.id], consumo };
+  }
+  return { ...estado, vehiculo, entradas };
 }
 
 /**

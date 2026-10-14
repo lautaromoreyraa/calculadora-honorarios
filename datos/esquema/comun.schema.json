@@ -32,7 +32,11 @@
       "additionalProperties": false,
       "properties": {
         "valor": { "type": "number", "exclusiveMinimum": 0 },
-        "norma": { "$ref": "#/$defs/texto" }
+        "norma": { "$ref": "#/$defs/texto" },
+        "aclaracion": {
+          "description": "Texto que la interfaz muestra junto al campo que usa este valor",
+          "$ref": "#/$defs/texto"
+        }
       }
     }
   }

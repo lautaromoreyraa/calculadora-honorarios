@@ -8,6 +8,7 @@
     "horasPorJornada",
     "vidaUtilDeEquiposEnMeses",
     "consumoDelAutoCada100Km",
+    "consumoDeLaMotoCada100Km",
     "vacaciones",
     "sueldoAnualComplementario",
     "dolarOficial"
@@ -18,6 +19,7 @@
     "horasPorJornada": { "$ref": "comun.schema.json#/$defs/parametro" },
     "vidaUtilDeEquiposEnMeses": { "$ref": "comun.schema.json#/$defs/parametro" },
     "consumoDelAutoCada100Km": { "$ref": "comun.schema.json#/$defs/parametro" },
+    "consumoDeLaMotoCada100Km": { "$ref": "comun.schema.json#/$defs/parametro" },
     "vacaciones": {
       "type": "object",
       "required": ["divisorDelDia", "diasPorAntiguedad", "norma"],

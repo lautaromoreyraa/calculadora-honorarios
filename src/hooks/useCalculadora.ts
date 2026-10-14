@@ -1,7 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { calcular } from '../util/calculo/index.ts';
 import type { Datos } from '../util/datos/tipos.ts';
-import { aSeleccion, estadoInicial, type Campo, type EstadoDelFormulario } from '../util/formulario.ts';
+import {
+  aSeleccion,
+  conVehiculo,
+  estadoInicial,
+  type Campo,
+  type EstadoDelFormulario,
+  type Vehiculo,
+} from '../util/formulario.ts';
 import {
   almacenDelNavegador,
   guardarPerfil,
@@ -56,6 +63,7 @@ export function useCalculadora(datos: Datos) {
       actualizar((e) => ({ ...e, elegidos: { ...e.elegidos, [exclusionId]: itemId } })),
     cargar: (itemId: string, campo: Campo, valor: string) =>
       actualizar((e) => ({ ...e, entradas: { ...e.entradas, [itemId]: { ...e.entradas[itemId], [campo]: valor } } })),
+    elegirVehiculo: (vehiculo: Vehiculo) => actualizar((e) => conVehiculo(e, vehiculo, datos)),
     empezarDeNuevo: () => {
       olvidarPerfil(almacenDelNavegador());
       setAnterior(estado);

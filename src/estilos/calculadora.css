@@ -640,6 +640,11 @@
   }
 }
 
+/* Auto o moto (RF-13): ocupa todo el ancho de la grilla de campos del ítem. */
+.selector-de-vehiculo {
+  grid-column: 1 / -1;
+}
+
 /* Subgrupos plegables (RF-27) */
 
 .subgrupo {
