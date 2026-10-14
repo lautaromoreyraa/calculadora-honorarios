@@ -156,6 +156,8 @@ export interface Parametros {
   };
   sueldoAnualComplementario: { sueldosPorAnio: number; norma: string };
   dolarOficial: { valor: number; fecha: string; fuente: string };
+  /** Para ver los montos en dólares (RF-28); se actualiza cada día (RF-29). */
+  dolarBlue: { valor: number; fecha: string; fuente: string };
 }
 
 export interface Datos {

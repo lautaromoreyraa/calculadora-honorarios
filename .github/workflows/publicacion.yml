@@ -1,12 +1,20 @@
 # Publicación en Cloudflare Workers: corre sólo al llegar algo a main, que es lo
 # publicado. Repite la verificación antes de subir, para que un push directo o
-# un merge con la verificación vieja no publique algo roto.
+# un merge con la verificación vieja no publique algo roto. También la llama la
+# Action del dólar blue (RF-29): lo que esa Action pushea con su token no
+# dispara otros workflows, así que publica llamando a este.
 # Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
 name: Publicación
 
 on:
   push:
     branches: [main]
+  workflow_call:
+    inputs:
+      ref:
+        description: Rama o commit a publicar; la Action del dólar pasa main ya mergeada
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -22,6 +30,8 @@ jobs:
     environment: produccion
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24

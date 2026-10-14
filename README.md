@@ -106,7 +106,7 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | Ruta | Qué vive adentro |
 |---|---|
 | `datos/` | Valores de cálculo y su esquema |
-| `scripts/` | `validar-datos.mjs`; más adelante, el actualizador de valores indexados |
+| `scripts/` | `validar-datos.mjs` y `actualizar-dolar-blue.ts`, que trae la cotización del día |
 | `src/main.tsx` · `src/App.tsx` | Arranque |
 | `src/util/datos/` | Carga tipada de `datos/` |
 | `src/util/` | Funciones puras: motor de cálculo, armado del presupuesto y `memoria.ts`, lo que se recuerda entre visitas |
@@ -114,7 +114,7 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `src/hooks/` | Estado de la interfaz |
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |
 | `src/test/` | Tests de Vitest, espejando `src/` |
-| `.github/workflows/` | Verificación de cada PR y publicación desde `main` |
+| `.github/workflows/` | Verificación de cada PR, publicación desde `main` y dólar blue diario |
 | `wrangler.jsonc` | Worker de Cloudflare que sirve `dist/` |
 
 ## Cómo se corre
@@ -144,3 +144,14 @@ publica solo al llegar un merge a `main`. La acción `Publicación` repite la
 verificación, construye y sube con `wrangler deploy`. Necesita dos secretos en el
 entorno `produccion` del repo: `CLOUDFLARE_API_TOKEN`, un token con permiso de
 edición de Workers, y `CLOUDFLARE_ACCOUNT_ID`.
+
+### Dólar blue diario
+
+La conversión a dólares usa el dólar blue (venta) de `datos/parametros.json`.
+El sitio no consulta ninguna API: todos los días, la Action `Dólar blue`
+corre `npm run actualizar-dolar-blue`, que lee dolarapi.com. Si la cotización
+cambió, abre un PR a `main` que toca sólo ese valor, corre la verificación
+completa, lo mergea, sincroniza `develop` y publica. Un valor menos de la
+mitad o más del doble que el anterior frena la corrida sin tocar nada. La
+Action necesita que el repo permita a GitHub Actions crear PR (*Settings →
+Actions → General*).
