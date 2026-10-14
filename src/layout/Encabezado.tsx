@@ -13,7 +13,10 @@ export function Encabezado({ vigencia }: Props) {
         Ir al resultado
       </a>
       <div className="encabezado__contenido">
-        <h1 className="encabezado__titulo">Calculadora de honorarios</h1>
+        {/* La cursiva de Alegreya es la mano del título: marca la palabra que importa. */}
+        <h1 className="encabezado__titulo">
+          Calculadora de <em>honorarios</em>
+        </h1>
         <p className="encabezado__bajada">
           Para autónomos de la comunicación de Chaco y Corrientes.
           {/* En el celular, una línea que diga qué suma: sin ella, quien entra por

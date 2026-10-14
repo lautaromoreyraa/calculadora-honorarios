@@ -43,11 +43,14 @@
   --color-aviso-suave: #3b2b0d;
   --color-seleccion: #1f5f57;
 
-  /* Newsreader se diseñó para leer noticias en pantalla: es la voz de titulares
-     y del total. Public Sans, la de los formularios del Estado norteamericano,
-     lleva lo operativo. Las dos van dentro del bundle (CSP: font-src 'self'). */
-  --fuente-titulos: 'Newsreader Variable', Georgia, 'Times New Roman', serif;
-  --fuente-base: 'Public Sans Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Dos voces argentinas (RNF-12). Alegreya, de Juan Pablo del Peral (Huerta
+     Tipográfica), es una serifa de trazo caligráfico pensada para leer largo:
+     le da a los títulos y al total una mano humana en vez de la de una app.
+     Archivo, de Omnibus-Type, es una grotesca de Buenos Aires hecha para
+     pantalla y para cifras: lleva lo operativo. Las dos van dentro del bundle
+     (CSP: font-src 'self'). */
+  --fuente-titulos: 'Alegreya Variable', Georgia, 'Times New Roman', serif;
+  --fuente-base: 'Archivo Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   --texto-chico: 0.875rem;
   --texto-base: 1rem;
@@ -65,8 +68,9 @@
   --espacio-6: 2rem;
   --espacio-7: 3rem;
 
-  --radio: 12px;
-  --radio-chico: 8px;
+  /* Cantos apenas suavizados: una hoja de tarifas, no una app de burbujas. */
+  --radio: 6px;
+  --radio-chico: 4px;
   --alto-control: 3rem;
   --ancho-maximo: 74rem;
   /* Sobre un fondo casi negro una sombra no se ve (1,05:1): la elevación la da

@@ -27,9 +27,14 @@
   /* Con el texto agrandado, «honorarios» no entra en el celular y no se puede
      cortar: el título no pasa de un ancho proporcional a la pantalla. */
   font-size: min(var(--texto-titulo), 12vw);
-  line-height: 1.05;
-  font-weight: 560;
-  letter-spacing: -0.025em;
+  line-height: 1.02;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.encabezado__titulo em {
+  font-weight: 500;
+  color: var(--color-encabezado-suave);
 }
 
 .encabezado__bajada {
@@ -127,20 +132,13 @@
   }
 }
 
-/* Presupuesto en Word (RF-16): misma tarjeta que los bloques del formulario. */
+/* Presupuesto en Word (RF-16): una sección más, como los bloques del formulario. */
 
 .calculadora__presupuesto {
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio);
-  padding: var(--espacio-4);
   min-width: 0;
-}
-
-@media (min-width: 40rem) {
-  .calculadora__presupuesto {
-    padding: var(--espacio-5);
-  }
+  margin-top: var(--espacio-5);
+  padding-top: var(--espacio-6);
+  border-top: 1px solid var(--color-borde-control);
 }
 
 .presupuesto {
@@ -425,29 +423,33 @@
   width: auto;
 }
 
-/* Bloques del formulario */
+/* Bloques del formulario. Secciones sobre el fondo, no cajas: un filete y el
+   título las separan, como en una hoja impresa. Así las únicas cajas son lo que
+   se toca (casillas, campos) y el panel del resultado, y nunca hay una tarjeta
+   dentro de otra. */
 
 .bloque {
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio);
-  padding: var(--espacio-4);
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-4);
+  padding-top: var(--espacio-5);
+  border-top: 1px solid var(--color-borde);
 }
 
-@media (min-width: 40rem) {
-  .bloque {
-    padding: var(--espacio-5);
-  }
+.calculadora__formulario > .bloque:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.bloque + .bloque {
+  margin-top: var(--espacio-4);
 }
 
 .bloque__titulo {
   font-size: var(--texto-subtitulo);
-  line-height: 1.15;
-  font-weight: 560;
-  letter-spacing: -0.015em;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .bloque__fila {
@@ -571,14 +573,12 @@
   font-weight: 600;
 }
 
+/* El valor hora del rol se lee como un dato impreso, no como un aviso en caja. */
 .ficha-del-rol {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-1);
-  margin-top: var(--espacio-2);
-  padding: var(--espacio-4);
-  background: var(--color-acento-suave);
-  border-radius: var(--radio-chico);
+  margin-top: var(--espacio-1);
 }
 
 .ficha-del-rol__valor {

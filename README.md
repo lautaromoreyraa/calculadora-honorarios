@@ -94,10 +94,15 @@ contrastes calculados de cada par: base verde azulada casi negra, el petróleo
 de marca en la franja del encabezado, un único verde agua para lo elegido y un
 ámbar para el foco del teclado.
 
-**Tipografía.** Newsreader para títulos, el valor hora y el total, y Public
-Sans para el resto, las dos variables y autoalojadas con `@fontsource-variable`
-(van dentro del bundle y se precargan en `index.html`). Los montos usan cifras
-tabulares para que no bailen al recalcular.
+**Tipografía.** Dos familias de diseñadores argentinos: Alegreya (Juan Pablo
+del Peral, Huerta Tipográfica) para títulos, el valor hora y el total, y
+Archivo (Omnibus-Type) para el resto. Las dos son variables y autoalojadas con
+`@fontsource-variable`: van dentro del bundle y se precargan en `index.html`.
+Los montos usan cifras tabulares para que no bailen al recalcular.
+
+**Composición.** Los bloques del formulario son secciones separadas por un
+filete, no tarjetas: las únicas cajas son lo que se toca (casillas, campos) y
+el panel del resultado.
 
 **Movimiento.** Uno solo: el total se asienta al cambiar. Con
 `prefers-reduced-motion` no hay animación.

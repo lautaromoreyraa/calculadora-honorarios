@@ -25,6 +25,9 @@ body {
   font-family: var(--fuente-base);
   font-size: var(--texto-base);
   line-height: 1.5;
+  /* Archivo viene apretada para titulares; en texto claro sobre fondo oscuro y
+     a tamaño de lectura, un poco de aire la hace más legible. */
+  letter-spacing: 0.012em;
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
