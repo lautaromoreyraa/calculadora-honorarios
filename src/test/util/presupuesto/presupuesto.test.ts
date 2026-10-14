@@ -55,11 +55,17 @@ async function textoDelWord(r: Resultado, presupuesto: DatosDelPresupuesto): Pro
     .replace(/&apos;/g, "'");
 }
 
+/** Monto de la fila «Total» de la tabla: cada celda es un párrafo, y la del detalle va vacía. */
+function totalDeLaTabla(texto: string): string | undefined {
+  const lineas = texto.split('\n');
+  return lineas[lineas.lastIndexOf('Total') + 2];
+}
+
 describe('RF-16 · presupuesto en Word', () => {
   it('tiene el total y cada renglón con los montos de la pantalla', async () => {
     const r = resultado();
     const texto = await textoDelWord(r, completo);
-    expect(texto).toContain(`Total: ${formatearPesos(r.total)}`);
+    expect(totalDeLaTabla(texto)).toBe(formatearPesos(r.total));
     for (const renglon of r.renglones) {
       expect(texto).toContain(renglon.concepto);
       expect(texto).toContain(renglon.detalle);
@@ -85,7 +91,19 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain(formatearPesos(r.subtotal));
     expect(texto).toContain(r.ingresosBrutosSobreTotal!.detalle);
     expect(texto).toContain(formatearPesos(r.ingresosBrutosSobreTotal!.monto));
-    expect(texto).toContain(`Total: ${formatearPesos(r.total)}`);
+    expect(totalDeLaTabla(texto)).toBe(formatearPesos(r.total));
+  });
+
+  it('el total aparece una sola vez, en la tabla', async () => {
+    const r = resultado();
+    const texto = await textoDelWord(r, completo);
+    expect(texto).not.toContain('Total:');
+    expect(texto.split(formatearPesos(r.total)).length - 1).toBe(1);
+  });
+
+  it('el tipo de cliente se lee con el nombre del conjunto', async () => {
+    const texto = await textoDelWord(resultado(), completo);
+    expect(texto).toContain('Tipo de cliente: D · Empresas privadas');
   });
 
   it('los campos vacíos salen como marcadores para completar', async () => {
