@@ -10,7 +10,9 @@ según lo que el usuario marque, los adicionales de convenio, los costos que el
 autónomo paga de su bolsillo (monotributo, ingresos brutos, equipo,
 conectividad, movilidad), los fondos de vacaciones y aguinaldo y un ajuste por
 tipo de cliente. El resultado se descarga como presupuesto en Word, editable,
-con el trabajo y el total: el desglose de costos queda en la pantalla.
+con número, los datos de las dos partes, el trabajo con su valor por hora, el
+total y las condiciones de pago; una vista previa al lado muestra la hoja
+mientras se completa. El desglose de costos queda en la pantalla.
 
 ## Arquitectura
 
@@ -84,6 +86,7 @@ cada cambio.
 | `componentes/Desglose` | Total, renglones y lo que falta para calcular; anuncia el total a los lectores de pantalla |
 | `componentes/BarraDelTotal` | Total fijo abajo en el celular, con enlace al desglose |
 | `componentes/DescargaDePresupuesto` | Datos del presupuesto y descarga del `.docx`, que se genera con `import()` al pedirlo |
+| `componentes/VistaPreviaDelPresupuesto` | La hoja del presupuesto en HTML; lee el mismo contenido que el `.docx` (`util/presupuesto/contenido.ts`) |
 
 **Tema.** Oscuro siempre, sin depender de la preferencia del sistema
 (`color-scheme: dark`). La paleta vive en `src/estilos/tokens.css` con los

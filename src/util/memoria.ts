@@ -26,6 +26,11 @@ export interface Perfil {
   marcados: Record<string, boolean>;
   entradas: Record<string, Partial<Record<Campo, string>>>;
   profesional: string;
+  /** Opcionales: los perfiles guardados antes de que el presupuesto los pidiera no los tienen. */
+  email?: string;
+  telefono?: string;
+  cuit?: string;
+  condiciones?: string;
   /** Opcional: los perfiles guardados antes de RF-13 no lo tienen. */
   vehiculo?: Vehiculo;
   moneda?: Moneda;
@@ -49,6 +54,10 @@ export function perfilDe(estado: EstadoDelFormulario): Perfil {
     marcados: Object.fromEntries(Object.entries(estado.marcados).filter(([, m]) => m)),
     entradas,
     profesional: estado.profesional,
+    email: estado.email,
+    telefono: estado.telefono,
+    cuit: estado.cuit,
+    condiciones: estado.condiciones,
     vehiculo: estado.vehiculo,
     moneda: estado.moneda,
   };
@@ -90,6 +99,10 @@ export function restaurar(guardado: unknown, datos: Datos): EstadoDelFormulario 
     marcados,
     entradas,
     profesional: esTexto(p.profesional) ? p.profesional : '',
+    email: esTexto(p.email) ? p.email : '',
+    telefono: esTexto(p.telefono) ? p.telefono : '',
+    cuit: esTexto(p.cuit) ? p.cuit : '',
+    condiciones: esTexto(p.condiciones) ? p.condiciones : inicial.condiciones,
     vehiculo: p.vehiculo === 'moto' ? 'moto' : 'auto',
     moneda: p.moneda === 'USD' ? 'USD' : 'ARS',
   };
@@ -139,5 +152,27 @@ export function almacenDelNavegador(): Storage | undefined {
     return window.localStorage;
   } catch {
     return undefined;
+  }
+}
+
+/**
+ * El último número de presupuesto descargado (RF-16), aparte del perfil: es una
+ * numeración, y «Empezar de nuevo» no tiene por qué hacerla volver a empezar.
+ */
+export const CLAVE_DEL_NUMERO = 'calculadora-honorarios:ultimo-presupuesto';
+
+export function leerUltimoNumero(almacen: Pick<Storage, 'getItem'> | undefined): string | null {
+  try {
+    return almacen?.getItem(CLAVE_DEL_NUMERO) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function guardarUltimoNumero(almacen: Pick<Storage, 'setItem'> | undefined, numero: string): void {
+  try {
+    if (numero.trim()) almacen?.setItem(CLAVE_DEL_NUMERO, numero.trim());
+  } catch {
+    // Sin permiso: el próximo presupuesto vuelve a proponer el primero del año.
   }
 }

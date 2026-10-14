@@ -314,13 +314,18 @@ export function Calculadora() {
           </div>
         </form>
 
-        <aside id="resultado" className="calculadora__resultado" aria-labelledby={idTituloResultado} tabIndex={-1}>
-          <h2 className="solo-lectores" id={idTituloResultado}>
-            Resultado
-          </h2>
-          <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
-          <Desglose calculo={calculo} />
-        </aside>
+        {/* La columna existe para que el panel fijo tenga dónde terminar: un sticky
+            dentro de la grilla seguiría pegado hasta el final de la página, encima
+            del presupuesto. */}
+        <div className="calculadora__columna-resultado">
+          <aside id="resultado" className="calculadora__resultado" aria-labelledby={idTituloResultado} tabIndex={-1}>
+            <h2 className="solo-lectores" id={idTituloResultado}>
+              Resultado
+            </h2>
+            <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
+            <Desglose calculo={calculo} />
+          </aside>
+        </div>
         {/* RF-16: sólo con un resultado válido hay algo para presupuestar. Va fuera
             del panel del resultado: en escritorio ese panel queda fijo, y el
             formulario adentro quedaba al fondo de un segundo scroll. */}
@@ -328,8 +333,14 @@ export function Calculadora() {
           <div id="presupuesto" className="calculadora__presupuesto">
             <DescargaDePresupuesto
               resultado={calculo.resultado}
-              profesional={estado.profesional}
-              alCambiarProfesional={(v) => cambiar('profesional', v)}
+              delProfesional={{
+                profesional: estado.profesional,
+                email: estado.email,
+                telefono: estado.telefono,
+                cuit: estado.cuit,
+                condiciones: estado.condiciones,
+              }}
+              alCambiar={cambiar}
             />
           </div>
         )}
