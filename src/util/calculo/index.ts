@@ -20,7 +20,17 @@ const renglon = (item: Pick<Item, 'id' | 'nombre'>, monto: number, detalle: stri
   monto: Math.round(monto),
 });
 
-const horasTexto = (h: number) => `${formatearNumero(h)} h`;
+/**
+ * Nombre del renglón. Una opción de un conjunto obligatorio («D · Empresas
+ * privadas») no se entiende sola en el desglose ni en el Word: lleva adelante
+ * el nombre del conjunto («Tipo de cliente: D · Empresas privadas»).
+ */
+export function conceptoDe(item: Item, datos: Datos): string {
+  const exclusion = datos.exclusiones.find((e) => e.id === item.exclusion);
+  return exclusion?.obligatorio ? `${exclusion.nombre}: ${item.nombre}` : item.nombre;
+}
+
+const horasTexto =(h: number) => `${formatearNumero(h)} h`;
 
 export function pesosDeDolares(dolares: Dolares, cotizacion: number): number {
   const usd = dolares.herramientas.reduce((total, h) => total + h.precio, 0);
@@ -153,8 +163,9 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
     }
   };
 
-  for (const item of datos.items) {
-    if (!(item.id in seleccion.items)) continue;
+  for (const original of datos.items) {
+    if (!(original.id in seleccion.items)) continue;
+    const item = { ...original, nombre: conceptoDe(original, datos) };
     const entrada = seleccion.items[item.id];
     switch (item.tipo) {
       case 'porcentual': {

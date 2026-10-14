@@ -27,7 +27,7 @@ export function OpcionesExcluyentes({ exclusion, opciones, resumen, elegido, alE
         </p>
       )}
       {!exclusion.obligatorio && (
-        <label className="opcion">
+        <label className={`opcion${elegido === null ? ' opcion--elegida' : ''}`}>
           <input
             className="opcion__radio"
             type="radio"
@@ -55,7 +55,7 @@ export function OpcionesExcluyentes({ exclusion, opciones, resumen, elegido, alE
               <span className="opcion__resumen">{resumen(item)}</span>
             </span>
           </label>
-          <NormaDelItem norma={item.norma} vigencia={item.vigencia} />
+          <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
         </div>
       ))}
     </fieldset>

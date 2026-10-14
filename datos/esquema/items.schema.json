@@ -17,7 +17,11 @@
         "additionalProperties": false,
         "properties": {
           "id": { "$ref": "comun.schema.json#/$defs/id" },
-          "nombre": { "$ref": "comun.schema.json#/$defs/texto" }
+          "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+          "tituloDeLosItems": {
+            "description": "Subtítulo de las casillas del grupo cuando el grupo también tiene opciones excluyentes, para que no se lean como una opción más",
+            "$ref": "comun.schema.json#/$defs/texto"
+          }
         }
       }
     },

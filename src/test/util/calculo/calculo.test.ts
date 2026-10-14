@@ -76,6 +76,13 @@ describe('RF-04 · tipo de cliente', () => {
     expect(monto(resultado(seleccion()), 'cliente-a')).toBe(0);
   });
 
+  it('el renglón lleva el nombre del conjunto obligatorio adelante', () => {
+    const d = resultado({ ...seleccion(), items: { 'cliente-d': {} } });
+    expect(d.renglones.find((x) => x.id === 'cliente-d')?.concepto).toBe('Tipo de cliente: D · Empresas privadas');
+    const urgente = resultado(seleccion({}, { urgente: {} }));
+    expect(urgente.renglones.find((x) => x.id === 'urgente')?.concepto).toBe('Entrega urgente (24 a 48 h)');
+  });
+
   it('no calcula sin tipo de cliente', () => {
     const calculo = calcular({ ...seleccion(), items: {} }, datos);
     expect(calculo.ok).toBe(false);

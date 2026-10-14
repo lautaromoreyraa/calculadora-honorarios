@@ -129,10 +129,6 @@ export function armarPresupuesto(resultado: Resultado, datos: Datos, presupuesto
           campo('Horas estimadas', `${formatearNumero(resultado.horas)} h`),
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Detalle')] }),
           new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: filas }),
-          new Paragraph({
-            spacing: { before: 240 },
-            children: [new TextRun({ text: `Total: ${formatearPesos(resultado.total)}`, bold: true, size: 28 })],
-          }),
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Condiciones')] }),
           campo('Validez de la oferta', completar(presupuesto.validez, MARCADORES.validez)),
           new Paragraph(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`),

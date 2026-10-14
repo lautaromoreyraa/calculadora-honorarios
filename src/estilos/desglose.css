@@ -20,8 +20,6 @@
   font-size: var(--texto-chico);
   font-weight: 600;
   color: var(--color-texto-suave);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 
 .desglose__total {
@@ -32,20 +30,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Sin resultado, lo principal es la lista de lo que falta, no el aviso. */
 .desglose__total--vacio {
   color: var(--color-texto-suave);
-  font-size: var(--texto-titulo);
+  font-size: var(--texto-medio);
+  line-height: 1.4;
 }
 
 .desglose__contexto {
   color: var(--color-texto-suave);
   font-size: var(--texto-chico);
   font-variant-numeric: tabular-nums;
-}
-
-.desglose__falta-titulo {
-  margin-top: var(--espacio-2);
-  font-weight: 600;
 }
 
 .desglose__falta {
@@ -111,46 +106,4 @@
 .desglose__renglon--total .desglose__monto {
   font-size: var(--texto-base);
   font-weight: 700;
-}
-
-/* Contenedor de la descarga del presupuesto (RF-16): misma tarjeta que el desglose. */
-.calculadora__presupuesto:empty {
-  display: none;
-}
-
-.calculadora__presupuesto {
-  margin-top: var(--espacio-4);
-  background: var(--color-superficie);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio);
-  padding: var(--espacio-4);
-}
-
-@media (min-width: 40rem) {
-  .calculadora__presupuesto {
-    padding: var(--espacio-5);
-  }
-}
-
-.calculadora__presupuesto .presupuesto h2 {
-  font-size: var(--texto-medio);
-}
-
-/* --color-borde es el de las tarjetas; un campo necesita 3:1 contra el fondo. */
-.calculadora__presupuesto .presupuesto__campos input,
-.calculadora__presupuesto .presupuesto__campos textarea {
-  border-color: var(--color-borde-control);
-  background: var(--color-superficie);
-  min-height: var(--alto-control);
-  border-radius: var(--radio-chico);
-}
-
-.calculadora__presupuesto .presupuesto__boton {
-  width: 100%;
-  justify-self: stretch;
-  min-height: var(--alto-control);
-}
-
-.calculadora__presupuesto .presupuesto__boton:hover {
-  background: var(--color-acento-fuerte);
 }

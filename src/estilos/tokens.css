@@ -14,8 +14,6 @@
   --color-acento-fuerte: #0a4541;
   --color-acento-suave: #e4efed;
   --color-sobre-acento: #ffffff;
-  /* Alias con el nombre que usa el componente de descarga del presupuesto. */
-  --color-acento-texto: var(--color-sobre-acento);
   --color-foco: #c2410c;
   --color-error: #a3261b;
   --color-error-suave: #fbeceb;
@@ -26,6 +24,7 @@
   --texto-chico: 0.875rem;
   --texto-base: 1rem;
   --texto-medio: 1.125rem;
+  --texto-subtitulo: 1.25rem;
   --texto-titulo: 1.75rem;
   --texto-total: 2.25rem;
 
@@ -36,8 +35,6 @@
   --espacio-5: 1.5rem;
   --espacio-6: 2rem;
   --espacio-7: 3rem;
-  /* Compatibilidad con el andamiaje inicial. */
-  --espacio: var(--espacio-4);
 
   --radio: 10px;
   --radio-chico: 6px;

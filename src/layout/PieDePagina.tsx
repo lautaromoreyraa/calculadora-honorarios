@@ -22,14 +22,20 @@ export function PieDePagina({ datos, vigencia }: Props) {
           {formatearPesosConCentavos(dolarOficial.valor)} ({dolarOficial.fuente}, {formatearFecha(dolarOficial.fecha)}).
           Nafta súper: mediana de las estaciones de cada provincia ({datos.combustible.fuente}).
         </p>
-        <p>
-          Monotributo: {datos.monotributo.categorias.map((c) => `${c.letra} ${formatearPesos(c.impuestoIntegrado + c.sipa + c.obraSocial)}`).join(' · ')}{' '}
-          por mes, según ARCA.
-        </p>
-        <p className="pie__credito">
-          Basada en la investigación de alumnos de Comunicación de la Universidad Nacional del Nordeste (UNNE).
-        </p>
-        <p className="pie__privacidad">Lo que cargás no sale de tu navegador: no se guarda ni se envía a ningún lado.</p>
+        <div className="pie__monotributo">
+          <p>Cuota mensual del monotributo para servicios, según ARCA:</p>
+          {/* Una lista y no una frase: con varias categorías, «A $ … · B $ …» no se lee. */}
+          <dl className="pie__categorias">
+            {datos.monotributo.categorias.map((c) => (
+              <div key={c.letra} className="pie__categoria">
+                <dt>Categoría {c.letra}</dt>
+                <dd>{formatearPesos(c.impuestoIntegrado + c.sipa + c.obraSocial)}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+        <p>Basada en la investigación de alumnos de Comunicación de la Universidad Nacional del Nordeste (UNNE).</p>
+        <p>Lo que cargás no sale de tu navegador: no se guarda ni se envía a ningún lado.</p>
       </div>
     </footer>
   );

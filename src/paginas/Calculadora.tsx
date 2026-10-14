@@ -102,8 +102,9 @@ export function Calculadora() {
                   {formatearPesosConCentavos(valorHoraDelRol(rol.id, datos))} la hora
                 </span>
                 <span className="ficha-del-rol__convenio">
-                  {formatearPesos(rol.valorBaseMensual)} por mes · {rol.convenio}
+                  {formatearPesos(rol.valorBaseMensual)} por mes de convenio
                 </span>
+                <span className="ficha-del-rol__convenio">{rol.convenio}</span>
               </p>
             </div>
 
@@ -156,7 +157,7 @@ export function Calculadora() {
               >
                 {datos.monotributo.categorias.map((c) => (
                   <option key={c.letra} value={c.letra}>
-                    {c.letra} · facturación de hasta {formatearPesos(c.topeAnual)} al año
+                    {c.letra}: facturación de hasta {formatearPesos(c.topeAnual)} al año
                   </option>
                 ))}
               </select>
@@ -185,7 +186,12 @@ export function Calculadora() {
                   />
                 ))}
                 {sueltos.length > 0 && (
-                  <div className="items">
+                  // Si el grupo también tiene opciones excluyentes, las casillas van
+                  // separadas y con su subtítulo: si no, se leen como una opción más.
+                  <div className={exclusiones.length > 0 ? 'items items--separados' : 'items'}>
+                    {exclusiones.length > 0 && grupo.tituloDeLosItems && (
+                      <h3 className="bloque__subtitulo">{grupo.tituloDeLosItems}</h3>
+                    )}
                     {sueltos.map((item) => (
                       <ItemConCasilla
                         key={item.id}
@@ -211,11 +217,15 @@ export function Calculadora() {
             Resultado
           </h2>
           <Desglose calculo={calculo} />
-          <div id="presupuesto" className="calculadora__presupuesto">
-            {/* RF-16: sólo con un resultado válido hay algo para presupuestar. */}
-            {calculo.ok && <DescargaDePresupuesto resultado={calculo.resultado} />}
-          </div>
         </aside>
+        {/* RF-16: sólo con un resultado válido hay algo para presupuestar. Va fuera
+            del panel del resultado: en escritorio ese panel queda fijo, y el
+            formulario adentro quedaba al fondo de un segundo scroll. */}
+        {calculo.ok && (
+          <div id="presupuesto" className="calculadora__presupuesto">
+            <DescargaDePresupuesto resultado={calculo.resultado} />
+          </div>
+        )}
       </main>
       <PieDePagina datos={datos} vigencia={vigencia} />
       <BarraDelTotal calculo={calculo} />

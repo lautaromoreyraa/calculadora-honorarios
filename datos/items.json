@@ -1,7 +1,7 @@
 {
   "grupos": [
     { "id": "cliente", "nombre": "Tipo de cliente" },
-    { "id": "contenidos", "nombre": "Uso del contenido y plazos" },
+    { "id": "contenidos", "nombre": "Uso del contenido y plazos", "tituloDeLosItems": "Uso del contenido" },
     { "id": "convencionales", "nombre": "Adicionales de convenio" },
     { "id": "fiscales", "nombre": "Impuestos, seguridad social y fondos" },
     { "id": "operativos", "nombre": "Costos operativos" }

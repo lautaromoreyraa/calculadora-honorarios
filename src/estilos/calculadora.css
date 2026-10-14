@@ -10,9 +10,16 @@
 .encabezado__contenido {
   max-width: var(--ancho-maximo);
   margin: 0 auto;
-  padding: var(--espacio-6) var(--espacio-4) var(--espacio-5);
+  padding: var(--espacio-4);
   display: grid;
-  gap: var(--espacio-2);
+  gap: var(--espacio-1);
+}
+
+@media (min-width: 40rem) {
+  .encabezado__contenido {
+    padding: var(--espacio-6) var(--espacio-4) var(--espacio-5);
+    gap: var(--espacio-2);
+  }
 }
 
 .encabezado__sobre {
@@ -26,15 +33,21 @@
   font-size: var(--texto-titulo);
   line-height: 1.15;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .encabezado__bajada {
   max-width: 40rem;
 }
 
-.encabezado__vigencia {
-  font-size: var(--texto-chico);
-  opacity: 0.85;
+.encabezado__bajada-extendida {
+  display: none;
+}
+
+@media (min-width: 40rem) {
+  .encabezado__bajada-extendida {
+    display: inline;
+  }
 }
 
 .calculadora {
@@ -68,11 +81,84 @@
     padding: var(--espacio-5) var(--espacio-4);
   }
 
+  .calculadora__formulario,
+  .calculadora__presupuesto {
+    grid-column: 1;
+  }
+
+  /* El resultado ocupa la columna derecha a lo alto del formulario y del
+     presupuesto, y queda fijo mientras se marcan casillas. Sólo el desglose
+     puede necesitar scroll propio, si tiene muchos renglones. */
   .calculadora__resultado {
+    grid-column: 2;
+    grid-row: 1 / span 2;
     position: sticky;
     top: var(--espacio-4);
     max-height: calc(100vh - 2 * var(--espacio-4));
     overflow-y: auto;
+  }
+}
+
+/* Presupuesto en Word (RF-16): misma tarjeta que los bloques del formulario. */
+
+.calculadora__presupuesto {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--espacio-4);
+  min-width: 0;
+}
+
+@media (min-width: 40rem) {
+  .calculadora__presupuesto {
+    padding: var(--espacio-5);
+  }
+}
+
+.presupuesto {
+  display: grid;
+  gap: var(--espacio-4);
+  max-width: 40rem;
+}
+
+.presupuesto__campos {
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+@media (min-width: 40rem) {
+  .presupuesto__campos {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .presupuesto__campos .campo:has(textarea) {
+    grid-column: 1 / -1;
+  }
+}
+
+.boton {
+  min-height: var(--alto-control);
+  padding: 0 var(--espacio-5);
+  border: 0;
+  border-radius: var(--radio-chico);
+  background: var(--color-acento);
+  color: var(--color-sobre-acento);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: var(--color-acento-fuerte);
+}
+
+.boton:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+@media (max-width: 39.99rem) {
+  .boton {
+    width: 100%;
   }
 }
 
@@ -94,8 +180,10 @@
 }
 
 .bloque__titulo {
-  font-size: var(--texto-medio);
+  font-size: var(--texto-subtitulo);
+  line-height: 1.25;
   font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 .bloque__fila {
@@ -138,7 +226,9 @@
 
 .campo__control--error {
   border-color: var(--color-error);
-  border-width: 2px;
+  /* Un borde más grueso cambiaría el alto del control y el texto saltaría
+     al aparecer o desaparecer el error mientras se escribe. */
+  box-shadow: inset 0 0 0 1px var(--color-error);
 }
 
 .campo__entrada {
@@ -153,6 +243,19 @@
 
 .campo__entrada:focus {
   outline: none;
+}
+
+.campo__entrada--multilinea {
+  padding: var(--espacio-2) var(--espacio-3);
+  resize: vertical;
+  line-height: 1.5;
+}
+
+/* Safari y Firefox aclaran el placeholder por debajo de AA (2,35:1 y 3,62:1).
+   #6b7079 da 4,98:1 y se sigue distinguiendo de un valor cargado. */
+.campo__entrada::placeholder {
+  color: #6b7079;
+  opacity: 1;
 }
 
 .campo__afijo {
@@ -298,6 +401,16 @@
   gap: var(--espacio-2);
 }
 
+.items--separados {
+  padding-top: var(--espacio-4);
+  border-top: 1px solid var(--color-borde);
+}
+
+.bloque__subtitulo {
+  font-size: var(--texto-base);
+  font-weight: 700;
+}
+
 .item {
   display: grid;
   gap: var(--espacio-1);
@@ -364,8 +477,12 @@
 }
 
 .norma__resumen {
-  display: inline-block;
-  padding: var(--espacio-1) 0;
+  /* 44 px de alto: es un objetivo táctil, no sólo un enlace de texto. */
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--espacio-2);
+  margin-left: calc(-1 * var(--espacio-2));
   color: var(--color-acento);
   cursor: pointer;
   text-decoration: underline;
@@ -409,6 +526,31 @@
   color: var(--color-texto);
 }
 
+.pie__monotributo {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.pie__categorias {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+  gap: var(--espacio-1) var(--espacio-5);
+}
+
+.pie__categoria {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: var(--espacio-1) 0;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.pie__categoria dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Barra del total, sólo en el celular */
 
 .barra-del-total {
@@ -446,5 +588,13 @@
 @media (min-width: 60rem) {
   .barra-del-total {
     display: none;
+  }
+}
+
+/* Al tabular o usar «siguiente» en el teclado del celular, el navegador lleva
+   el campo al borde inferior: sin este margen, la barra fija lo tapa. */
+@media (max-width: 59.99rem) {
+  html {
+    scroll-padding-bottom: 5.5rem;
   }
 }

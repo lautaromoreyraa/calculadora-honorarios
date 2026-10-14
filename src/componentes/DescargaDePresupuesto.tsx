@@ -1,10 +1,49 @@
 import { useId, useState } from 'react';
 import type { Resultado } from '../util/calculo/tipos.ts';
 import { datos } from '../util/datos/index.ts';
-import '../estilos/presupuesto.css';
 
 interface Props {
   resultado: Resultado;
+}
+
+interface CampoDeTextoProps {
+  id: string;
+  etiqueta: string;
+  valor: string;
+  alCambiar: (valor: string) => void;
+  autoComplete?: string;
+  multilinea?: boolean;
+}
+
+/** Campo de texto con los mismos estilos que los numéricos del formulario. */
+function CampoDeTexto({ id, etiqueta, valor, alCambiar, autoComplete = 'off', multilinea }: CampoDeTextoProps) {
+  return (
+    <div className="campo">
+      <label className="campo__etiqueta" htmlFor={id}>
+        {etiqueta}
+      </label>
+      <div className="campo__control">
+        {multilinea ? (
+          <textarea
+            id={id}
+            className="campo__entrada campo__entrada--multilinea"
+            rows={3}
+            value={valor}
+            onChange={(e) => alCambiar(e.target.value)}
+          />
+        ) : (
+          <input
+            id={id}
+            className="campo__entrada"
+            type="text"
+            autoComplete={autoComplete}
+            value={valor}
+            onChange={(e) => alCambiar(e.target.value)}
+          />
+        )}
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -43,36 +82,33 @@ export default function DescargaDePresupuesto({ resultado }: Props) {
 
   return (
     <section className="presupuesto" aria-labelledby={`${id}-titulo`}>
-      <h2 id={`${id}-titulo`}>Presupuesto en Word</h2>
-      <p className="presupuesto__ayuda">
-        Lo que dejes vacío sale como un espacio para completar en el documento.
-      </p>
+      <h2 className="bloque__titulo" id={`${id}-titulo`}>
+        Presupuesto en Word
+      </h2>
+      <p className="campo__ayuda">Lo que dejes vacío sale como un espacio para completar en el documento.</p>
       <div className="presupuesto__campos">
-        <label htmlFor={`${id}-profesional`}>Tu nombre</label>
-        <input
+        <CampoDeTexto
           id={`${id}-profesional`}
-          type="text"
+          etiqueta="Tu nombre"
+          valor={profesional}
+          alCambiar={setProfesional}
           autoComplete="name"
-          value={profesional}
-          onChange={(e) => setProfesional(e.target.value)}
         />
-        <label htmlFor={`${id}-cliente`}>Cliente</label>
-        <input id={`${id}-cliente`} type="text" value={cliente} onChange={(e) => setCliente(e.target.value)} />
-        <label htmlFor={`${id}-descripcion`}>Descripción del trabajo</label>
-        <textarea
+        <CampoDeTexto id={`${id}-cliente`} etiqueta="Cliente" valor={cliente} alCambiar={setCliente} />
+        <CampoDeTexto
           id={`${id}-descripcion`}
-          rows={3}
-          value={descripcion}
-          onChange={(e) => setDescripcion(e.target.value)}
+          etiqueta="Descripción del trabajo"
+          valor={descripcion}
+          alCambiar={setDescripcion}
+          multilinea
         />
-        <label htmlFor={`${id}-validez`}>Validez de la oferta</label>
-        <input id={`${id}-validez`} type="text" value={validez} onChange={(e) => setValidez(e.target.value)} />
+        <CampoDeTexto id={`${id}-validez`} etiqueta="Validez de la oferta" valor={validez} alCambiar={setValidez} />
       </div>
-      <button type="button" className="presupuesto__boton" onClick={descargar} disabled={generando}>
+      <button type="button" className="boton" onClick={descargar} disabled={generando}>
         {generando ? 'Generando…' : 'Descargar presupuesto (.docx)'}
       </button>
       {error && (
-        <p className="presupuesto__error" role="alert">
+        <p className="campo__error" role="alert">
           {error}
         </p>
       )}
