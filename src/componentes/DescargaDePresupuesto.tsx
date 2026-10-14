@@ -52,11 +52,6 @@ function CampoDeTexto({
       <label className="campo__etiqueta" htmlFor={id}>
         {etiqueta}
       </label>
-      {ayuda && (
-        <p className="campo__ayuda" id={`${id}-ayuda`}>
-          {ayuda}
-        </p>
-      )}
       <div className="campo__control">
         {multilinea ? (
           <textarea
@@ -80,6 +75,13 @@ function CampoDeTexto({
           />
         )}
       </div>
+      {/* Debajo del campo, como en el resto del formulario: arriba empujaba el
+          campo y lo desalineaba del de al lado. */}
+      {ayuda && (
+        <p className="campo__ayuda" id={`${id}-ayuda`}>
+          {ayuda}
+        </p>
+      )}
     </div>
   );
 }
