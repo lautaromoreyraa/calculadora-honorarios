@@ -4,6 +4,7 @@ import { formatoPara, type Moneda } from '../util/moneda.ts';
 import type { Datos } from '../util/datos/tipos.ts';
 import {
   aSeleccion,
+  conAntiguedad,
   conVehiculo,
   estadoInicial,
   type Campo,
@@ -69,7 +70,8 @@ export function useCalculadora(datos: Datos) {
     recuerda,
     /** Hay un reinicio que se puede deshacer. */
     reiniciado: anterior !== null,
-    cambiar: (campo: CampoGeneral, valor: string) => actualizar((e) => ({ ...e, [campo]: valor })),
+    cambiar: (campo: CampoGeneral, valor: string) =>
+      actualizar((e) => (campo === 'antiguedad' ? conAntiguedad(e, valor, datos) : { ...e, [campo]: valor })),
     alternar: (itemId: string, marcado: boolean) =>
       actualizar((e) => ({ ...e, marcados: { ...e.marcados, [itemId]: marcado } })),
     elegir: (exclusionId: string, itemId: string | null) =>
