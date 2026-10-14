@@ -157,7 +157,7 @@ export function Calculadora() {
               >
                 {datos.monotributo.categorias.map((c) => (
                   <option key={c.letra} value={c.letra}>
-                    {c.letra}: facturación de hasta {formatearPesos(c.topeAnual)} al año
+                    {c.letra} · hasta {formatearPesos(c.topeAnual)} al año
                   </option>
                 ))}
               </select>
