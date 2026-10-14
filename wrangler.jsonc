@@ -1,0 +1,13 @@
+// Worker sólo de archivos estáticos (ADR-001): no hay script, Cloudflare sirve
+// dist/ tal cual y aplica public/_headers, que viaja dentro de dist/.
+{
+  "name": "calculadora-honorarios",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Una sola página: cualquier ruta desconocida devuelve la calculadora en vez de un 404 vacío.
+    "not_found_handling": "single-page-application"
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}
