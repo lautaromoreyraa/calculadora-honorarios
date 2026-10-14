@@ -5,6 +5,7 @@ import { Desglose } from '../componentes/Desglose.tsx';
 import DescargaDePresupuesto from '../componentes/DescargaDePresupuesto.tsx';
 import { ItemConCasilla, type DescripcionDeCampo } from '../componentes/ItemConCasilla.tsx';
 import { OpcionesExcluyentes } from '../componentes/OpcionesExcluyentes.tsx';
+import { SubgrupoPlegable } from '../componentes/SubgrupoPlegable.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
 import { PieDePagina } from '../layout/PieDePagina.tsx';
@@ -13,6 +14,7 @@ import type { Item } from '../util/datos/tipos.ts';
 import { formatearPesos, formatearPesosConCentavos } from '../util/formato.ts';
 import {
   camposDeItem,
+  cuentaDelSubgrupo,
   formatearFecha,
   idDeCampo,
   leerNumero,
@@ -77,6 +79,21 @@ export function Calculadora() {
     const iibb = calculo.resultado.ingresosBrutosSobreTotal;
     if (iibb) aportes.set(iibb.id, iibb.monto);
   }
+
+  const itemConCasilla = (item: Item) => (
+    <ItemConCasilla
+      key={item.id}
+      item={item}
+      resumen={resumen(item)}
+      marcado={Boolean(estado.marcados[item.id])}
+      aporte={estado.marcados[item.id] ? aportes.get(item.id) : undefined}
+      alAlternar={(m) => alternar(item.id, m)}
+      campos={camposDeItem(item)}
+      describirCampo={describirCampo}
+      entradas={estado.entradas[item.id] ?? {}}
+      alCargar={(campo, v) => cargar(item.id, campo, v)}
+    />
+  );
 
   return (
     <>
@@ -200,27 +217,28 @@ export function Calculadora() {
                     tituloOculto={exclusion.nombre === grupo.nombre}
                   />
                 ))}
-                {sueltos.length > 0 && (
+                {/* RF-27: un grupo con subgrupos se parte en plegables; los demás, como lista. */}
+                {grupo.subgrupos?.map((subgrupo) => {
+                  const delSubgrupo = sueltos.filter((i) => i.subgrupo === subgrupo.id);
+                  return (
+                    <SubgrupoPlegable
+                      key={subgrupo.id}
+                      nombre={subgrupo.nombre}
+                      cuenta={cuentaDelSubgrupo(delSubgrupo, estado.marcados, aportes)}
+                      abiertoAlInicio={delSubgrupo.some((i) => estado.marcados[i.id])}
+                    >
+                      {delSubgrupo.map(itemConCasilla)}
+                    </SubgrupoPlegable>
+                  );
+                })}
+                {!grupo.subgrupos && sueltos.length > 0 && (
                   // Si el grupo también tiene opciones excluyentes, las casillas van
                   // separadas y con su subtítulo: si no, se leen como una opción más.
                   <div className={exclusiones.length > 0 ? 'items items--separados' : 'items'}>
                     {exclusiones.length > 0 && grupo.tituloDeLosItems && (
                       <h3 className="bloque__subtitulo">{grupo.tituloDeLosItems}</h3>
                     )}
-                    {sueltos.map((item) => (
-                      <ItemConCasilla
-                        key={item.id}
-                        item={item}
-                        resumen={resumen(item)}
-                        marcado={Boolean(estado.marcados[item.id])}
-                        aporte={estado.marcados[item.id] ? aportes.get(item.id) : undefined}
-                        alAlternar={(m) => alternar(item.id, m)}
-                        campos={camposDeItem(item)}
-                        describirCampo={describirCampo}
-                        entradas={estado.entradas[item.id] ?? {}}
-                        alCargar={(campo, v) => cargar(item.id, campo, v)}
-                      />
-                    ))}
+                    {sueltos.map(itemConCasilla)}
                   </div>
                 )}
               </section>

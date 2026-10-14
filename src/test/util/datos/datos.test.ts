@@ -28,6 +28,24 @@ describe('datos', () => {
     }
   });
 
+  it('RF-27 · si un grupo tiene subgrupos, cada ítem suelto va en uno de los suyos', () => {
+    for (const grupo of datos.grupos) {
+      const subgrupos = new Set((grupo.subgrupos ?? []).map((s) => s.id));
+      for (const item of datos.items.filter((i) => i.grupo === grupo.id && !i.exclusion)) {
+        if (subgrupos.size === 0) expect(item.subgrupo, item.id).toBeUndefined();
+        else expect(subgrupos, item.id).toContain(item.subgrupo);
+      }
+    }
+  });
+
+  it('RF-27 · los costos operativos van en subgrupos y ninguno queda vacío', () => {
+    const operativos = datos.grupos.find((g) => g.id === 'operativos')!;
+    expect(operativos.subgrupos!.length).toBeGreaterThanOrEqual(2);
+    for (const s of operativos.subgrupos!) {
+      expect(datos.items.some((i) => i.subgrupo === s.id), s.id).toBe(true);
+    }
+  });
+
   it('cada exclusión tiene al menos dos opciones', () => {
     for (const exclusion of datos.exclusiones) {
       const opciones = datos.items.filter((i) => i.exclusion === exclusion.id);

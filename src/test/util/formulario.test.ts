@@ -5,6 +5,7 @@ import { formatearPesos } from '../../util/formato.ts';
 import {
   aSeleccion,
   camposDeItem,
+  cuentaDelSubgrupo,
   estadoInicial,
   formatearFecha,
   formatearVigencia,
@@ -159,5 +160,23 @@ describe('fechas', () => {
     const v = vigenciaDeLosDatos(datos);
     expect(v).toMatch(/^\d{4}-\d{2}$/);
     expect(datos.roles.every((r) => r.vigencia <= v)).toBe(true);
+  });
+});
+
+describe('RF-27 · cuenta de un subgrupo plegado', () => {
+  const operativos = datos.items.filter((i) => i.subgrupo === 'conectividad-y-software');
+
+  it('sin nada marcado lo dice', () => {
+    expect(cuentaDelSubgrupo(operativos, {}, new Map())).toBe('Ninguno marcado');
+  });
+
+  it('con dos marcados dice cuántos y cuánto suman', () => {
+    const marcados = { conectividad: true, licencias: true };
+    const aportes = new Map([['conectividad', 1600], ['licencias', 7400]]);
+    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(9000)}`);
+  });
+
+  it('sin cálculo todavía, sólo la cantidad', () => {
+    expect(cuentaDelSubgrupo(operativos, { conectividad: true }, new Map())).toBe('1 marcado');
   });
 });

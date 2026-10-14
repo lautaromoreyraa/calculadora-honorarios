@@ -18,6 +18,13 @@ export interface Grupo {
   nombre: string;
   /** Subtítulo de las casillas cuando el grupo también tiene opciones excluyentes. */
   tituloDeLosItems?: string;
+  /** Partes plegables del grupo, en orden (RF-27). */
+  subgrupos?: Subgrupo[];
+}
+
+export interface Subgrupo {
+  id: string;
+  nombre: string;
 }
 
 /** Conjunto de ítems de los que se elige uno solo. */
@@ -40,6 +47,8 @@ interface ItemBase {
   nombre: string;
   descripcion?: string;
   grupo: string;
+  /** Id de un subgrupo de su grupo, si el grupo los tiene. */
+  subgrupo?: string;
   exclusion?: string;
   norma: string;
   actualizacion: { regla: ReglaDeActualizacion; origen?: Vigencia };

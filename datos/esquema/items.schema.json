@@ -21,6 +21,20 @@
           "tituloDeLosItems": {
             "description": "Subtítulo de las casillas del grupo cuando el grupo también tiene opciones excluyentes, para que no se lean como una opción más",
             "$ref": "comun.schema.json#/$defs/texto"
+          },
+          "subgrupos": {
+            "description": "Partes plegables del grupo, en este orden (RF-27). Cada ítem del grupo dice en cuál va con su campo subgrupo",
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["id", "nombre"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "$ref": "comun.schema.json#/$defs/id" },
+                "nombre": { "$ref": "comun.schema.json#/$defs/texto" }
+              }
+            }
           }
         }
       }
@@ -78,6 +92,10 @@
         "grupo": { "$ref": "comun.schema.json#/$defs/id" },
         "tipo": { "enum": ["porcentual", "mensual", "por-jornada", "por-trabajo", "calculado"] },
         "exclusion": { "$ref": "comun.schema.json#/$defs/id" },
+        "subgrupo": {
+          "description": "Id de uno de los subgrupos de su grupo; si el grupo tiene subgrupos, es obligatorio",
+          "$ref": "comun.schema.json#/$defs/id"
+        },
         "norma": { "$ref": "comun.schema.json#/$defs/texto" },
         "actualizacion": {
           "type": "object",
