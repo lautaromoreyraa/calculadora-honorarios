@@ -82,8 +82,14 @@ cada cambio.
 | `componentes/CampoNumerico` | Campo de texto con teclado decimal; acepta «1,5» y «2.400.000» |
 | `componentes/OpcionesExcluyentes` | Radios de un conjunto excluyente (tipo de cliente, plazo) |
 | `componentes/ItemConCasilla` | Casilla de un ítem, con los datos que pide al marcarse |
+| `componentes/Aporte` | «Suma $ X a este trabajo» bajo cada ítem marcado, o qué dato le falta |
+| `componentes/SubgrupoPlegable` | Subgrupo plegable de costos operativos, con lo que suma sin abrirlo |
+| `componentes/SelectorDeVehiculo` | Auto o moto, que fija el consumo por defecto |
+| `componentes/TituloDeSeccion` | Título de cada panel con su ícono |
 | `componentes/NormaDelItem` | Norma y vigencia de cada ítem, plegable |
 | `componentes/Desglose` | Total, renglones y lo que falta para calcular; anuncia el total a los lectores de pantalla |
+| `componentes/ComposicionDelTotal` | Barra y leyenda de la composición del total |
+| `componentes/SelectorDeMoneda` | Pesos o dólares, debajo del desglose |
 | `componentes/BarraDelTotal` | Total fijo abajo en el celular, con enlace al desglose |
 | `componentes/DescargaDePresupuesto` | Datos del presupuesto y descarga del `.docx`, que se genera con `import()` al pedirlo |
 | `componentes/VistaPreviaDelPresupuesto` | La hoja del presupuesto en HTML; lee el mismo contenido que el `.docx` (`util/presupuesto/contenido.ts`) |
@@ -125,11 +131,11 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `scripts/` | `validar-datos.mjs` y `actualizar-dolar-blue.ts`, que trae la cotización del día |
 | `src/main.tsx` · `src/App.tsx` | Arranque |
 | `src/util/datos/` | Carga tipada de `datos/` |
-| `src/util/` | Funciones puras: motor de cálculo, armado del presupuesto y `memoria.ts`, lo que se recuerda entre visitas |
+| `src/util/` | Funciones puras: motor de cálculo, armado del presupuesto (`presupuesto/`, con `fechas.ts` aparte para no arrastrar `docx` al bundle principal) y `memoria.ts`, lo que se recuerda entre visitas |
 | `src/paginas/` · `src/componentes/` · `src/layout/` | Interfaz |
-| `src/hooks/` | Estado de la interfaz |
+| `src/hooks/` | `useCalculadora` (estado del formulario), `useNumeroAnimado` (el total que cuenta) y `useValorDiferido` (el anuncio del total cuando se termina de escribir) |
 | `src/contexto/` | `Moneda.tsx`: el formato de la moneda elegida, que usan todos los montos de la pantalla |
-| `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |
+| `src/estilos/` | `tokens.css` (variables de diseño), `base.css`, `calculadora.css` (página y formulario) y `desglose.css` (resultado) |
 | `src/test/` | Tests de Vitest, espejando `src/` |
 | `.github/workflows/` | Verificación de cada PR, publicación desde `main` y dólar blue diario |
 | `wrangler.jsonc` | Worker de Cloudflare que sirve `dist/` |

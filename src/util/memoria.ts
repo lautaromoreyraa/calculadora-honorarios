@@ -159,7 +159,7 @@ export function almacenDelNavegador(): Storage | undefined {
  * El último número de presupuesto descargado (RF-16), aparte del perfil: es una
  * numeración, y «Empezar de nuevo» no tiene por qué hacerla volver a empezar.
  */
-export const CLAVE_DEL_NUMERO = 'calculadora-honorarios:ultimo-presupuesto';
+const CLAVE_DEL_NUMERO = 'calculadora-honorarios:ultimo-presupuesto';
 
 export function leerUltimoNumero(almacen: Pick<Storage, 'getItem'> | undefined): string | null {
   try {
