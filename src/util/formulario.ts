@@ -83,6 +83,29 @@ export function conVehiculo(estado: EstadoDelFormulario, vehiculo: Vehiculo, dat
   return { ...estado, vehiculo, entradas };
 }
 
+/** Años de antigüedad mayores que cero; vacío cuenta como cero, igual que en el motor. */
+function tieneAntiguedad(texto: string): boolean {
+  const n = texto.trim() === '' ? 0 : leerNumero(texto);
+  return Number.isFinite(n) && n > 0;
+}
+
+/**
+ * Cambia la antigüedad y marca o desmarca el adicional por antigüedad (RF-10):
+ * quien carga sus años quiere que se le paguen. Sólo actúa al pasar de cero a
+ * más de cero o al revés, así corregir 5 por 6 no vuelve a marcar un adicional
+ * que el profesional desmarcó a mano.
+ */
+export function conAntiguedad(estado: EstadoDelFormulario, texto: string, datos: Datos): EstadoDelFormulario {
+  const antes = tieneAntiguedad(estado.antiguedad);
+  const ahora = tieneAntiguedad(texto);
+  if (antes === ahora) return { ...estado, antiguedad: texto };
+  const marcados = { ...estado.marcados };
+  for (const item of datos.items.filter((i) => i.tipo === 'mensual' && i.multiplicaPor === 'antiguedad' && !i.exclusion)) {
+    marcados[item.id] = ahora;
+  }
+  return { ...estado, antiguedad: texto, marcados };
+}
+
 /**
  * Convierte lo que escribe una persona en Argentina a número: coma decimal y
  * punto de miles («1.234,5», «2.400.000»). Sin coma, un punto seguido de grupos
