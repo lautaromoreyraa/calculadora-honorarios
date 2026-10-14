@@ -11,13 +11,16 @@ interface Props {
   prefijo?: string;
   error?: string;
   placeholder?: string;
+  /** Id fijo, para que la lista de lo que falta pueda llevar al campo. */
+  id?: string;
 }
 
 // Texto con teclado numérico en vez de type="number": así se puede escribir
 // «1,5» o «2.400.000» como se escribe en Argentina, y la rueda del mouse no
 // cambia el valor sin querer.
-export function CampoNumerico({ etiqueta, valor, alCambiar, ayuda, unidad, prefijo, error, placeholder }: Props) {
-  const id = useId();
+export function CampoNumerico({ etiqueta, valor, alCambiar, ayuda, unidad, prefijo, error, placeholder, id: idFijo }: Props) {
+  const idPropio = useId();
+  const id = idFijo ?? idPropio;
   const descripcion = [ayuda && `${id}-ayuda`, error && `${id}-error`].filter(Boolean).join(' ') || undefined;
   return (
     <div className="campo">

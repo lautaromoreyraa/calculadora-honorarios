@@ -1,6 +1,8 @@
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
-import type { Calculo } from '../util/calculo/tipos.ts';
+import type { MouseEvent } from 'react';
+import type { Calculo, Falta } from '../util/calculo/tipos.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos } from '../util/formato.ts';
+import { idDeCampo } from '../util/formulario.ts';
 
 interface Props {
   calculo: Calculo;
@@ -25,14 +27,27 @@ export function Desglose({ calculo }: Props) {
   );
 }
 
-function Pendiente({ errores }: { errores: string[] }) {
+/** Lleva el foco al campo: un enlace a #id sólo desplaza, y con teclado o lector hay que llegar al control. */
+function irAlCampo(evento: MouseEvent<HTMLAnchorElement>, campo: string) {
+  const control = document.getElementById(idDeCampo(campo));
+  if (!control) return;
+  evento.preventDefault();
+  control.focus();
+  control.scrollIntoView({ block: 'center' });
+}
+
+function Pendiente({ errores }: { errores: Falta[] }) {
   return (
     <>
       <p className="desglose__total-etiqueta">Total del trabajo</p>
       <p className="desglose__total desglose__total--vacio">Faltan datos para calcular</p>
       <ul className="desglose__falta">
         {errores.map((e) => (
-          <li key={e}>{e}</li>
+          <li key={e.mensaje}>
+            <a href={`#${idDeCampo(e.campo)}`} onClick={(evento) => irAlCampo(evento, e.campo)}>
+              {e.mensaje}
+            </a>
+          </li>
         ))}
       </ul>
     </>

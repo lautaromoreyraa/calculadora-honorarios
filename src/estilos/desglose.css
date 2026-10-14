@@ -34,18 +34,18 @@
 }
 
 /* El único movimiento de la página: cuando cambia el total, el número nuevo se
-   asienta en su lugar. Arranca visible, así nunca hay un instante en blanco. */
+   asienta en su lugar. Arranca visible, así nunca hay un instante en blanco.
+   Corre en cada toque de casilla: corto y sin desenfoque, para no cansar. */
 @media (prefers-reduced-motion: no-preference) {
   .desglose__total--animado {
-    animation: asentar 420ms var(--curva-salida);
+    animation: asentar 200ms var(--curva-salida);
   }
 }
 
 @keyframes asentar {
   from {
-    opacity: 0.55;
-    transform: translateY(0.12em);
-    filter: blur(2px);
+    opacity: 0.6;
+    transform: translateY(0.08em);
   }
 }
 

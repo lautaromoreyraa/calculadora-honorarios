@@ -18,7 +18,7 @@ const seleccion = (cambios: Partial<Seleccion> = {}, items: Record<string, Entra
 
 function resultado(s: Seleccion, d: Datos = datos): Resultado {
   const calculo = calcular(s, d);
-  if (!calculo.ok) throw new Error(calculo.errores.join(' '));
+  if (!calculo.ok) throw new Error(calculo.errores.map((e) => e.mensaje).join(' '));
   return calculo.resultado;
 }
 
@@ -45,7 +45,13 @@ describe('RF-02 · cotizar por horas', () => {
   it.each([0, -3, Number.NaN])('con %s horas no calcula y avisa', (horas) => {
     const calculo = calcular(seleccion({ horas }), datos);
     expect(calculo.ok).toBe(false);
-    if (!calculo.ok) expect(calculo.errores.join()).toMatch(/horas/);
+    if (!calculo.ok) expect(calculo.errores).toContainEqual(expect.objectContaining({ campo: 'horas' }));
+  });
+
+  it('sin horas cargadas pide cargarlas, sin retar', () => {
+    const calculo = calcular(seleccion({ horas: Number.NaN }), datos);
+    expect(calculo.ok).toBe(false);
+    if (!calculo.ok) expect(calculo.errores).toContainEqual({ campo: 'horas', mensaje: 'Cargá las horas del trabajo.' });
   });
 });
 
@@ -174,6 +180,12 @@ describe('RF-09 · fondos de vacaciones y aguinaldo', () => {
 describe('RF-10 · título y antigüedad', () => {
   it('5 años de antigüedad, 180 horas: $33.990', () => {
     expect(monto(resultado(seleccion({ horas: 180, antiguedad: 5 }, { antiguedad: {} })), 'antiguedad')).toBe(33990);
+  });
+
+  it('marcada con 0 años suma cero y avisa dónde cargar la antigüedad', () => {
+    const r = resultado(seleccion({ horas: 180, antiguedad: 0 }, { antiguedad: {} }));
+    expect(monto(r, 'antiguedad')).toBe(0);
+    expect(r.avisos.join()).toMatch(/años de antigüedad/);
   });
 
   it('el productor usa su propio valor de antigüedad', () => {

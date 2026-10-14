@@ -8,7 +8,7 @@ import {
   formatearPesosConCentavos,
   formatearPorcentaje,
 } from '../formato.ts';
-import type { Calculo, Renglon, Seleccion } from './tipos.ts';
+import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
 
 export type * from './tipos.ts';
 
@@ -56,23 +56,26 @@ export function jornadas(horas: number, datos: Datos): number {
   return Math.ceil(horas / datos.parametros.horasPorJornada.valor);
 }
 
-function validar(seleccion: Seleccion, datos: Datos): string[] {
-  const errores: string[] = [];
-  if (!datos.roles.some((r) => r.id === seleccion.rolId)) errores.push('Elegí un rol.');
-  if (!datos.provincias.some((p) => p.id === seleccion.provinciaId)) errores.push('Elegí una provincia.');
+function validar(seleccion: Seleccion, datos: Datos): Falta[] {
+  const errores: Falta[] = [];
+  const falta = (campo: string, mensaje: string) => errores.push({ campo, mensaje });
+  if (!datos.roles.some((r) => r.id === seleccion.rolId)) falta('rol', 'Elegí un rol.');
+  if (!datos.provincias.some((p) => p.id === seleccion.provinciaId)) falta('provincia', 'Elegí una provincia.');
   if (!datos.monotributo.categorias.some((c) => c.letra === seleccion.categoria)) {
-    errores.push('Elegí una categoría de monotributo.');
+    falta('categoria', 'Elegí una categoría de monotributo.');
   }
-  if (!Number.isFinite(seleccion.horas) || seleccion.horas <= 0) {
-    errores.push('Las horas del trabajo tienen que ser más que cero.');
+  // Vacío todavía no es un error: es algo por cargar, y se dice así.
+  if (Number.isNaN(seleccion.horas)) falta('horas', 'Cargá las horas del trabajo.');
+  else if (!Number.isFinite(seleccion.horas) || seleccion.horas <= 0) {
+    falta('horas', 'Las horas del trabajo tienen que ser más que cero.');
   }
   if (!Number.isFinite(seleccion.antiguedad) || seleccion.antiguedad < 0) {
-    errores.push('La antigüedad no puede ser negativa.');
+    falta('antiguedad', 'La antigüedad no puede ser negativa.');
   }
   for (const exclusion of datos.exclusiones) {
     const marcados = datos.items.filter((i) => i.exclusion === exclusion.id && i.id in seleccion.items);
-    if (marcados.length > 1) errores.push(`${exclusion.nombre}: elegí una sola opción.`);
-    if (exclusion.obligatorio && marcados.length === 0) errores.push(`Elegí el ${exclusion.nombre.toLowerCase()}.`);
+    if (marcados.length > 1) falta(exclusion.id, `${exclusion.nombre}: elegí una sola opción.`);
+    if (exclusion.obligatorio && marcados.length === 0) falta(exclusion.id, `Elegí el ${exclusion.nombre.toLowerCase()}.`);
   }
   return errores;
 }
@@ -183,6 +186,8 @@ export function calcular(seleccion: Seleccion, datos: Datos): Calculo {
         let mensual = valorMensual(item, rol.id, datos);
         let prefijo = '';
         if (item.multiplicaPor === 'antiguedad') {
+          // Marcado con 0 años suma cero: se avisa, porque el dato está en otro bloque.
+          if (antiguedad === 0) avisos.push(`${item.nombre}: cargá tus años de antigüedad en «El trabajo».`);
           prefijo = `${formatearNumero(antiguedad)} años × ${formatearPesos(mensual)}: `;
           mensual *= antiguedad;
         }

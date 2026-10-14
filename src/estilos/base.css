@@ -81,6 +81,9 @@ a {
 }
 
 .salto {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
   position: absolute;
   left: var(--espacio-4);
   top: -4rem;

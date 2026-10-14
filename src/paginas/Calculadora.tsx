@@ -14,6 +14,7 @@ import { formatearPesos, formatearPesosConCentavos } from '../util/formato.ts';
 import {
   camposDeItem,
   formatearFecha,
+  idDeCampo,
   leerNumero,
   resumenDelItem,
   valorHoraDelRol,
@@ -38,7 +39,6 @@ function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): strin
 export function Calculadora() {
   const { estado, calculo, cambiar, alternar, elegir, cargar } = useCalculadora(datos);
   const idRol = useId();
-  const idCategoria = useId();
   const idTituloResultado = useId();
 
   const rol = datos.roles.find((r) => r.id === estado.rolId)!;
@@ -70,6 +70,14 @@ export function Calculadora() {
 
   const resumen = (item: Item) => resumenDelItem(item, estado, datos);
 
+  // Cuánto suma cada ítem a este trabajo, para mostrarlo junto a su casilla.
+  const aportes = new Map<string, number>();
+  if (calculo.ok) {
+    for (const r of calculo.resultado.renglones) aportes.set(r.id, r.monto);
+    const iibb = calculo.resultado.ingresosBrutosSobreTotal;
+    if (iibb) aportes.set(iibb.id, iibb.monto);
+  }
+
   return (
     <>
       <Encabezado vigencia={vigencia} />
@@ -81,11 +89,11 @@ export function Calculadora() {
             </h2>
 
             <div className="campo">
-              <label className="campo__etiqueta" htmlFor={idRol}>
+              <label className="campo__etiqueta" htmlFor={idDeCampo('rol')}>
                 Rol
               </label>
               <select
-                id={idRol}
+                id={idDeCampo('rol')}
                 className="campo__seleccion"
                 value={estado.rolId}
                 aria-describedby={`${idRol}-ficha`}
@@ -110,6 +118,7 @@ export function Calculadora() {
 
             <div className="bloque__fila">
               <CampoNumerico
+                id={idDeCampo('horas')}
                 etiqueta="Horas del trabajo"
                 unidad="h"
                 placeholder="Por ejemplo, 8"
@@ -118,6 +127,7 @@ export function Calculadora() {
                 error={errorDeNumero(estado.horas, 'positivo')}
               />
               <CampoNumerico
+                id={idDeCampo('antiguedad')}
                 etiqueta="Antigüedad"
                 unidad="años"
                 ayuda="Años de ejercicio profesional."
@@ -129,9 +139,10 @@ export function Calculadora() {
 
             <fieldset className="opciones opciones--en-linea">
               <legend className="opciones__titulo">Provincia</legend>
-              {datos.provincias.map((p) => (
+              {datos.provincias.map((p, i) => (
                 <label key={p.id} className={`opcion${estado.provinciaId === p.id ? ' opcion--elegida' : ''}`}>
                   <input
+                    id={i === 0 ? idDeCampo('provincia') : undefined}
                     className="opcion__radio"
                     type="radio"
                     name="provincia"
@@ -146,11 +157,11 @@ export function Calculadora() {
             </fieldset>
 
             <div className="campo">
-              <label className="campo__etiqueta" htmlFor={idCategoria}>
+              <label className="campo__etiqueta" htmlFor={idDeCampo('categoria')}>
                 Categoría de monotributo
               </label>
               <select
-                id={idCategoria}
+                id={idDeCampo('categoria')}
                 className="campo__seleccion"
                 value={estado.categoria}
                 onChange={(e) => cambiar('categoria', e.target.value)}
@@ -182,6 +193,10 @@ export function Calculadora() {
                     resumen={resumen}
                     elegido={estado.elegidos[exclusion.id] ?? null}
                     alElegir={(itemId) => elegir(exclusion.id, itemId)}
+                    aporte={(() => {
+                      const elegido = estado.elegidos[exclusion.id];
+                      return elegido ? aportes.get(elegido) : undefined;
+                    })()}
                     tituloOculto={exclusion.nombre === grupo.nombre}
                   />
                 ))}
@@ -198,6 +213,7 @@ export function Calculadora() {
                         item={item}
                         resumen={resumen(item)}
                         marcado={Boolean(estado.marcados[item.id])}
+                        aporte={estado.marcados[item.id] ? aportes.get(item.id) : undefined}
                         alAlternar={(m) => alternar(item.id, m)}
                         campos={camposDeItem(item)}
                         describirCampo={describirCampo}

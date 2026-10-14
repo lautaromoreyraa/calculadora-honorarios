@@ -51,6 +51,16 @@ export interface Resultado {
   avisos: string[];
 }
 
+/**
+ * Un dato que falta para calcular. `campo` dice cuál, para que la pantalla
+ * lleve a él: `rol`, `provincia`, `categoria`, `horas`, `antiguedad` o el id
+ * de un conjunto excluyente.
+ */
+export interface Falta {
+  campo: string;
+  mensaje: string;
+}
+
 export type Calculo =
   | { ok: true; resultado: Resultado }
-  | { ok: false; errores: string[] };
+  | { ok: false; errores: Falta[] };
