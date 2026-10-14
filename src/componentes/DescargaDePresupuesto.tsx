@@ -5,6 +5,9 @@ import { formatearPesos } from '../util/formato.ts';
 
 interface Props {
   resultado: Resultado;
+  /** El nombre se recuerda entre visitas (RF-26): lo guarda la calculadora, no este formulario. */
+  profesional: string;
+  alCambiarProfesional: (valor: string) => void;
 }
 
 interface CampoDeTextoProps {
@@ -51,9 +54,8 @@ function CampoDeTexto({ id, etiqueta, valor, alCambiar, autoComplete = 'off', mu
  * Campos del presupuesto y botón de descarga (RF-16). Todo se genera en el
  * navegador: nada de lo que se carga acá sale del equipo (RNF-02).
  */
-export default function DescargaDePresupuesto({ resultado }: Props) {
+export default function DescargaDePresupuesto({ resultado, profesional, alCambiarProfesional }: Props) {
   const id = useId();
-  const [profesional, setProfesional] = useState('');
   const [cliente, setCliente] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [validez, setValidez] = useState('15 días');
@@ -100,7 +102,7 @@ export default function DescargaDePresupuesto({ resultado }: Props) {
           id={`${id}-profesional`}
           etiqueta="Tu nombre"
           valor={profesional}
-          alCambiar={setProfesional}
+          alCambiar={alCambiarProfesional}
           autoComplete="name"
         />
         <CampoDeTexto id={`${id}-cliente`} etiqueta="Cliente" valor={cliente} alCambiar={setCliente} />

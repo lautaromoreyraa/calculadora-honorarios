@@ -22,6 +22,8 @@ export interface EstadoDelFormulario {
   elegidos: Record<string, string | null>;
   /** Datos que cargó el usuario para cada ítem, como texto. */
   entradas: Record<string, Partial<Record<Campo, string>>>;
+  /** Nombre del profesional para el presupuesto; vive acá para poder recordarlo (RF-26). */
+  profesional: string;
 }
 
 export function estadoInicial(datos: Datos): EstadoDelFormulario {
@@ -39,6 +41,7 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
         .filter((i) => camposDeItem(i).includes('consumo'))
         .map((i) => [i.id, { consumo: formatearNumero(datos.parametros.consumoDelAutoCada100Km.valor) }]),
     ),
+    profesional: '',
   };
 }
 

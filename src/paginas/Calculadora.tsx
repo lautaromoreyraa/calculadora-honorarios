@@ -39,7 +39,7 @@ function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): strin
 }
 
 export function Calculadora() {
-  const { estado, calculo, cambiar, alternar, elegir, cargar } = useCalculadora(datos);
+  const { estado, calculo, vuelta, cambiar, alternar, elegir, cargar, empezarDeNuevo } = useCalculadora(datos);
   const idRol = useId();
   const idTituloResultado = useId();
 
@@ -98,7 +98,7 @@ export function Calculadora() {
   return (
     <>
       <Encabezado vigencia={vigencia} />
-      <main className="calculadora">
+      <main className="calculadora" key={vuelta}>
         <form className="calculadora__formulario" aria-label="Datos del trabajo" onSubmit={(e) => e.preventDefault()}>
           <section className="bloque" aria-labelledby={`${idRol}-titulo`}>
             <h2 className="bloque__titulo" id={`${idRol}-titulo`}>
@@ -244,6 +244,16 @@ export function Calculadora() {
               </section>
             );
           })}
+
+          {/* RF-26: lo recordado se borra desde acá, al final de lo que se cargó. */}
+          <div className="reinicio">
+            <p className="campo__ayuda">
+              Tu rol, tus costos marcados y tu nombre quedan guardados en este navegador para la próxima vez.
+            </p>
+            <button type="button" className="boton boton--secundario" onClick={empezarDeNuevo}>
+              Empezar de nuevo
+            </button>
+          </div>
         </form>
 
         <aside id="resultado" className="calculadora__resultado" aria-labelledby={idTituloResultado} tabIndex={-1}>
@@ -257,7 +267,11 @@ export function Calculadora() {
             formulario adentro quedaba al fondo de un segundo scroll. */}
         {calculo.ok && (
           <div id="presupuesto" className="calculadora__presupuesto">
-            <DescargaDePresupuesto resultado={calculo.resultado} />
+            <DescargaDePresupuesto
+              resultado={calculo.resultado}
+              profesional={estado.profesional}
+              alCambiarProfesional={(v) => cambiar('profesional', v)}
+            />
           </div>
         )}
       </main>
