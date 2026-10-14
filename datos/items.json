@@ -95,16 +95,6 @@
       "vigencia": "2026-10"
     },
     {
-      "id": "contador",
-      "nombre": "Honorarios del contador",
-      "grupo": "fiscales",
-      "tipo": "mensual",
-      "valor": 20000,
-      "norma": "Costo de mercado",
-      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
-      "vigencia": "2026-10"
-    },
-    {
       "id": "fondo-vacaciones",
       "nombre": "Fondo de vacaciones",
       "descripcion": "Las vacaciones pagas que un monotributista no recibe, según la antigüedad",
