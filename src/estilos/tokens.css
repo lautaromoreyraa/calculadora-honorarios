@@ -1,7 +1,54 @@
-/* Valores de diseño en un solo lugar: el resto de las hojas sólo usa estas variables. */
+/* Valores de diseño en un solo lugar: el resto de las hojas sólo usa estas variables.
+   Contrastes calculados sobre --color-superficie (#fff): texto 16,4:1 · texto
+   suave 7,4:1 (6,3:1 sobre --color-acento-suave) · acento 7,8:1 · error 7,4:1 ·
+   borde de control 3,4:1 · foco 5,2:1. Blanco sobre --color-acento-fuerte 10,8:1;
+   ahí el foco va en blanco, porque el naranja no llega a 3:1. */
 :root {
-  --color-fondo: #ffffff;
-  --color-texto: #1a1a1a;
-  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --espacio: 1rem;
+  --color-fondo: #f4f3ef;
+  --color-superficie: #ffffff;
+  --color-texto: #1c2025;
+  --color-texto-suave: #4f5660;
+  --color-borde: #dcd9d1;
+  --color-borde-control: #868b93;
+  --color-acento: #0f5c57;
+  --color-acento-fuerte: #0a4541;
+  --color-acento-suave: #e4efed;
+  --color-sobre-acento: #ffffff;
+  /* Alias con el nombre que usa el componente de descarga del presupuesto. */
+  --color-acento-texto: var(--color-sobre-acento);
+  --color-foco: #c2410c;
+  --color-error: #a3261b;
+  --color-error-suave: #fbeceb;
+  --color-aviso: #6e4500;
+  --color-aviso-suave: #fff3dc;
+
+  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --texto-chico: 0.875rem;
+  --texto-base: 1rem;
+  --texto-medio: 1.125rem;
+  --texto-titulo: 1.75rem;
+  --texto-total: 2.25rem;
+
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-7: 3rem;
+  /* Compatibilidad con el andamiaje inicial. */
+  --espacio: var(--espacio-4);
+
+  --radio: 10px;
+  --radio-chico: 6px;
+  --alto-control: 3rem;
+  --ancho-maximo: 72rem;
+  --sombra: 0 1px 2px rgb(28 32 37 / 6%), 0 4px 16px rgb(28 32 37 / 6%);
+}
+
+@media (min-width: 60rem) {
+  :root {
+    --texto-titulo: 2.25rem;
+    --texto-total: 2.75rem;
+  }
 }

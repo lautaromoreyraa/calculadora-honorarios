@@ -1,0 +1,450 @@
+/* Encabezado, formulario y pie. Mobile-first: una columna; desde 60rem el
+   resultado pasa a una columna fija a la derecha. */
+
+.encabezado {
+  position: relative;
+  background: var(--color-acento-fuerte);
+  color: var(--color-sobre-acento);
+}
+
+.encabezado__contenido {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: var(--espacio-6) var(--espacio-4) var(--espacio-5);
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.encabezado__sobre {
+  font-size: var(--texto-chico);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.encabezado__titulo {
+  font-size: var(--texto-titulo);
+  line-height: 1.15;
+  font-weight: 700;
+}
+
+.encabezado__bajada {
+  max-width: 40rem;
+}
+
+.encabezado__vigencia {
+  font-size: var(--texto-chico);
+  opacity: 0.85;
+}
+
+.calculadora {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: var(--espacio-4);
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+.calculadora__formulario {
+  display: grid;
+  gap: var(--espacio-4);
+  min-width: 0;
+}
+
+.calculadora__resultado {
+  min-width: 0;
+  scroll-margin-top: var(--espacio-4);
+}
+
+.calculadora__resultado:focus {
+  outline: none;
+}
+
+@media (min-width: 60rem) {
+  .calculadora {
+    grid-template-columns: minmax(0, 1fr) 24rem;
+    align-items: start;
+    gap: var(--espacio-5);
+    padding: var(--espacio-5) var(--espacio-4);
+  }
+
+  .calculadora__resultado {
+    position: sticky;
+    top: var(--espacio-4);
+    max-height: calc(100vh - 2 * var(--espacio-4));
+    overflow-y: auto;
+  }
+}
+
+/* Bloques del formulario */
+
+.bloque {
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  padding: var(--espacio-4);
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+@media (min-width: 40rem) {
+  .bloque {
+    padding: var(--espacio-5);
+  }
+}
+
+.bloque__titulo {
+  font-size: var(--texto-medio);
+  font-weight: 700;
+}
+
+.bloque__fila {
+  display: grid;
+  gap: var(--espacio-4);
+}
+
+@media (min-width: 30rem) {
+  .bloque__fila {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Campos */
+
+.campo {
+  display: grid;
+  align-content: start;
+  gap: var(--espacio-1);
+  min-width: 0;
+}
+
+.campo__etiqueta {
+  font-weight: 600;
+}
+
+.campo__control {
+  display: flex;
+  align-items: center;
+  min-height: var(--alto-control);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-chico);
+}
+
+.campo__control:focus-within {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+.campo__control--error {
+  border-color: var(--color-error);
+  border-width: 2px;
+}
+
+.campo__entrada {
+  flex: 1;
+  min-width: 0;
+  min-height: calc(var(--alto-control) - 2px);
+  padding: 0 var(--espacio-3);
+  border: 0;
+  background: transparent;
+  font-variant-numeric: tabular-nums;
+}
+
+.campo__entrada:focus {
+  outline: none;
+}
+
+.campo__afijo {
+  padding: 0 var(--espacio-3);
+  color: var(--color-texto-suave);
+  white-space: nowrap;
+}
+
+.campo__afijo:first-child {
+  padding-right: 0;
+}
+
+.campo__afijo:last-child {
+  padding-left: 0;
+}
+
+.campo__seleccion {
+  width: 100%;
+  min-height: var(--alto-control);
+  padding: 0 var(--espacio-3);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-chico);
+}
+
+.campo__ayuda {
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+.campo__error {
+  font-size: var(--texto-chico);
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+.ficha-del-rol {
+  display: grid;
+  gap: var(--espacio-1);
+  margin-top: var(--espacio-1);
+  padding: var(--espacio-3);
+  background: var(--color-acento-suave);
+  border-radius: var(--radio-chico);
+}
+
+.ficha-del-rol__valor {
+  font-size: var(--texto-medio);
+  font-weight: 700;
+  color: var(--color-acento-fuerte);
+  font-variant-numeric: tabular-nums;
+}
+
+.ficha-del-rol__convenio {
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+/* Opciones excluyentes (radios) */
+
+.opciones {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: var(--espacio-2);
+  min-width: 0;
+}
+
+.opciones__titulo {
+  padding: 0;
+  margin-bottom: var(--espacio-2);
+  font-weight: 600;
+}
+
+.opciones__obligatorio {
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+.opciones__nota {
+  margin-top: calc(-1 * var(--espacio-2));
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+.opciones--en-linea {
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+}
+
+.opciones--en-linea .opciones__titulo {
+  grid-column: 1 / -1;
+}
+
+.opcion-con-norma {
+  display: grid;
+  gap: var(--espacio-1);
+}
+
+.opcion {
+  display: flex;
+  gap: var(--espacio-3);
+  align-items: flex-start;
+  min-height: var(--alto-control);
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-chico);
+  cursor: pointer;
+}
+
+.opcion--elegida {
+  border-color: var(--color-acento);
+  background: var(--color-acento-suave);
+}
+
+.opcion__radio,
+.item__casilla {
+  flex: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  margin: 0.0625rem 0 0;
+  accent-color: var(--color-acento);
+  cursor: pointer;
+}
+
+.opcion__texto {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.opcion__nombre {
+  font-weight: 600;
+}
+
+.opcion__resumen {
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+/* Ítems con casilla */
+
+.items {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.item {
+  display: grid;
+  gap: var(--espacio-1);
+  padding: var(--espacio-3);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-chico);
+}
+
+.item--marcado {
+  border-color: var(--color-acento);
+  background: var(--color-acento-suave);
+}
+
+.item__fila {
+  display: flex;
+  gap: var(--espacio-3);
+  align-items: flex-start;
+}
+
+.item__etiqueta {
+  display: grid;
+  gap: 0.125rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+.item__nombre {
+  font-weight: 600;
+}
+
+.item__resumen {
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.item__descripcion {
+  margin-left: calc(1.375rem + var(--espacio-3));
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+.item__campos {
+  display: grid;
+  gap: var(--espacio-3);
+  margin: var(--espacio-2) 0 0 calc(1.375rem + var(--espacio-3));
+}
+
+@media (min-width: 30rem) {
+  .item__campos {
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+}
+
+/* Norma de cada ítem (RF-19) */
+
+.norma {
+  margin-left: calc(1.375rem + var(--espacio-3));
+  font-size: var(--texto-chico);
+}
+
+.opcion-con-norma .norma {
+  margin-left: var(--espacio-3);
+}
+
+.norma__resumen {
+  display: inline-block;
+  padding: var(--espacio-1) 0;
+  color: var(--color-acento);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.norma__texto {
+  padding: var(--espacio-1) 0 var(--espacio-2);
+  color: var(--color-texto-suave);
+}
+
+.norma__vigencia {
+  white-space: nowrap;
+}
+
+/* Pie */
+
+.pie {
+  border-top: 1px solid var(--color-borde);
+  /* Lugar para la barra del total en el celular. */
+  padding-bottom: 5rem;
+}
+
+@media (min-width: 60rem) {
+  .pie {
+    padding-bottom: 0;
+  }
+}
+
+.pie__contenido {
+  max-width: var(--ancho-maximo);
+  margin: 0 auto;
+  padding: var(--espacio-5) var(--espacio-4);
+  display: grid;
+  gap: var(--espacio-3);
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+.pie__aviso {
+  color: var(--color-texto);
+}
+
+/* Barra del total, sólo en el celular */
+
+.barra-del-total {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espacio-3);
+  padding: var(--espacio-3) var(--espacio-4);
+  padding-bottom: max(var(--espacio-3), env(safe-area-inset-bottom));
+  background: var(--color-acento-fuerte);
+  color: var(--color-sobre-acento);
+}
+
+.barra-del-total__monto {
+  font-size: var(--texto-medio);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.barra-del-total__enlace {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--espacio-4);
+  border: 1px solid var(--color-sobre-acento);
+  border-radius: var(--radio-chico);
+  color: var(--color-sobre-acento);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+@media (min-width: 60rem) {
+  .barra-del-total {
+    display: none;
+  }
+}
