@@ -2,6 +2,7 @@ import { useId, useState } from 'react';
 import type { Resultado } from '../util/calculo/tipos.ts';
 import { datos } from '../util/datos/index.ts';
 import { formatearPesos } from '../util/formato.ts';
+import { fechaDentroDe } from '../util/presupuesto/fechas.ts';
 
 interface Props {
   resultado: Resultado;
@@ -17,10 +18,13 @@ interface CampoDeTextoProps {
   alCambiar: (valor: string) => void;
   autoComplete?: string;
   multilinea?: boolean;
+  /** «date» muestra el calendario del sistema. */
+  tipo?: 'text' | 'date';
+  min?: string;
 }
 
 /** Campo de texto con los mismos estilos que los numéricos del formulario. */
-function CampoDeTexto({ id, etiqueta, valor, alCambiar, autoComplete = 'off', multilinea }: CampoDeTextoProps) {
+function CampoDeTexto({ id, etiqueta, valor, alCambiar, autoComplete = 'off', multilinea, tipo = 'text', min }: CampoDeTextoProps) {
   return (
     <div className="campo">
       <label className="campo__etiqueta" htmlFor={id}>
@@ -39,7 +43,8 @@ function CampoDeTexto({ id, etiqueta, valor, alCambiar, autoComplete = 'off', mu
           <input
             id={id}
             className="campo__entrada"
-            type="text"
+            type={tipo}
+            min={min}
             autoComplete={autoComplete}
             value={valor}
             onChange={(e) => alCambiar(e.target.value)}
@@ -58,7 +63,8 @@ export default function DescargaDePresupuesto({ resultado, profesional, alCambia
   const id = useId();
   const [cliente, setCliente] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [validez, setValidez] = useState('15 días');
+  // La validez es una fecha: el cliente lee «hasta el 29 de octubre», no «15 días» desde quién sabe cuándo.
+  const [validez, setValidez] = useState(() => fechaDentroDe(15));
   const [generando, setGenerando] = useState(false);
   const [error, setError] = useState('');
   /** Nombre del último archivo descargado: en el celular la descarga del navegador se pierde fácil. */
@@ -126,7 +132,14 @@ export default function DescargaDePresupuesto({ resultado, profesional, alCambia
           alCambiar={setDescripcion}
           multilinea
         />
-        <CampoDeTexto id={`${id}-validez`} etiqueta="Validez de la oferta" valor={validez} alCambiar={setValidez} />
+        <CampoDeTexto
+          id={`${id}-validez`}
+          etiqueta="Validez de la oferta"
+          tipo="date"
+          min={fechaDentroDe(0)}
+          valor={validez}
+          alCambiar={setValidez}
+        />
       </div>
       {/* El total a la vista junto al botón: en escritorio, al llegar acá el panel
           del resultado ya quedó arriba. */}
