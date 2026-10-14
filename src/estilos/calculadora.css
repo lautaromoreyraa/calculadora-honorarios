@@ -3,8 +3,9 @@
 
 .encabezado {
   position: relative;
-  background: var(--color-acento-fuerte);
-  color: var(--color-sobre-acento);
+  background: var(--color-encabezado);
+  color: var(--color-sobre-encabezado);
+  border-bottom: 1px solid var(--color-borde);
 }
 
 .encabezado__contenido {
@@ -12,32 +13,39 @@
   margin: 0 auto;
   padding: var(--espacio-4);
   display: grid;
-  gap: var(--espacio-1);
+  gap: var(--espacio-2);
 }
 
 @media (min-width: 40rem) {
   .encabezado__contenido {
-    padding: var(--espacio-6) var(--espacio-4) var(--espacio-5);
-    gap: var(--espacio-2);
+    padding: var(--espacio-7) var(--espacio-4) var(--espacio-6);
+    gap: var(--espacio-3);
   }
-}
-
-.encabezado__sobre {
-  font-size: var(--texto-chico);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  opacity: 0.85;
 }
 
 .encabezado__titulo {
   font-size: var(--texto-titulo);
-  line-height: 1.15;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-weight: 560;
+  letter-spacing: -0.025em;
 }
 
 .encabezado__bajada {
-  max-width: 40rem;
+  max-width: 38rem;
+  font-size: var(--texto-medio);
+  line-height: 1.45;
+  color: var(--color-encabezado-suave);
+}
+
+/* La vigencia va después del título, no como sobrelínea: el título habla solo. */
+.encabezado__vigencia {
+  font-size: var(--texto-chico);
+  color: var(--color-encabezado-suave);
+}
+
+.encabezado__vigencia strong {
+  color: var(--color-sobre-encabezado);
+  font-weight: 600;
 }
 
 .encabezado__bajada-extendida {
@@ -143,12 +151,19 @@
   border-radius: var(--radio-chico);
   background: var(--color-acento);
   color: var(--color-sobre-acento);
-  font-weight: 600;
+  font-weight: 650;
   cursor: pointer;
+  transition:
+    background-color 160ms var(--curva-salida),
+    transform 160ms var(--curva-salida);
 }
 
 .boton:hover {
   background: var(--color-acento-fuerte);
+}
+
+.boton:active {
+  transform: translateY(1px);
 }
 
 .boton:disabled {
@@ -181,9 +196,9 @@
 
 .bloque__titulo {
   font-size: var(--texto-subtitulo);
-  line-height: 1.25;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-weight: 560;
+  letter-spacing: -0.015em;
 }
 
 .bloque__fila {
@@ -214,9 +229,14 @@
   display: flex;
   align-items: center;
   min-height: var(--alto-control);
-  background: var(--color-superficie);
+  background: var(--color-fondo);
   border: 1px solid var(--color-borde-control);
   border-radius: var(--radio-chico);
+  transition: border-color 160ms var(--curva-salida);
+}
+
+.campo__control:hover {
+  border-color: var(--color-texto-suave);
 }
 
 .campo__control:focus-within {
@@ -251,10 +271,10 @@
   line-height: 1.5;
 }
 
-/* Safari y Firefox aclaran el placeholder por debajo de AA (2,35:1 y 3,62:1).
-   #6b7079 da 4,98:1 y se sigue distinguiendo de un valor cargado. */
+/* Safari y Firefox aclaran el placeholder por debajo de AA: va con color
+   propio (6,5:1 sobre el fondo del campo) y se distingue de un valor cargado. */
 .campo__entrada::placeholder {
-  color: #6b7079;
+  color: var(--color-placeholder);
   opacity: 1;
 }
 
@@ -276,9 +296,14 @@
   width: 100%;
   min-height: var(--alto-control);
   padding: 0 var(--espacio-3);
-  background: var(--color-superficie);
+  background: var(--color-fondo);
   border: 1px solid var(--color-borde-control);
   border-radius: var(--radio-chico);
+  cursor: pointer;
+}
+
+.campo__seleccion:hover {
+  border-color: var(--color-texto-suave);
 }
 
 .campo__ayuda {
@@ -295,17 +320,19 @@
 .ficha-del-rol {
   display: grid;
   gap: var(--espacio-1);
-  margin-top: var(--espacio-1);
-  padding: var(--espacio-3);
+  margin-top: var(--espacio-2);
+  padding: var(--espacio-4);
   background: var(--color-acento-suave);
   border-radius: var(--radio-chico);
 }
 
 .ficha-del-rol__valor {
-  font-size: var(--texto-medio);
-  font-weight: 700;
+  font-family: var(--fuente-titulos);
+  font-size: 1.75rem;
+  line-height: 1.1;
+  font-weight: 560;
   color: var(--color-acento-fuerte);
-  font-variant-numeric: tabular-nums;
+  font-variant-numeric: lining-nums tabular-nums;
 }
 
 .ficha-del-rol__convenio {
@@ -363,9 +390,18 @@
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-chico);
   cursor: pointer;
+  transition:
+    background-color 180ms var(--curva-salida),
+    border-color 180ms var(--curva-salida);
 }
 
-.opcion--elegida {
+.opcion:hover,
+.item:hover {
+  border-color: var(--color-borde-control);
+}
+
+.opcion--elegida,
+.opcion--elegida:hover {
   border-color: var(--color-acento);
   background: var(--color-acento-suave);
 }
@@ -417,9 +453,13 @@
   padding: var(--espacio-3);
   border: 1px solid var(--color-borde);
   border-radius: var(--radio-chico);
+  transition:
+    background-color 180ms var(--curva-salida),
+    border-color 180ms var(--curva-salida);
 }
 
-.item--marcado {
+.item--marcado,
+.item--marcado:hover {
   border-color: var(--color-acento);
   background: var(--color-acento-suave);
 }
@@ -501,6 +541,7 @@
 /* Pie */
 
 .pie {
+  margin-top: var(--espacio-6);
   border-top: 1px solid var(--color-borde);
   /* Lugar para la barra del total en el celular. */
   padding-bottom: 5rem;
@@ -563,14 +604,26 @@
   gap: var(--espacio-3);
   padding: var(--espacio-3) var(--espacio-4);
   padding-bottom: max(var(--espacio-3), env(safe-area-inset-bottom));
-  background: var(--color-acento-fuerte);
-  color: var(--color-sobre-acento);
+  background: var(--color-superficie-elevada);
+  color: var(--color-texto);
+  border-top: 1px solid var(--color-borde);
+  box-shadow: 0 -8px 24px rgb(0 0 0 / 35%);
 }
 
 .barra-del-total__monto {
-  font-size: var(--texto-medio);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--fuente-titulos);
+  font-size: 1.625rem;
+  line-height: 1.1;
+  font-weight: 560;
+  color: var(--color-acento-fuerte);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.barra-del-total__monto--vacio {
+  font-family: var(--fuente-base);
+  font-size: var(--texto-base);
+  font-weight: 600;
+  color: var(--color-texto-suave);
 }
 
 .barra-del-total__enlace {
@@ -578,9 +631,9 @@
   align-items: center;
   min-height: 2.75rem;
   padding: 0 var(--espacio-4);
-  border: 1px solid var(--color-sobre-acento);
+  border: 1px solid var(--color-acento);
   border-radius: var(--radio-chico);
-  color: var(--color-sobre-acento);
+  color: var(--color-acento);
   font-weight: 600;
   text-decoration: none;
 }

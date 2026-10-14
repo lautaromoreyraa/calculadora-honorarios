@@ -7,6 +7,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Las barras de scroll también son parte del tema: sin esto, Windows las
+     dibuja grises y claras sobre la página oscura. */
+  scrollbar-color: var(--color-borde-control) var(--color-fondo);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -23,6 +26,13 @@ body {
   font-size: var(--texto-base);
   line-height: 1.5;
   overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: var(--color-seleccion);
+  color: var(--color-texto);
 }
 
 h1,
@@ -32,16 +42,25 @@ p {
   margin: 0;
 }
 
+h1,
+h2 {
+  font-family: var(--fuente-titulos);
+  text-wrap: balance;
+}
+
 button,
 input,
-select {
+select,
+textarea {
   font: inherit;
   color: inherit;
+  caret-color: var(--color-acento);
 }
 
 a {
   color: var(--color-acento);
-  text-underline-offset: 0.15em;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
 }
 
 :focus-visible {
@@ -70,14 +89,9 @@ a {
   background: var(--color-acento);
   color: var(--color-sobre-acento);
   border-radius: var(--radio-chico);
+  font-weight: 600;
 }
 
 .salto:focus {
   top: var(--espacio-2);
-}
-
-/* Sobre los fondos oscuros el foco naranja no contrasta: va en blanco. */
-.salto:focus-visible,
-.barra-del-total :focus-visible {
-  outline-color: var(--color-sobre-acento);
 }
