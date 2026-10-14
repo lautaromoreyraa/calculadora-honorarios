@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "combustible.schema.json",
+  "title": "Precio del litro de nafta por provincia",
+  "type": "object",
+  "required": ["producto", "criterio", "fuente", "precios"],
+  "additionalProperties": false,
+  "properties": {
+    "producto": { "$ref": "comun.schema.json#/$defs/texto" },
+    "criterio": { "$ref": "comun.schema.json#/$defs/texto" },
+    "fuente": { "$ref": "comun.schema.json#/$defs/texto" },
+    "precios": {
+      "description": "Una entrada por id de provincia",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "$ref": "comun.schema.json#/$defs/id" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["precio", "fecha", "estaciones"],
+        "additionalProperties": false,
+        "properties": {
+          "precio": { "$ref": "comun.schema.json#/$defs/pesos" },
+          "fecha": { "$ref": "comun.schema.json#/$defs/fecha" },
+          "estaciones": { "type": "integer", "minimum": 1 }
+        }
+      }
+    }
+  }
+}

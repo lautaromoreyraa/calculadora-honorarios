@@ -1,0 +1,368 @@
+{
+  "grupos": [
+    { "id": "convencionales", "nombre": "Adicionales de convenio" },
+    { "id": "fiscales", "nombre": "Impuestos, seguridad social y fondos" },
+    { "id": "operativos", "nombre": "Costos operativos" },
+    { "id": "contenidos", "nombre": "Uso del contenido y plazos" },
+    { "id": "cliente", "nombre": "Tipo de cliente" }
+  ],
+  "exclusiones": [
+    { "id": "plazo", "nombre": "Plazo de entrega", "obligatorio": false },
+    { "id": "tipo-de-cliente", "nombre": "Tipo de cliente", "obligatorio": true }
+  ],
+  "items": [
+    {
+      "id": "titulo",
+      "nombre": "Título universitario o terciario",
+      "grupo": "convencionales",
+      "tipo": "mensual",
+      "valor": 43120,
+      "norma": "Acta acuerdo FATPREN, cláusula accesoria 1",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "antiguedad",
+      "nombre": "Adicional por antigüedad",
+      "descripcion": "Por cada año de ejercicio profesional",
+      "grupo": "convencionales",
+      "tipo": "mensual",
+      "valor": 6798,
+      "multiplicaPor": "antiguedad",
+      "porRol": { "productor": { "valor": 10782.34 } },
+      "norma": "CCT 541/08, art. 32; productor: escala SATSAID de medios del interior, junio de 2026",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "feriado",
+      "nombre": "Feriado o fin de semana",
+      "grupo": "convencionales",
+      "tipo": "porcentual",
+      "porcentaje": 1,
+      "norma": "CCT 541/08, arts. 13 y 15: recargo del 100 %",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "nocturnidad",
+      "nombre": "Nocturnidad",
+      "grupo": "convencionales",
+      "tipo": "porcentual",
+      "porcentaje": 0.25,
+      "norma": "CCT 173/75, Sindicato de Prensa de Chaco",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "monotributo",
+      "nombre": "Monotributo",
+      "descripcion": "Impuesto integrado, aporte al SIPA y obra social de la categoría elegida",
+      "grupo": "fiscales",
+      "tipo": "calculado",
+      "formula": "monotributo",
+      "norma": "Ley 24.977, anexo; montos de ARCA",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-08"
+    },
+    {
+      "id": "ingresos-brutos",
+      "nombre": "Ingresos brutos",
+      "descripcion": "Chaco: monto fijo mensual del régimen simplificado. Corrientes: alícuota sobre el total facturado",
+      "grupo": "fiscales",
+      "tipo": "calculado",
+      "formula": "ingresos-brutos",
+      "norma": "Chaco: Ley 83-F, art. 149 bis. Corrientes: RG DGR 293/2025",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "art",
+      "nombre": "ART",
+      "grupo": "fiscales",
+      "tipo": "mensual",
+      "valor": 20000,
+      "norma": "Costo de mercado",
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "contador",
+      "nombre": "Honorarios del contador",
+      "grupo": "fiscales",
+      "tipo": "mensual",
+      "valor": 20000,
+      "norma": "Costo de mercado",
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "fondo-vacaciones",
+      "nombre": "Fondo de vacaciones",
+      "descripcion": "Las vacaciones pagas que un monotributista no recibe, según la antigüedad",
+      "grupo": "fiscales",
+      "tipo": "calculado",
+      "formula": "fondo-vacaciones",
+      "norma": "Ley de Contrato de Trabajo, arts. 150 y 155",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "fondo-sac",
+      "nombre": "Fondo de aguinaldo (SAC)",
+      "descripcion": "El aguinaldo que un monotributista no recibe: un sueldo por año",
+      "grupo": "fiscales",
+      "tipo": "calculado",
+      "formula": "fondo-sac",
+      "norma": "Ley de Contrato de Trabajo, arts. 121 y 122; Ley 23.041",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "conectividad",
+      "nombre": "Conectividad domiciliaria",
+      "grupo": "operativos",
+      "tipo": "mensual",
+      "valor": 32000,
+      "norma": "Costo de mercado",
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "datos-moviles",
+      "nombre": "Datos móviles",
+      "grupo": "operativos",
+      "tipo": "mensual",
+      "valor": 70000,
+      "norma": "Costo de mercado",
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "licencias",
+      "nombre": "Licencia de software profesional",
+      "grupo": "operativos",
+      "tipo": "mensual",
+      "dolares": {
+        "herramientas": [{ "nombre": "Adobe Creative Cloud Pro", "precio": 69.99 }],
+        "proporcion": 0.5
+      },
+      "norma": "50 % de la cotización oficial",
+      "actualizacion": { "regla": "dolar-oficial" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "ia-y-redes",
+      "nombre": "IA y gestión de redes sociales",
+      "grupo": "operativos",
+      "tipo": "mensual",
+      "dolares": {
+        "herramientas": [
+          { "nombre": "ChatGPT Plus", "precio": 20 },
+          { "nombre": "CapCut Pro", "precio": 19.99 }
+        ],
+        "proporcion": 0.5
+      },
+      "porRol": {
+        "redactor-digital": {
+          "dolares": {
+            "herramientas": [{ "nombre": "ChatGPT Plus", "precio": 20 }],
+            "proporcion": 0.5
+          }
+        }
+      },
+      "norma": "50 % de la cotización oficial",
+      "actualizacion": { "regla": "dolar-oficial" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "seguro-equipamiento",
+      "nombre": "Seguro de equipamiento",
+      "grupo": "operativos",
+      "tipo": "mensual",
+      "valor": 9300,
+      "norma": "Costo de mercado",
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "amortizacion-domiciliario",
+      "nombre": "Amortización del equipamiento propio",
+      "descripcion": "Computadora, cámara o equipo de trabajo propio",
+      "grupo": "operativos",
+      "tipo": "calculado",
+      "formula": "amortizacion",
+      "norma": "Valor del equipo en 24 meses",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "amortizacion-kit-liviano",
+      "nombre": "Amortización del kit liviano de exteriores",
+      "grupo": "operativos",
+      "tipo": "calculado",
+      "formula": "amortizacion",
+      "norma": "Valor del equipo en 24 meses",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "alquiler-kit-liviano",
+      "nombre": "Alquiler del kit liviano de exteriores",
+      "grupo": "operativos",
+      "tipo": "por-trabajo",
+      "norma": "Precio del alquiler",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "amortizacion-kit-profesional",
+      "nombre": "Amortización del kit profesional de exteriores",
+      "grupo": "operativos",
+      "tipo": "calculado",
+      "formula": "amortizacion",
+      "norma": "Valor del equipo en 24 meses",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "alquiler-kit-profesional",
+      "nombre": "Alquiler del kit profesional de exteriores",
+      "grupo": "operativos",
+      "tipo": "por-trabajo",
+      "norma": "Precio del alquiler",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "movilidad",
+      "nombre": "Movilidad",
+      "descripcion": "Combustible para los kilómetros del trabajo",
+      "grupo": "operativos",
+      "tipo": "calculado",
+      "formula": "movilidad",
+      "norma": "Litro de nafta súper en la provincia",
+      "actualizacion": { "regla": "combustible" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "refrigerio",
+      "nombre": "Refrigerio",
+      "descripcion": "Por jornada de trabajo",
+      "grupo": "operativos",
+      "tipo": "por-jornada",
+      "valor": 7992.87,
+      "norma": "CCT 131/75, SATSAID",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "exteriores",
+      "nombre": "Adicional por exteriores",
+      "descripcion": "Por jornada de trabajo en exteriores",
+      "grupo": "operativos",
+      "tipo": "por-jornada",
+      "valor": 9955.05,
+      "norma": "CCT 131/75, SATSAID",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "multifuncion",
+      "nombre": "Multifunción",
+      "grupo": "operativos",
+      "tipo": "porcentual",
+      "porcentaje": 0.4,
+      "norma": "Sobre la base de cálculo",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "cobertura-de-emergencia",
+      "nombre": "Cobertura de emergencia",
+      "grupo": "operativos",
+      "tipo": "porcentual",
+      "porcentaje": 0.15,
+      "porRol": { "fotoperiodista": { "porcentaje": 0.3 } },
+      "norma": "Sobre la base de cálculo",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "cesion-de-derechos",
+      "nombre": "Cesión de derecho de uso",
+      "grupo": "contenidos",
+      "tipo": "porcentual",
+      "porcentaje": 0.4,
+      "norma": "Ley 11.723",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "urgente",
+      "nombre": "Entrega urgente (24 a 48 h)",
+      "grupo": "contenidos",
+      "tipo": "porcentual",
+      "porcentaje": 0.5,
+      "exclusion": "plazo",
+      "norma": "Criterio de la investigación",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "muy-urgente",
+      "nombre": "Entrega muy urgente (menos de 24 h)",
+      "grupo": "contenidos",
+      "tipo": "porcentual",
+      "porcentaje": 0.75,
+      "exclusion": "plazo",
+      "norma": "Criterio de la investigación",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "cliente-a",
+      "nombre": "A · ONG, autónomos, autogestivos y proyectos culturales",
+      "grupo": "cliente",
+      "tipo": "porcentual",
+      "porcentaje": 0,
+      "exclusion": "tipo-de-cliente",
+      "norma": "Criterio CISPREN",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "cliente-b",
+      "nombre": "B · Educativos",
+      "grupo": "cliente",
+      "tipo": "porcentual",
+      "porcentaje": 0.2,
+      "exclusion": "tipo-de-cliente",
+      "norma": "Criterio CISPREN",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "cliente-c",
+      "nombre": "C · Sector público: gobiernos y organismos provinciales y municipales",
+      "grupo": "cliente",
+      "tipo": "porcentual",
+      "porcentaje": 0.3,
+      "exclusion": "tipo-de-cliente",
+      "norma": "Criterio CISPREN",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "cliente-d",
+      "nombre": "D · Empresas privadas",
+      "grupo": "cliente",
+      "tipo": "porcentual",
+      "porcentaje": 0.4,
+      "exclusion": "tipo-de-cliente",
+      "norma": "Criterio CISPREN",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    }
+  ]
+}

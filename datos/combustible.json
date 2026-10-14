@@ -1,0 +1,9 @@
+{
+  "producto": "Nafta súper (92 a 95 RON)",
+  "criterio": "Mediana del precio diurno informado por las estaciones de la provincia en los últimos 60 días",
+  "fuente": "Secretaría de Energía, dataset «Precios en surtidor», Res. 314/2016",
+  "precios": {
+    "chaco": { "precio": 2189, "fecha": "2026-10-13", "estaciones": 15 },
+    "corrientes": { "precio": 2199, "fecha": "2026-10-13", "estaciones": 14 }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "horasMensuales": {
+    "valor": 180,
+    "norma": "30 días por jornada de 6 horas (Estatuto del Periodista y CCT 131/75)"
+  },
+  "horasPorJornada": {
+    "valor": 6,
+    "norma": "Jornada del Estatuto del Periodista y del CCT 131/75"
+  },
+  "vidaUtilDeEquiposEnMeses": {
+    "valor": 24,
+    "norma": "Criterio de la investigación: obsolescencia del equipo de trabajo"
+  },
+  "consumoDelAutoCada100Km": {
+    "valor": 8,
+    "norma": "Auto compacto en uso mixto; el usuario lo puede cambiar"
+  },
+  "vacaciones": {
+    "divisorDelDia": 25,
+    "diasPorAntiguedad": [
+      { "desdeAnios": 0, "dias": 14 },
+      { "desdeAnios": 5, "dias": 21 },
+      { "desdeAnios": 10, "dias": 28 },
+      { "desdeAnios": 20, "dias": 35 }
+    ],
+    "norma": "Ley de Contrato de Trabajo 20.744, arts. 150 y 155"
+  },
+  "sueldoAnualComplementario": {
+    "sueldosPorAnio": 1,
+    "norma": "Ley de Contrato de Trabajo 20.744, arts. 121 y 122; Ley 23.041"
+  },
+  "dolarOficial": {
+    "valor": 1512.5,
+    "fecha": "2026-10-13",
+    "fuente": "BCRA, cotización de referencia (API de estadísticas cambiarias)"
+  }
+}
