@@ -5,6 +5,11 @@ updates:
     target-branch: develop
     schedule:
       interval: weekly
+    # Los tipos de Node siguen a la versión que corre (24, en las Actions):
+    # una mayor nueva deja usar APIs que en la 24 no existen.
+    ignore:
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     target-branch: develop
