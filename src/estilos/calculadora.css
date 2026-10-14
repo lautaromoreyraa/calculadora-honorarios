@@ -1164,3 +1164,36 @@
     background: CanvasText;
   }
 }
+
+/* Marco de los costos operativos (RNF-13): cada ítem va en una tarjeta como
+   las opciones de «Uso del contenido y plazos», con el mismo borde, separación
+   y estado marcado, en vez de las filas con filete del resto. */
+.bloque--casillas-redondas .items {
+  gap: var(--espacio-2);
+  padding-bottom: var(--espacio-2);
+}
+
+.bloque--casillas-redondas .item,
+.bloque--casillas-redondas .items > .item:first-child,
+.bloque--casillas-redondas .item--marcado + .item {
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio-chico);
+  transition:
+    background-color var(--duracion) var(--curva-salida),
+    border-color var(--duracion) var(--curva-salida);
+}
+
+.bloque--casillas-redondas .item__fila {
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-1);
+}
+
+.bloque--casillas-redondas .item:has(> .item__fila:hover) {
+  background: transparent;
+  border-color: var(--color-borde-control);
+}
+
+.bloque--casillas-redondas .item--marcado,
+.bloque--casillas-redondas .item--marcado:has(> .item__fila:hover) {
+  border-color: var(--color-acento);
+  background: var(--color-acento-suave);
+}
