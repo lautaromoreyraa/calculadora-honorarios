@@ -101,8 +101,9 @@ Archivo (Omnibus-Type) para el resto. Las dos son variables y autoalojadas con
 Los montos usan cifras tabulares para que no bailen al recalcular.
 
 **Composición.** Cada sección del formulario es un panel con su ícono (Lucide,
-dentro del bundle); adentro, los ítems son filas de una lista separadas por
-filetes, sin tarjetas dentro de tarjetas. El panel del resultado muestra debajo
+dentro del bundle); adentro, cada ítem va en un marco como el de las opciones,
+y la marca dice si suma (cuadrado) o si se elige (círculo; también en los
+costos operativos, por pedido del cliente). El panel del resultado muestra debajo
 del total una barra con su composición (honorario base, adicionales, impuestos
 y fondos, costos), que sale de `util/composicion.ts`.
 
