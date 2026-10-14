@@ -255,7 +255,13 @@ export function Calculadora() {
             const sueltos = delGrupo.filter((i) => !i.exclusion);
             const idTitulo = `grupo-${grupo.id}`;
             return (
-              <section key={grupo.id} className="bloque" aria-labelledby={idTitulo}>
+              <section
+                key={grupo.id}
+                // Lautaro pidió los costos operativos con un punto redondo en vez
+                // del cuadrado (RNF-13); siguen siendo casillas: se marcan varios.
+                className={grupo.id === 'operativos' ? 'bloque bloque--casillas-redondas' : 'bloque'}
+                aria-labelledby={idTitulo}
+              >
                 <TituloDeSeccion seccion={grupo.id} id={idTitulo}>
                   {grupo.nombre}
                 </TituloDeSeccion>

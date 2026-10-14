@@ -1116,3 +1116,51 @@
     scroll-padding-bottom: calc(var(--alto-barra, 4.5rem) + var(--espacio-4));
   }
 }
+
+/* Casillas redondas (RNF-13): en «Costos operativos» la casilla se dibuja como
+   un círculo con un punto al marcarla, igual que los radios del resto. Sigue
+   siendo una casilla: el lector anuncia «casilla» y se marcan varias. */
+.bloque--casillas-redondas .item__casilla {
+  appearance: none;
+  display: grid;
+  place-content: center;
+  border: 2px solid var(--color-borde-control);
+  border-radius: 50%;
+  background: var(--color-fondo);
+  transition: border-color var(--duracion) var(--curva-salida);
+}
+
+.bloque--casillas-redondas .item__casilla::before {
+  content: '';
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: var(--color-acento);
+  transform: scale(0);
+  transition: transform var(--duracion) var(--curva-salida);
+}
+
+.bloque--casillas-redondas .item__casilla:hover {
+  border-color: var(--color-texto-suave);
+}
+
+.bloque--casillas-redondas .item__casilla:checked {
+  border-color: var(--color-acento);
+}
+
+.bloque--casillas-redondas .item__casilla:checked::before {
+  transform: scale(1);
+}
+
+.bloque--casillas-redondas .item__casilla:focus-visible {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+/* Con colores forzados (alto contraste de Windows) el punto tiene que seguir
+   viéndose: toma el color del sistema. */
+@media (forced-colors: active) {
+  .bloque--casillas-redondas .item__casilla::before {
+    background: CanvasText;
+  }
+}
