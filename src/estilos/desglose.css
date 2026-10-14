@@ -89,21 +89,8 @@
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* El único movimiento de la página: cuando cambia el total, el número nuevo se
-   asienta en su lugar. Arranca visible, así nunca hay un instante en blanco.
-   Corre en cada toque de casilla: corto y sin desenfoque, para no cansar. */
-@media (prefers-reduced-motion: no-preference) {
-  .desglose__total--animado {
-    animation: asentar 200ms var(--curva-salida);
-  }
-}
-
-@keyframes asentar {
-  from {
-    opacity: 0.6;
-    transform: translateY(0.08em);
-  }
-}
+/* El total cuenta hasta su valor nuevo (useNumeroAnimado): las cifras
+   tabulares hacen que no baile mientras cambia. */
 
 /* Sin resultado, lo principal es la lista de lo que falta, no el aviso. */
 .desglose__total--vacio {
@@ -214,5 +201,99 @@
   .desglose__concepto {
     padding-bottom: 0;
     overflow-wrap: anywhere;
+  }
+}
+
+/* Composición del total (RNF-13): de dónde sale cada peso. La barra se
+   reacomoda con el total; la leyenda dice lo mismo en texto. */
+.composicion {
+  display: grid;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-3);
+}
+
+.composicion__barra {
+  display: flex;
+  gap: 3px;
+  height: 0.625rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-fondo);
+}
+
+.composicion__tramo {
+  flex-basis: 0;
+  min-width: 4px;
+  background: var(--color-parte, var(--color-acento));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .composicion__tramo {
+    transition: flex-grow 450ms var(--curva-salida);
+  }
+}
+
+.composicion__tramo--base {
+  --color-parte: var(--color-parte-base);
+}
+
+.composicion__tramo--adicionales {
+  --color-parte: var(--color-parte-adicionales);
+}
+
+.composicion__tramo--impuestos {
+  --color-parte: var(--color-parte-impuestos);
+}
+
+.composicion__tramo--costos {
+  --color-parte: var(--color-parte-costos);
+}
+
+.composicion__leyenda {
+  display: grid;
+  gap: var(--espacio-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-chico);
+}
+
+.composicion__parte {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.composicion__muestra {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 3px;
+  background: var(--color-parte);
+}
+
+.composicion__nombre {
+  color: var(--color-texto-suave);
+}
+
+.composicion__monto {
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.composicion__porcentaje {
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+@container (max-width: 18em) {
+  .composicion__parte {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .composicion__monto {
+    grid-column: 2;
+    text-align: left;
   }
 }

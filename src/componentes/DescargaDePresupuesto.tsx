@@ -5,6 +5,7 @@ import { useFormato } from '../contexto/Moneda.tsx';
 import { almacenDelNavegador, guardarUltimoNumero, leerUltimoNumero } from '../util/memoria.ts';
 import { contenidoDelPresupuesto, LEYENDA_FACTURA_C, siguienteNumero } from '../util/presupuesto/contenido.ts';
 import { fechaDentroDe } from '../util/presupuesto/fechas.ts';
+import { TituloDeSeccion } from './TituloDeSeccion.tsx';
 import { VistaPreviaDelPresupuesto } from './VistaPreviaDelPresupuesto.tsx';
 
 /** Lo del profesional que se recuerda entre visitas (RF-26): lo guarda la calculadora, no este formulario. */
@@ -158,9 +159,9 @@ export default function DescargaDePresupuesto({ resultado, delProfesional, alCam
   return (
     <section className="presupuesto" aria-labelledby={campo('titulo')}>
       <div className="presupuesto__formulario">
-        <h2 className="bloque__titulo" id={campo('titulo')}>
+        <TituloDeSeccion seccion="presupuesto" id={campo('titulo')}>
           Presupuesto en Word
-        </h2>
+        </TituloDeSeccion>
         <p className="campo__ayuda">
           Lleva el trabajo y el total, sin el desglose de tus costos. Lo que falte sale como un espacio para
           completar. Tus datos y tus condiciones quedan guardados para la próxima.

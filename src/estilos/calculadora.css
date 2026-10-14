@@ -82,7 +82,7 @@
   /* minmax(0, …): la columna no crece hasta el ancho mínimo del contenido,
      que con el texto agrandado pasaba el de la pantalla. */
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--espacio-4);
+  gap: var(--espacio-5);
   min-width: 0;
 }
 
@@ -129,16 +129,27 @@
     top: var(--espacio-4);
     max-height: calc(100vh - 2 * var(--espacio-4));
     overflow-y: auto;
+    /* Con la composición el panel puede pasar el alto de la pantalla: la barra
+       de scroll propia va fina, para no competir con el total. */
+    scrollbar-width: thin;
   }
 }
 
-/* Presupuesto en Word (RF-16): una sección más, como los bloques del formulario. */
+/* Presupuesto en Word (RF-16): un panel más, como los bloques del formulario. */
 
 .calculadora__presupuesto {
   min-width: 0;
-  margin-top: var(--espacio-5);
-  padding-top: var(--espacio-6);
-  border-top: 1px solid var(--color-borde-control);
+  padding: var(--espacio-5) var(--espacio-4);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--realce);
+}
+
+@media (min-width: 40rem) {
+  .calculadora__presupuesto {
+    padding: var(--espacio-6);
+  }
 }
 
 .presupuesto {
@@ -423,33 +434,57 @@
   width: auto;
 }
 
-/* Bloques del formulario. Secciones sobre el fondo, no cajas: un filete y el
-   título las separan, como en una hoja impresa. Así las únicas cajas son lo que
-   se toca (casillas, campos) y el panel del resultado, y nunca hay una tarjeta
-   dentro de otra. */
+/* Bloques del formulario (RNF-13). Cada sección es un panel con su ícono, y
+   adentro los ítems son filas de una lista separadas por filetes: un solo
+   nivel de caja, nunca una tarjeta dentro de otra. */
 
 .bloque {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--espacio-4);
-  padding-top: var(--espacio-5);
-  border-top: 1px solid var(--color-borde);
+  gap: var(--espacio-5);
+  padding: var(--espacio-5) var(--espacio-4);
+  background: var(--color-superficie);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--realce);
 }
 
-.calculadora__formulario > .bloque:first-child {
-  padding-top: 0;
-  border-top: 0;
+@media (min-width: 40rem) {
+  .bloque {
+    padding: var(--espacio-6);
+  }
 }
 
-.bloque + .bloque {
-  margin-top: var(--espacio-4);
+.bloque__encabezado {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-3);
+  min-width: 0;
 }
 
+.bloque__icono {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radio-chico);
+  background: var(--color-acento-suave);
+  color: var(--color-acento);
+}
+
+/* Los títulos de sección van en Archivo: rótulos de una herramienta, no
+   titulares. Alegreya queda para el título de la página y los montos. */
 .bloque__titulo {
-  font-size: var(--texto-subtitulo);
-  line-height: 1.1;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-family: var(--fuente-base);
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 650;
+  letter-spacing: -0.005em;
+}
+
+.bloque__titulo:focus {
+  outline: none;
 }
 
 .bloque__fila {
@@ -674,8 +709,7 @@
 }
 
 /* Sólo resalta lo que responde al toque: la etiqueta, no la norma ni los campos. */
-.opcion:hover,
-.item:has(> .item__fila:hover) {
+.opcion:hover {
   border-color: var(--color-borde-control);
 }
 
@@ -717,7 +751,6 @@
 .items {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--espacio-2);
 }
 
 /* RF-07: el selector aparece entre las tarjetas al marcar monotributo o IIBB;
@@ -738,27 +771,45 @@
   font-weight: 560;
 }
 
+/* Cada ítem es una fila: el filete de arriba la separa de la anterior y,
+   marcada, se tiñe del acento. */
 .item {
   display: grid;
-  padding: 0 0 var(--espacio-1);
-  border: 1px solid var(--color-borde);
-  border-radius: var(--radio-chico);
+  padding: 0 0 var(--espacio-2);
+  border-top: 1px solid var(--color-borde);
+  border-radius: 0;
   transition:
     background-color var(--duracion) var(--curva-salida),
-    border-color var(--duracion) var(--curva-salida);
+    border-radius var(--duracion) var(--curva-salida);
+}
+
+.items > .item:first-child,
+.bloque__subtitulo + .item {
+  border-top-color: transparent;
+}
+
+.item:has(> .item__fila:hover) {
+  background: var(--color-superficie-elevada);
+  border-radius: var(--radio-chico);
 }
 
 .item--marcado,
 .item--marcado:has(> .item__fila:hover) {
-  border-color: var(--color-acento);
   background: var(--color-acento-suave);
+  border-radius: var(--radio-chico);
+  border-top-color: transparent;
+}
+
+/* La fila que sigue a una marcada no necesita filete: el tinte ya separa. */
+.item--marcado + .item {
+  border-top-color: transparent;
 }
 
 .item__fila {
   display: flex;
   gap: var(--espacio-3);
   align-items: flex-start;
-  padding: var(--espacio-3) var(--espacio-3) var(--espacio-1);
+  padding: var(--espacio-4) var(--espacio-3) var(--espacio-1);
   cursor: pointer;
 }
 

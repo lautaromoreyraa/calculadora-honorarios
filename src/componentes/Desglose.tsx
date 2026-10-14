@@ -1,8 +1,12 @@
+import { useNumeroAnimado } from '../hooks/useNumeroAnimado.ts';
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
 import type { MouseEvent } from 'react';
 import type { Calculo, Falta } from '../util/calculo/tipos.ts';
 import { useFormato } from '../contexto/Moneda.tsx';
+import { composicionDelTotal } from '../util/composicion.ts';
+import { datos } from '../util/datos/index.ts';
 import { formatearNumero } from '../util/formato.ts';
+import { ComposicionDelTotal } from './ComposicionDelTotal.tsx';
 import { idDeCampo } from '../util/formulario.ts';
 
 interface Props {
@@ -60,16 +64,19 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
   const formato = useFormato();
   const r = calculo.resultado;
   const iibb = r.ingresosBrutosSobreTotal;
+  // El único movimiento de la página: el total cuenta hasta su valor nuevo. Lo
+  // que se anuncia al lector de pantalla es el valor final, no los intermedios.
+  const totalMostrado = useNumeroAnimado(r.total);
   return (
     <>
       <p className="desglose__total-etiqueta">Total del trabajo</p>
-      {/* La key cambia con el monto: React remonta el nodo y la animación corre una vez. */}
-      <p key={r.total} className="desglose__total desglose__total--animado">
-        {formato.monto(r.total)}
+      <p className="desglose__total" aria-hidden="true">
+        {formato.monto(formato.redondear(totalMostrado))}
       </p>
       <p className="desglose__contexto">
         {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
       </p>
+      <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
 
       {r.avisos.length > 0 && (
         <ul className="desglose__avisos">
