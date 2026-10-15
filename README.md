@@ -138,7 +138,7 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css`, `calculadora.css` (página y formulario) y `desglose.css` (resultado) |
 | `src/test/` | Tests de Vitest, espejando `src/` |
 | `.github/workflows/` | Verificación de cada PR, publicación desde `main` y dólar blue diario |
-| `wrangler.jsonc` | Worker de Cloudflare que sirve `dist/` |
+| `wrangler.jsonc` | Proyecto de Cloudflare Pages que sirve `dist/` |
 
 ## Cómo se corre
 
@@ -161,12 +161,14 @@ que pasar antes de mergear.
 
 ## Despliegue
 
-El sitio es un Worker de Cloudflare sólo de archivos estáticos, configurado en
-`wrangler.jsonc`: sirve `dist/` y aplica los headers de `public/_headers`. Se
+El sitio es un proyecto de Cloudflare Pages sólo de archivos estáticos,
+configurado en `wrangler.jsonc`: sirve `dist/` en
+`calculadora-honorarios.pages.dev` y aplica los headers de `public/_headers`. Se
 publica solo al llegar un merge a `main`. La acción `Publicación` repite la
-verificación, construye y sube con `wrangler deploy`. Necesita dos secretos en el
-entorno `produccion` del repo: `CLOUDFLARE_API_TOKEN`, un token con permiso de
-edición de Workers, y `CLOUDFLARE_ACCOUNT_ID`.
+verificación, construye y sube con `wrangler pages deploy`; la primera vez crea
+el proyecto. Necesita dos secretos en el entorno `produccion` del repo:
+`CLOUDFLARE_API_TOKEN`, un token con permiso de edición de Cloudflare Pages, y
+`CLOUDFLARE_ACCOUNT_ID`.
 
 ### Dólar blue diario
 
