@@ -140,25 +140,6 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 | `.github/workflows/` | Verificación de cada PR, publicación desde `main` y dólar blue diario |
 | `wrangler.jsonc` | Proyecto de Cloudflare Pages que sirve `dist/` |
 
-## Cómo se corre
-
-Requiere Node 24.
-
-```sh
-npm ci
-npm run dev      # servidor de desarrollo
-npm test         # tests
-npm run validar-datos  # datos/ contra sus esquemas
-npm run lint     # ESLint
-npm run build    # tipos + build de producción en dist/
-```
-
-## Ramas
-
-`develop` integra; `main` es lo publicado. Cada cambio entra a `develop` por PR
-desde una rama `feature/…`, y la verificación (lint, tipos, tests y build) tiene
-que pasar antes de mergear.
-
 ## Despliegue
 
 El sitio es un proyecto de Cloudflare Pages sólo de archivos estáticos,
