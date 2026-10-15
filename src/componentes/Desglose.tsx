@@ -1,3 +1,4 @@
+import { useAltoEnVariable } from '../hooks/useAltoEnVariable.ts';
 import { useNumeroAnimado } from '../hooks/useNumeroAnimado.ts';
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
 import type { MouseEvent, ReactNode } from 'react';
@@ -16,13 +17,13 @@ interface Props {
 }
 
 /**
- * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Dos
- * partes: arriba la cabeza (total y composición) con el selector de moneda, que
- * en escritorio quedan fijos juntos (RNF-14), y abajo el cuerpo con los
- * renglones, que sigue el scroll de la página.
+ * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Arriba
+ * la cabeza (total y composición) con el selector de moneda; abajo el cuerpo con
+ * los renglones. En escritorio todo queda fijo al costado (RNF-14).
  */
 export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
+  const raiz = useAltoEnVariable<HTMLDivElement>('--alto-del-desglose');
   // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
   // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
   const anuncio = useValorDiferido(
@@ -31,7 +32,7 @@ export function Desglose({ calculo, children }: Props) {
   );
 
   return (
-    <div className="desglose">
+    <div ref={raiz} className="desglose">
       <p className="solo-lectores" role="status">
         {anuncio}
       </p>

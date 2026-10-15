@@ -88,12 +88,21 @@
   gap: var(--espacio-3);
 }
 
-/* En escritorio el desglose ocupa toda la columna (calculadora.css), y la cabeza
-   con la moneda queda fija dentro de ella hasta el presupuesto (RNF-14): el
-   total siempre a la vista y el cuerpo pasando por debajo con el scroll. El
-   selector no tiene panel propio, así que el fondo de la página, estirado hasta
-   el hueco de abajo, tapa los renglones que pasan detrás. */
+/* En escritorio el desglose queda fijo en su columna hasta el presupuesto
+   (RNF-14), que es donde la columna termina (calculadora.css). Si es más alto
+   que la pantalla, el top negativo lo deja acompañar el scroll hasta que se ve
+   su final y recién ahí se fija: fijo arriba, el Total quedaba cortado, y un
+   scroll propio era una segunda barra. useAltoEnVariable publica el alto.
+   Mientras tanto la cabeza con la moneda sigue fija sola, dentro del desglose;
+   el selector no tiene panel propio, así que el fondo de la página, estirado
+   hasta el hueco de abajo, tapa los renglones que pasan detrás. */
 @media (min-width: 60rem) {
+  .desglose {
+    position: sticky;
+    top: min(var(--espacio-4), calc(100vh - var(--alto-del-desglose, 0px) - var(--espacio-4)));
+    align-self: start;
+  }
+
   .desglose__fijo {
     position: sticky;
     top: var(--espacio-4);
