@@ -1,13 +1,10 @@
-// Worker sólo de archivos estáticos (ADR-001): no hay script, Cloudflare sirve
-// dist/ tal cual y aplica public/_headers, que viaja dentro de dist/.
+// Proyecto de Cloudflare Pages sólo de archivos estáticos (ADR-001): sirve
+// dist/ tal cual y aplica public/_headers, que viaja dentro de dist/. Pages y no
+// Workers porque la dirección gratuita sale sólo del nombre del proyecto
+// (calculadora-honorarios.pages.dev), sin el de la cuenta. Sin 404.html, Pages
+// devuelve la calculadora en cualquier ruta desconocida.
 {
   "name": "calculadora-honorarios",
   "compatibility_date": "2026-10-01",
-  "assets": {
-    "directory": "./dist",
-    // Una sola página: cualquier ruta desconocida devuelve la calculadora en vez de un 404 vacío.
-    "not_found_handling": "single-page-application"
-  },
-  "workers_dev": true,
-  "preview_urls": false
+  "pages_build_output_dir": "./dist"
 }
