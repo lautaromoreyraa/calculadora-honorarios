@@ -43,21 +43,3 @@ agregar un rol, un ítem o una categoría es agregar un dato.
 | `src/estilos/` | `tokens.css` (variables de diseño), `base.css` y una hoja por sección |
 | `src/test/` | Tests de Vitest, espejando `src/` |
 | `.github/workflows/` | Verificación de cada PR |
-
-## Cómo se corre
-
-Requiere Node 24.
-
-```sh
-npm ci
-npm run dev      # servidor de desarrollo
-npm test         # tests
-npm run lint     # ESLint
-npm run build    # tipos + build de producción en dist/
-```
-
-## Ramas
-
-`develop` integra; `main` es lo publicado. Cada cambio entra a `develop` por PR
-desde una rama `feature/…`, y la verificación (lint, tipos, tests y build) tiene
-que pasar antes de mergear.
