@@ -1,3 +1,4 @@
+import { useAltoEnVariable } from '../hooks/useAltoEnVariable.ts';
 import { useNumeroAnimado } from '../hooks/useNumeroAnimado.ts';
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
 import type { MouseEvent, ReactNode } from 'react';
@@ -11,17 +12,18 @@ import { idDeCampo } from '../util/formulario.ts';
 
 interface Props {
   calculo: Calculo;
-  /** Lo que va debajo del desglose, fuera de la cabeza fija: el selector de moneda. */
+  /** Lo que va pegado debajo de la cabeza y queda fijo con ella: el selector de moneda (RNF-14). */
   children?: ReactNode;
 }
 
 /**
- * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Dos
- * paneles: la cabeza (total y composición), que en escritorio queda fija, y el
- * cuerpo con los renglones, que sigue el scroll de la página.
+ * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Arriba
+ * la cabeza (total y composición) con el selector de moneda; abajo el cuerpo con
+ * los renglones. En escritorio todo queda fijo al costado (RNF-14).
  */
 export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
+  const raiz = useAltoEnVariable<HTMLDivElement>('--alto-del-desglose');
   // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
   // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
   const anuncio = useValorDiferido(
@@ -30,12 +32,18 @@ export function Desglose({ calculo, children }: Props) {
   );
 
   return (
-    <div className="desglose">
+    <div ref={raiz} className="desglose">
       <p className="solo-lectores" role="status">
         {anuncio}
       </p>
-      {calculo.ok ? <Resultado calculo={calculo} /> : <Pendiente errores={calculo.errores} />}
-      {children}
+      {calculo.ok ? (
+        <Resultado calculo={calculo}>{children}</Resultado>
+      ) : (
+        <div className="desglose__fijo">
+          <Pendiente errores={calculo.errores} />
+          {children}
+        </div>
+      )}
     </div>
   );
 }
@@ -67,7 +75,7 @@ function Pendiente({ errores }: { errores: Falta[] }) {
   );
 }
 
-function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
+function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true }>; children?: ReactNode }) {
   const formato = useFormato();
   const r = calculo.resultado;
   const iibb = r.ingresosBrutosSobreTotal;
@@ -76,15 +84,18 @@ function Resultado({ calculo }: { calculo: Extract<Calculo, { ok: true }> }) {
   const totalMostrado = useNumeroAnimado(r.total);
   return (
     <>
-      <div className="desglose__cabeza">
-        <p className="desglose__total-etiqueta">Total del trabajo</p>
-        <p className="desglose__total" aria-hidden="true">
-          {formato.monto(formato.redondear(totalMostrado))}
-        </p>
-        <p className="desglose__contexto">
-          {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
-        </p>
-        <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
+      <div className="desglose__fijo">
+        <div className="desglose__cabeza">
+          <p className="desglose__total-etiqueta">Total del trabajo</p>
+          <p className="desglose__total" aria-hidden="true">
+            {formato.monto(formato.redondear(totalMostrado))}
+          </p>
+          <p className="desglose__contexto">
+            {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
+          </p>
+          <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
+        </div>
+        {children}
       </div>
 
       <div className="desglose__cuerpo">

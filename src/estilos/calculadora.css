@@ -115,10 +115,9 @@
   }
 
   /* El resultado ocupa la columna derecha a lo alto del formulario; la columna
-     lo frena al llegar al presupuesto. Columna, panel y desglose se estiran a
-     ese alto para que la cabeza del desglose (el total) quede fija mientras se
-     marcan casillas y el resto siga el scroll de la página: el panel fijo
-     entero pasaba el alto de la pantalla y necesitaba una segunda barra. */
+     lo frena al llegar al presupuesto. Columna y panel se estiran a ese alto
+     para que el desglose, fijo adentro (desglose.css), tenga por dónde
+     acompañar el scroll mientras se marcan casillas. */
   .calculadora__columna-resultado {
     grid-column: 2;
     grid-row: 1;
