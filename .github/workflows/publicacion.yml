@@ -53,5 +53,5 @@ jobs:
           wrangler="npx --yes wrangler@4.147.0"
           # La primera vez crea el proyecto; después ya existe y el error se
           # ignora: si fuera otra cosa, el deploy de abajo falla a la vista.
-          $wrangler pages project create calculadora-honorarios --production-branch=main || true
-          $wrangler pages deploy dist --project-name=calculadora-honorarios --branch=main
+          $wrangler pages project create calculadora-honorarios-nea --production-branch=main || true
+          $wrangler pages deploy dist --project-name=calculadora-honorarios-nea --branch=main
