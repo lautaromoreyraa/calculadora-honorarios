@@ -1,6 +1,6 @@
 /* Total y desglose del resultado. */
 
-/* Pesos o dólares (RF-28): un control segmentado debajo del desglose. */
+/* Pesos o dólares (RF-28): un control segmentado pegado debajo de la cabeza. */
 .selector-de-moneda {
   display: grid;
   gap: var(--espacio-2);
@@ -81,14 +81,26 @@
   }
 }
 
-/* En escritorio el desglose ocupa toda la columna (calculadora.css) y la cabeza
-   queda fija dentro de ella: el total siempre a la vista, el cuerpo pasa por
-   debajo con el scroll de la página. */
+/* La cabeza y el selector de moneda van juntos: la moneda se cambia mirando el total. */
+.desglose__fijo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espacio-3);
+}
+
+/* En escritorio el desglose ocupa toda la columna (calculadora.css), y la cabeza
+   con la moneda queda fija dentro de ella hasta el presupuesto (RNF-14): el
+   total siempre a la vista y el cuerpo pasando por debajo con el scroll. El
+   selector no tiene panel propio, así que el fondo de la página, estirado hasta
+   el hueco de abajo, tapa los renglones que pasan detrás. */
 @media (min-width: 60rem) {
-  .desglose__cabeza {
+  .desglose__fijo {
     position: sticky;
     top: var(--espacio-4);
     z-index: 1;
+    padding-bottom: var(--espacio-3);
+    margin-bottom: calc(-1 * var(--espacio-3));
+    background: var(--color-fondo);
   }
 }
 
