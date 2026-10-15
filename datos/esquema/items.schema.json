@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "items.schema.json",
+  "title": "Ítems que componen el honorario",
+  "description": "El campo tipo decide qué fórmula del SRS aplica el motor de cálculo a cada ítem",
+  "type": "object",
+  "required": ["grupos", "exclusiones", "items"],
+  "additionalProperties": false,
+  "properties": {
+    "grupos": {
+      "description": "Secciones en las que la interfaz agrupa los ítems, en este orden",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "nombre"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "comun.schema.json#/$defs/id" },
+          "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+          "tituloDeLosItems": {
+            "description": "Subtítulo de las casillas del grupo cuando el grupo también tiene opciones excluyentes, para que no se lean como una opción más",
+            "$ref": "comun.schema.json#/$defs/texto"
+          },
+          "subgrupos": {
+            "description": "Partes plegables del grupo, en este orden (RF-27). Cada ítem del grupo dice en cuál va con su campo subgrupo",
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "object",
+              "required": ["id", "nombre"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "$ref": "comun.schema.json#/$defs/id" },
+                "nombre": { "$ref": "comun.schema.json#/$defs/texto" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "exclusiones": {
+      "description": "Conjuntos de ítems de los que se elige uno solo; si es obligatorio, no se calcula sin elegir",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "nombre", "obligatorio"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "$ref": "comun.schema.json#/$defs/id" },
+          "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+          "obligatorio": { "type": "boolean" }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/item" }
+    }
+  },
+  "$defs": {
+    "dolares": {
+      "description": "Precio mensual en dólares de las herramientas de referencia y la proporción que se cobra",
+      "type": "object",
+      "required": ["herramientas", "proporcion"],
+      "additionalProperties": false,
+      "properties": {
+        "herramientas": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["nombre", "precio"],
+            "additionalProperties": false,
+            "properties": {
+              "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+              "precio": { "type": "number", "exclusiveMinimum": 0 }
+            }
+          }
+        },
+        "proporcion": { "$ref": "comun.schema.json#/$defs/proporcion" }
+      }
+    },
+    "item": {
+      "type": "object",
+      "required": ["id", "nombre", "grupo", "tipo", "norma", "actualizacion", "vigencia"],
+      "properties": {
+        "id": { "$ref": "comun.schema.json#/$defs/id" },
+        "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+        "descripcion": { "$ref": "comun.schema.json#/$defs/texto" },
+        "grupo": { "$ref": "comun.schema.json#/$defs/id" },
+        "tipo": { "enum": ["porcentual", "mensual", "por-jornada", "por-trabajo", "calculado"] },
+        "exclusion": { "$ref": "comun.schema.json#/$defs/id" },
+        "subgrupo": {
+          "description": "Id de uno de los subgrupos de su grupo; si el grupo tiene subgrupos, es obligatorio",
+          "$ref": "comun.schema.json#/$defs/id"
+        },
+        "norma": { "$ref": "comun.schema.json#/$defs/texto" },
+        "actualizacion": {
+          "type": "object",
+          "required": ["regla"],
+          "additionalProperties": false,
+          "properties": {
+            "regla": { "enum": ["manual", "ipc-nea", "dolar-oficial", "combustible", "fija"] },
+            "origen": { "$ref": "comun.schema.json#/$defs/vigencia" }
+          }
+        },
+        "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
+      },
+      "oneOf": [
+        {
+          "description": "Porcentaje del valor hora por las horas del trabajo",
+          "required": ["porcentaje"],
+          "properties": {
+            "tipo": { "const": "porcentual" },
+            "porcentaje": { "$ref": "comun.schema.json#/$defs/proporcion" },
+            "porRol": {
+              "type": "object",
+              "propertyNames": { "$ref": "comun.schema.json#/$defs/id" },
+              "additionalProperties": {
+                "type": "object",
+                "required": ["porcentaje"],
+                "additionalProperties": false,
+                "properties": { "porcentaje": { "$ref": "comun.schema.json#/$defs/proporcion" } }
+              }
+            }
+          }
+        },
+        {
+          "description": "Costo mensual prorrateado por hora; en pesos o en dólares",
+          "oneOf": [{ "required": ["valor"] }, { "required": ["dolares"] }],
+          "properties": {
+            "tipo": { "const": "mensual" },
+            "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
+            "dolares": { "$ref": "#/$defs/dolares" },
+            "multiplicaPor": { "enum": ["antiguedad"] },
+            "porRol": {
+              "type": "object",
+              "propertyNames": { "$ref": "comun.schema.json#/$defs/id" },
+              "additionalProperties": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": false,
+                "properties": {
+                  "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
+                  "dolares": { "$ref": "#/$defs/dolares" }
+                }
+              }
+            }
+          }
+        },
+        {
+          "description": "Monto por jornada de trabajo",
+          "required": ["valor"],
+          "properties": {
+            "tipo": { "const": "por-jornada" },
+            "valor": { "$ref": "comun.schema.json#/$defs/pesos" }
+          }
+        },
+        {
+          "description": "Monto que carga el usuario, una vez por trabajo",
+          "properties": { "tipo": { "const": "por-trabajo" } }
+        },
+        {
+          "description": "Fórmula propia del motor de cálculo (reglas de negocio del SRS)",
+          "required": ["formula"],
+          "properties": {
+            "tipo": { "const": "calculado" },
+            "formula": {
+              "enum": ["monotributo", "ingresos-brutos", "fondo-vacaciones", "fondo-sac", "amortizacion", "movilidad"]
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

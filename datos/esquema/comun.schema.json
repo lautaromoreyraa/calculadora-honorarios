@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "comun.schema.json",
+  "title": "Definiciones compartidas por todos los archivos de datos",
+  "$defs": {
+    "id": {
+      "description": "Minúsculas, números y guiones: se usa en la interfaz y en las referencias entre archivos",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "texto": { "type": "string", "minLength": 1 },
+    "vigencia": {
+      "description": "Mes desde el que rige el valor, AAAA-MM",
+      "type": "string",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])$"
+    },
+    "fecha": {
+      "description": "AAAA-MM-DD",
+      "type": "string",
+      "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$"
+    },
+    "pesos": { "type": "number", "exclusiveMinimum": 0 },
+    "proporcion": {
+      "description": "Porcentaje expresado como fracción: 0,4 es 40 %",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 5
+    },
+    "parametro": {
+      "type": "object",
+      "required": ["valor", "norma"],
+      "additionalProperties": false,
+      "properties": {
+        "valor": { "type": "number", "exclusiveMinimum": 0 },
+        "norma": { "$ref": "#/$defs/texto" },
+        "aclaracion": {
+          "description": "Texto que la interfaz muestra junto al campo que usa este valor",
+          "$ref": "#/$defs/texto"
+        }
+      }
+    }
+  }
+}

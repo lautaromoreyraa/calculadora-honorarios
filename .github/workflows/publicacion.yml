@@ -1,0 +1,57 @@
+# Publicación en Cloudflare Pages: corre sólo al llegar algo a main, que es lo
+# publicado. Repite la verificación antes de subir, para que un push directo o
+# un merge con la verificación vieja no publique algo roto. También la llama la
+# Action del dólar blue (RF-29): lo que esa Action pushea con su token no
+# dispara otros workflows, así que publica llamando a este.
+# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
+name: Publicación
+
+on:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      ref:
+        description: Rama o commit a publicar; la Action del dólar pasa main ya mergeada
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+# Dos merges seguidos no se pisan: el segundo espera, y gana el último.
+concurrency:
+  group: publicacion
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment: produccion
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          # Lo que sigue instala y ejecuta dependencias: sin credenciales de git a mano.
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run validar-datos
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      # Token con permiso sólo para editar Pages de la cuenta; vive en el entorno
+      # «produccion» de GitHub, no en el repo, y llega sólo a este paso.
+      - name: Subir a Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          wrangler="npx --yes wrangler@4.147.0"
+          # La primera vez crea el proyecto; después ya existe y el error se
+          # ignora: si fuera otra cosa, el deploy de abajo falla a la vista.
+          $wrangler pages project create calculadora-honorarios --production-branch=main || true
+          $wrangler pages deploy dist --project-name=calculadora-honorarios --branch=main

@@ -1,0 +1,28 @@
+{
+  "provincias": [
+    {
+      "id": "chaco",
+      "nombre": "Chaco",
+      "ingresosBrutos": {
+        "modo": "fijo-por-categoria",
+        "montos": {
+          "A": 10416,
+          "B": 16686
+        },
+        "norma": "Régimen Simplificado Provincial: Ley 83-F, art. 149 bis; RG ATP RES-2026-19-20-1 (IIBB + adicional 10 %, Ley 666-K)",
+        "fuente": "https://m-atp.chaco.gob.ar/documentos/legislativos/resoluciones-generales/res-2026-19-20-1.pdf",
+        "vigencia": "2026-08"
+      }
+    },
+    {
+      "id": "corrientes",
+      "nombre": "Corrientes",
+      "ingresosBrutos": {
+        "modo": "alicuota",
+        "alicuota": 0.03,
+        "norma": "Régimen general sobre lo facturado; RG DGR 293/2025 (nomenclador NAES)",
+        "vigencia": "2026-10"
+      }
+    }
+  ]
+}

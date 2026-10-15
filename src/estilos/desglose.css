@@ -1,0 +1,320 @@
+/* Total y desglose del resultado. */
+
+/* Pesos o dólares (RF-28): un control segmentado debajo del desglose. */
+.selector-de-moneda {
+  display: grid;
+  gap: var(--espacio-2);
+}
+
+.selector-de-moneda__opciones {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  justify-self: start;
+  margin: 0;
+  padding: 0.1875rem;
+  border: 1px solid var(--color-borde-control);
+  border-radius: var(--radio-chico);
+  background: var(--color-fondo);
+}
+
+.selector-de-moneda__opcion {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0 var(--espacio-4);
+  border-radius: calc(var(--radio-chico) - 3px);
+  font-weight: 600;
+  color: var(--color-texto-suave);
+  cursor: pointer;
+}
+
+.selector-de-moneda__opcion:hover {
+  color: var(--color-texto);
+}
+
+/* Elegida en neutro: el acento es de lo marcado y del total. El borde da 3,9:1
+   contra la superficie elevada y 5,1:1 contra el riel; el texto, 12,46:1. */
+.selector-de-moneda__opcion--elegida,
+.selector-de-moneda__opcion--elegida:hover {
+  background: var(--color-superficie-elevada);
+  color: var(--color-texto);
+  box-shadow: inset 0 0 0 1px var(--color-borde-control);
+}
+
+/* El radio está oculto a la vista: el foco se muestra en la etiqueta. */
+.selector-de-moneda__opcion:has(input:focus-visible) {
+  outline: 3px solid var(--color-foco);
+  outline-offset: 2px;
+}
+
+.selector-de-moneda__nota {
+  font-size: var(--texto-chico);
+  color: var(--color-texto-suave);
+}
+
+.desglose {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--espacio-3);
+}
+
+.desglose__cabeza,
+.desglose__cuerpo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--espacio-2);
+  padding: var(--espacio-4);
+  background: var(--color-superficie-elevada);
+  border: 1px solid var(--color-borde);
+  border-radius: var(--radio);
+  box-shadow: var(--realce);
+  /* Contenedor de consulta: la tabla y la leyenda se apilan según el ancho que les queda. */
+  container-type: inline-size;
+}
+
+@media (min-width: 40rem) {
+  .desglose__cabeza,
+  .desglose__cuerpo {
+    padding: var(--espacio-5);
+  }
+}
+
+/* En escritorio el desglose ocupa toda la columna (calculadora.css) y la cabeza
+   queda fija dentro de ella: el total siempre a la vista, el cuerpo pasa por
+   debajo con el scroll de la página. */
+@media (min-width: 60rem) {
+  .desglose__cabeza {
+    position: sticky;
+    top: var(--espacio-4);
+    z-index: 1;
+  }
+}
+
+.desglose__total-etiqueta {
+  font-size: var(--texto-chico);
+  font-weight: 600;
+  color: var(--color-texto-suave);
+}
+
+/* El total es el protagonista: la voz de titular, en el acento más luminoso. */
+.desglose__total {
+  font-family: var(--fuente-titulos);
+  /* Con el texto agrandado, un total de seis cifras no se puede cortar: no pasa
+     de un ancho proporcional a la pantalla. */
+  font-size: min(var(--texto-total), 14vw);
+  line-height: 1;
+  font-weight: 560;
+  letter-spacing: -0.02em;
+  color: var(--color-acento-fuerte);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* El total cuenta hasta su valor nuevo (useNumeroAnimado): las cifras
+   tabulares hacen que no baile mientras cambia. */
+
+/* Sin resultado, lo principal es la lista de lo que falta, no el aviso. */
+.desglose__total--vacio {
+  font-family: var(--fuente-base);
+  color: var(--color-texto-suave);
+  font-size: var(--texto-medio);
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+.desglose__contexto {
+  color: var(--color-texto-suave);
+  font-size: var(--texto-chico);
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__falta {
+  margin: 0;
+  padding-left: var(--espacio-5);
+  display: grid;
+}
+
+/* Llevan al campo: son objetivos táctiles, no sólo texto. */
+.desglose__falta a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+}
+
+.desglose__avisos {
+  margin: 0;
+  padding: var(--espacio-3) var(--espacio-3) var(--espacio-3) var(--espacio-6);
+  background: var(--color-aviso-suave);
+  color: var(--color-aviso);
+  border-radius: var(--radio-chico);
+  font-size: var(--texto-chico);
+  font-weight: 600;
+}
+
+.desglose__tabla {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--texto-chico);
+}
+
+.desglose__renglon {
+  border-top: 1px solid var(--color-borde);
+}
+
+.desglose__concepto {
+  padding: var(--espacio-2) var(--espacio-3) var(--espacio-2) 0;
+  text-align: left;
+  font-weight: 600;
+  vertical-align: top;
+}
+
+.desglose__detalle {
+  display: block;
+  font-weight: 400;
+  color: var(--color-texto-suave);
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__monto {
+  padding: var(--espacio-2) 0;
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.desglose__renglon--subtotal .desglose__concepto,
+.desglose__renglon--subtotal .desglose__monto {
+  font-weight: 600;
+}
+
+.desglose__renglon--total {
+  border-top: 2px solid var(--color-texto);
+}
+
+.desglose__renglon--total .desglose__concepto,
+.desglose__renglon--total .desglose__monto {
+  font-size: var(--texto-base);
+  font-weight: 700;
+}
+
+/* Con poco lugar en relación al tamaño de letra (texto agrandado en el
+   celular), concepto y monto no entran lado a lado: cada renglón se apila, con
+   el monto debajo. En em, para que dependa de la letra y no sólo de la pantalla:
+   a 360 px con el texto normal sigue en dos columnas. */
+@container (max-width: 18em) {
+  .desglose__tabla,
+  .desglose__tabla tbody,
+  .desglose__tabla tfoot,
+  .desglose__renglon {
+    display: block;
+  }
+
+  .desglose__concepto,
+  .desglose__monto {
+    display: block;
+    padding-right: 0;
+    text-align: left;
+  }
+
+  .desglose__concepto {
+    padding-bottom: 0;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Composición del total (RNF-13): de dónde sale cada peso. La barra se
+   reacomoda con el total; la leyenda dice lo mismo en texto. */
+.composicion {
+  display: grid;
+  gap: var(--espacio-3);
+  margin-top: var(--espacio-3);
+}
+
+.composicion__barra {
+  display: flex;
+  gap: 3px;
+  height: 0.625rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-fondo);
+}
+
+.composicion__tramo {
+  flex-basis: 0;
+  min-width: 4px;
+  background: var(--color-parte, var(--color-acento));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .composicion__tramo {
+    transition: flex-grow 450ms var(--curva-salida);
+  }
+}
+
+.composicion__tramo--base {
+  --color-parte: var(--color-parte-base);
+}
+
+.composicion__tramo--adicionales {
+  --color-parte: var(--color-parte-adicionales);
+}
+
+.composicion__tramo--impuestos {
+  --color-parte: var(--color-parte-impuestos);
+}
+
+.composicion__tramo--costos {
+  --color-parte: var(--color-parte-costos);
+}
+
+.composicion__leyenda {
+  display: grid;
+  gap: var(--espacio-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--texto-chico);
+}
+
+.composicion__parte {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--espacio-2);
+}
+
+.composicion__muestra {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 3px;
+  background: var(--color-parte);
+}
+
+.composicion__nombre {
+  color: var(--color-texto-suave);
+}
+
+.composicion__monto {
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.composicion__porcentaje {
+  font-weight: 400;
+  color: var(--color-texto-suave);
+}
+
+@container (max-width: 18em) {
+  .composicion__parte {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .composicion__monto {
+    grid-column: 2;
+    text-align: left;
+  }
+}

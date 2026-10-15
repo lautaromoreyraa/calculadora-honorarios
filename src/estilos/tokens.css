@@ -1,7 +1,101 @@
-/* Valores de diseño en un solo lugar: el resto de las hojas sólo usa estas variables. */
+/* Valores de diseño en un solo lugar: el resto de las hojas sólo usa estas variables.
+
+   Tema oscuro siempre (RNF-10), paleta «Petróleo de guardia»: el petróleo de
+   marca como franja del encabezado sobre una base verde azulada casi negra, y
+   un único verde agua luminoso para todo lo que se elige. No hay variante
+   clara: el sitio se ve igual con el sistema en modo claro o en modo oscuro.
+
+   Contrastes calculados (WCAG 2.x):
+   - texto sobre fondo, superficie y elevada: 16,3 / 14,7 / 12,5:1;
+   - texto suave sobre fondo, superficie, elevada y acento suave: 10,0 / 9,0 / 7,6 / 6,8:1;
+   - acento sobre superficie y acento suave: 9,1 / 6,9:1;
+   - acento fuerte (total) sobre la elevada: 9,9:1;
+   - sobre-acento sobre acento: 9,8:1;
+   - texto del encabezado sobre la franja: 7,6:1 (el suave, 6,3:1);
+   - error sobre superficie: 7,1:1; aviso sobre su fondo: 9,2:1;
+   - borde de control sobre fondo, superficie, elevada y acento suave: 5,1 / 4,6 / 3,9 / 3,5:1;
+   - foco sobre fondo, superficie, elevada y franja: 10,4 / 9,4 / 7,9 / 4,6:1;
+   - placeholder sobre el fondo del campo: 6,5:1;
+   - texto oscuro sobre la selección de texto (el acento): 9,8:1.
+   El borde tenue (1,8:1 sobre la superficie) sólo separa tarjetas y renglones; nunca es el único
+   borde de un control. */
 :root {
-  --color-fondo: #ffffff;
-  --color-texto: #1a1a1a;
-  --fuente-base: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --espacio: 1rem;
+  color-scheme: dark;
+
+  --color-fondo: #0b1515;
+  --color-superficie: #132020;
+  --color-superficie-elevada: #1d2e2e;
+  --color-borde: #3a4a4a;
+  --color-borde-control: #798a8a;
+  --color-texto: #eaf2f1;
+  --color-texto-suave: #b3c1c1;
+  --color-placeholder: #8b9c9b;
+  --color-acento: #54d3c0;
+  --color-acento-fuerte: #8ee8d9;
+  --color-acento-suave: #113935;
+  --color-sobre-acento: #031a19;
+  --color-encabezado: #0c5952;
+  --color-sobre-encabezado: #f2f8f8;
+  --color-encabezado-suave: #cfe6e2;
+  --color-foco: #fab45f;
+  --color-error: #fa8880;
+  --color-aviso: #f8ce73;
+  --color-aviso-suave: #3b2b0d;
+  /* La selección va en el acento con texto oscuro: el petróleo de antes casi no
+     se distinguía del tinte de las filas marcadas. */
+  --color-seleccion: var(--color-acento);
+  --color-sobre-seleccion: var(--color-sobre-acento);
+
+  /* Dos voces argentinas (RNF-12). Alegreya, de Juan Pablo del Peral (Huerta
+     Tipográfica), es una serifa de trazo caligráfico pensada para leer largo:
+     le da a los títulos y al total una mano humana en vez de la de una app.
+     Archivo, de Omnibus-Type, es una grotesca de Buenos Aires hecha para
+     pantalla y para cifras: lleva lo operativo. Las dos van dentro del bundle
+     (CSP: font-src 'self'). */
+  --fuente-titulos: 'Alegreya Variable', Georgia, 'Times New Roman', serif;
+  --fuente-base: 'Archivo Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --texto-chico: 0.875rem;
+  --texto-base: 1rem;
+  --texto-medio: 1.125rem;
+  --texto-titulo: 2.375rem;
+  --texto-total: 3rem;
+  --texto-monto: 1.75rem;
+
+  --espacio-1: 0.25rem;
+  --espacio-2: 0.5rem;
+  --espacio-3: 0.75rem;
+  --espacio-4: 1rem;
+  --espacio-5: 1.5rem;
+  --espacio-6: 2rem;
+  --espacio-7: 3rem;
+
+  /* Paneles con canto amable y controles un paso más rectos (RNF-13). */
+  --radio: 14px;
+  --radio-chico: 8px;
+
+  /* Las cuatro partes de la barra del total (RNF-13). Lo que queda para el
+     profesional en dos verdes del acento; lo que se va, en dos grises: el ámbar
+     es del foco y los avisos, y en la barra leía los impuestos como alerta.
+     Contra el riel: impuestos 13,15:1, costos 4,00:1; vecinos separados en
+     OKLab aun con daltonismo. La leyenda dice cada parte en texto. */
+  --color-parte-base: #54d3c0;
+  --color-parte-adicionales: #2b8f83;
+  --color-parte-impuestos: #d2dbda;
+  --color-parte-costos: #677877;
+  --alto-control: 3rem;
+  --ancho-maximo: 74rem;
+  /* Sobre un fondo casi negro una sombra no se ve (1,05:1): la elevación la da
+     el paso a la superficie elevada, y el realce marca el canto de arriba. */
+  --realce: inset 0 1px 0 rgb(234 242 241 / 6%);
+  --duracion: 160ms;
+  --curva-salida: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 60rem) {
+  :root {
+    /* Por debajo del total, que no puede crecer más sin salirse de su columna. */
+    --texto-titulo: 3rem;
+    --texto-total: 3.75rem;
+  }
 }

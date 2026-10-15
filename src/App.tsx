@@ -1,7 +1,5 @@
+import { Calculadora } from './paginas/Calculadora.tsx';
+
 export default function App() {
-  return (
-    <main>
-      <h1>Calculadora de honorarios</h1>
-    </main>
-  );
+  return <Calculadora />;
 }

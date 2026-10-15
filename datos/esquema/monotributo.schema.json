@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "monotributo.schema.json",
+  "title": "Categorías del monotributo para servicios",
+  "type": "object",
+  "required": ["norma", "fuente", "categorias"],
+  "additionalProperties": false,
+  "properties": {
+    "norma": { "$ref": "comun.schema.json#/$defs/texto" },
+    "fuente": { "$ref": "comun.schema.json#/$defs/texto" },
+    "categorias": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["letra", "topeAnual", "impuestoIntegrado", "sipa", "obraSocial", "vigencia"],
+        "additionalProperties": false,
+        "properties": {
+          "letra": { "type": "string", "pattern": "^[A-K]$" },
+          "topeAnual": { "$ref": "comun.schema.json#/$defs/pesos" },
+          "impuestoIntegrado": { "$ref": "comun.schema.json#/$defs/pesos" },
+          "sipa": { "$ref": "comun.schema.json#/$defs/pesos" },
+          "obraSocial": { "$ref": "comun.schema.json#/$defs/pesos" },
+          "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
+        }
+      }
+    }
+  }
+}

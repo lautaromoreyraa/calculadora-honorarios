@@ -1,0 +1,124 @@
+# Dólar blue del día (RF-29). Consulta dolarapi.com y, si la cotización cambió,
+# abre un PR a main que toca sólo ese valor, corre la verificación completa, lo
+# mergea y publica. Es la única excepción al pase a producción manual, decidida
+# por Lautaro el 2026-10-14. Si la API no responde o da un valor absurdo, el
+# script falla, no hay PR y la corrida queda en rojo a la vista.
+# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
+#
+# Dos jobs (RNF-07): el que instala dependencias y las ejecuta (npm ci, lint,
+# tests, build) no tiene ningún permiso de escritura; el que puede escribir en
+# main y mergear no instala ni ejecuta nada de terceros. Así una dependencia
+# comprometida no alcanza el token que publica.
+name: Dólar blue
+
+on:
+  schedule:
+    # 15:30 UTC = 12:30 en Argentina, con el mercado abierto.
+    - cron: '30 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dolar-blue
+  cancel-in-progress: false
+
+jobs:
+  cotizar:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      cambio: ${{ steps.cotizacion.outputs.cambio }}
+      valor: ${{ steps.cotizacion.outputs.valor }}
+      fecha: ${{ steps.cotizacion.outputs.fecha }}
+      parche: ${{ steps.parche.outputs.parche }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+      # Antes de npm ci: el script sólo usa código del repo, y el parche queda
+      # fijado antes de que corra cualquier dependencia.
+      - id: cotizacion
+        run: npm run actualizar-dolar-blue
+      - id: parche
+        if: steps.cotizacion.outputs.cambio == 'true'
+        run: |
+          # El PR tiene que tocar sólo este archivo: si no, no se mergea solo.
+          test "$(git status --porcelain)" = " M datos/parametros.json"
+          echo "parche=$(git diff | base64 -w0)" >> "$GITHUB_OUTPUT"
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm ci
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm run validar-datos
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm run lint
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm test
+      - if: steps.cotizacion.outputs.cambio == 'true'
+        run: npm run build
+
+  integrar:
+    needs: cotizar
+    if: needs.cotizar.outputs.cambio == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      VALOR: ${{ needs.cotizar.outputs.valor }}
+      FECHA: ${{ needs.cotizar.outputs.fecha }}
+      PARCHE: ${{ needs.cotizar.outputs.parche }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Rama y commit
+        run: |
+          echo "$PARCHE" | base64 -d | git apply
+          test "$(git status --porcelain)" = " M datos/parametros.json"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -c "datos/dolar-blue-$FECHA"
+          git commit -am "RF-29: dólar blue a \$ $VALOR ($FECHA)"
+      # Un PR abierto con este token no dispara el workflow de verificación: la
+      # verificación ya corrió sobre este mismo cambio en el job anterior.
+      - name: PR a main y merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          rama="datos/dolar-blue-$FECHA"
+          git push origin "$rama"
+          gh pr create --base main --head "$rama" \
+            --title "RF-29: dólar blue a \$ $VALOR ($FECHA)" \
+            --body "Actualización diaria del dólar blue (venta) desde dolarapi.com. Toca sólo \`dolarBlue\` en \`datos/parametros.json\`; validación de datos, lint, tests y build pasaron en esta corrida."
+          gh pr merge "$rama" --merge --delete-branch
+      - name: Sincronizar develop
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # develop tiene que tener el mismo valor que main. Si no se puede
+          # mergear limpio, queda un PR de main a develop para resolverlo a mano.
+          git fetch origin main develop
+          git switch develop
+          if git merge --no-ff origin/main -m "Merge main: dólar blue del $FECHA"; then
+            git push origin develop
+          else
+            git merge --abort
+            gh pr create --base develop --head main --title "Sincronizar develop con el dólar blue del $FECHA" \
+              --body "El merge automático de main en develop tuvo conflictos: resolver a mano." || true
+          fi
+
+  publicar:
+    needs: integrar
+    uses: ./.github/workflows/publicacion.yml
+    with:
+      ref: main
+    secrets: inherit

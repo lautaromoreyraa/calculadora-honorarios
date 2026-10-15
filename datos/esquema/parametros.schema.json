@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "parametros.schema.json",
+  "title": "Parámetros generales del cálculo",
+  "type": "object",
+  "required": [
+    "horasMensuales",
+    "horasPorJornada",
+    "vidaUtilDeEquiposEnMeses",
+    "consumoDelAutoCada100Km",
+    "consumoDeLaMotoCada100Km",
+    "vacaciones",
+    "sueldoAnualComplementario",
+    "dolarOficial",
+    "dolarBlue"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "horasMensuales": { "$ref": "comun.schema.json#/$defs/parametro" },
+    "horasPorJornada": { "$ref": "comun.schema.json#/$defs/parametro" },
+    "vidaUtilDeEquiposEnMeses": { "$ref": "comun.schema.json#/$defs/parametro" },
+    "consumoDelAutoCada100Km": { "$ref": "comun.schema.json#/$defs/parametro" },
+    "consumoDeLaMotoCada100Km": { "$ref": "comun.schema.json#/$defs/parametro" },
+    "vacaciones": {
+      "type": "object",
+      "required": ["divisorDelDia", "diasPorAntiguedad", "norma"],
+      "additionalProperties": false,
+      "properties": {
+        "divisorDelDia": { "type": "number", "exclusiveMinimum": 0 },
+        "diasPorAntiguedad": {
+          "description": "Tramos ordenados por antigüedad; el primero arranca en 0 años",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["desdeAnios", "dias"],
+            "additionalProperties": false,
+            "properties": {
+              "desdeAnios": { "type": "integer", "minimum": 0 },
+              "dias": { "type": "integer", "minimum": 1 }
+            }
+          }
+        },
+        "norma": { "$ref": "comun.schema.json#/$defs/texto" }
+      }
+    },
+    "sueldoAnualComplementario": {
+      "type": "object",
+      "required": ["sueldosPorAnio", "norma"],
+      "additionalProperties": false,
+      "properties": {
+        "sueldosPorAnio": { "type": "number", "exclusiveMinimum": 0 },
+        "norma": { "$ref": "comun.schema.json#/$defs/texto" }
+      }
+    },
+    "dolarBlue": {
+      "description": "Cotización para ver los montos en dólares (RF-28); la actualiza cada día la Action de RF-29",
+      "type": "object",
+      "required": ["valor", "fecha", "fuente"],
+      "additionalProperties": false,
+      "properties": {
+        "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
+        "fecha": { "$ref": "comun.schema.json#/$defs/fecha" },
+        "fuente": { "$ref": "comun.schema.json#/$defs/texto" }
+      }
+    },
+    "dolarOficial": {
+      "type": "object",
+      "required": ["valor", "fecha", "fuente"],
+      "additionalProperties": false,
+      "properties": {
+        "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
+        "fecha": { "$ref": "comun.schema.json#/$defs/fecha" },
+        "fuente": { "$ref": "comun.schema.json#/$defs/texto" }
+      }
+    }
+  }
+}

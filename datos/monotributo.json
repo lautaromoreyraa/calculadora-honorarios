@@ -1,0 +1,22 @@
+{
+  "norma": "Ley 24.977, anexo; montos de ARCA para locaciones y prestaciones de servicios. Se actualizan en enero y julio por IPC (Ley 27.743)",
+  "fuente": "https://www.afip.gob.ar/monotributo/categorias.asp",
+  "categorias": [
+    {
+      "letra": "A",
+      "topeAnual": 12009410.45,
+      "impuestoIntegrado": 5585.77,
+      "sipa": 18246.86,
+      "obraSocial": 25694.55,
+      "vigencia": "2026-08"
+    },
+    {
+      "letra": "B",
+      "topeAnual": 17595182.74,
+      "impuestoIntegrado": 10612.98,
+      "sipa": 20071.55,
+      "obraSocial": 25694.55,
+      "vigencia": "2026-08"
+    }
+  ]
+}
