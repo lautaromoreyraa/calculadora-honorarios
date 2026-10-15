@@ -1,10 +1,10 @@
 // Proyecto de Cloudflare Pages sólo de archivos estáticos (ADR-001): sirve
 // dist/ tal cual y aplica public/_headers, que viaja dentro de dist/. Pages y no
 // Workers porque la dirección gratuita sale sólo del nombre del proyecto
-// (calculadora-honorarios.pages.dev), sin el de la cuenta. Sin 404.html, Pages
+// (calculadora-honorarios-nea.pages.dev), sin el de la cuenta. Sin 404.html, Pages
 // devuelve la calculadora en cualquier ruta desconocida.
 {
-  "name": "calculadora-honorarios",
+  "name": "calculadora-honorarios-nea",
   "compatibility_date": "2026-10-01",
   "pages_build_output_dir": "./dist"
 }

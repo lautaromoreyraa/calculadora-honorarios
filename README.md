@@ -144,7 +144,7 @@ Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
 
 El sitio es un proyecto de Cloudflare Pages sólo de archivos estáticos,
 configurado en `wrangler.jsonc`: sirve `dist/` en
-`calculadora-honorarios.pages.dev` y aplica los headers de `public/_headers`. Se
+`calculadora-honorarios-nea.pages.dev` y aplica los headers de `public/_headers`. Se
 publica solo al llegar un merge a `main`. La acción `Publicación` repite la
 verificación, construye y sube con `wrangler pages deploy`; la primera vez crea
 el proyecto. Necesita dos secretos en el entorno `produccion` del repo:
