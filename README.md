@@ -1,168 +1,95 @@
-# Calculadora de honorarios
+# Fee Calculator for Freelance Communicators
 
-Calculadora web de honorarios por hora para trabajadores autónomos de la
-comunicación —community managers, cronistas, creadores de contenido,
-conductores, redactores, fotoperiodistas, productores y editores de video—
-monotributistas de Chaco y Corrientes.
+Web app that calculates an **hourly rate** for freelance communication workers — community managers, reporters, content creators, hosts, copywriters, photojournalists, producers and video editors — registered under Argentina's simplified tax regime (*monotributo*) in the provinces of Chaco and Corrientes.
 
-El honorario parte del salario del convenio colectivo de cada rol y le suma,
-según lo que el usuario marque, los adicionales de convenio, los costos que el
-autónomo paga de su bolsillo (monotributo, ingresos brutos, equipo,
-conectividad, movilidad), los fondos de vacaciones y aguinaldo y un ajuste por
-tipo de cliente. El resultado se descarga como presupuesto en Word, editable,
-con número, los datos de las dos partes, el trabajo con su valor por hora, el
-total y las condiciones de pago; una vista previa al lado muestra la hoja
-mientras se completa. El desglose de costos queda en la pantalla.
+The rate starts from the collective-agreement salary for each role and adds, depending on what the user selects, agreement bonuses, the costs a freelancer pays out of pocket (taxes, equipment, connectivity, transport), vacation and year-end bonus funds, and an adjustment by client type. The result downloads as an **editable Word quote** — numbered, with both parties' details, the work and its hourly value, the total and payment terms — and a live preview shows the document while it's being filled in.
 
-## Arquitectura
+**Live:** [calculadora-honorarios-nea.pages.dev](https://calculadora-honorarios-nea.pages.dev)
 
-Sitio estático, sin backend ni base de datos. El cálculo y el documento Word se
-generan en el navegador: nada de lo que carga el usuario sale de su equipo.
-Los datos fijos del profesional (rol, costos marcados, nombre) se recuerdan en
-el `localStorage` de su navegador; las horas y el cliente de cada trabajo, no.
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-8-646CFF?logo=vite&logoColor=white)
+![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflare&logoColor=white)
+![CI](https://img.shields.io/badge/CI-GitHub_Actions-2088FF?logo=githubactions&logoColor=white)
+
+## Architecture
+
+A static site with no backend and no database. The calculation and the Word document are generated in the browser, so nothing the user types ever leaves their device. Stable details (role, selected costs, name) are remembered in `localStorage`; each job's hours and client are not.
 
 ```mermaid
 flowchart LR
-    D[datos/*.json] --> B[build de Vite]
+    D[datos/*.json<br/>values + JSON Schema] --> B[Vite build]
     S[src/] --> B
-    B --> C[Cloudflare<br/>assets estáticos]
-    C --> N[Navegador<br/>cálculo + .docx]
-    A[Actualizador mensual<br/>GitHub Actions] -- PR --> D
+    B --> C[Cloudflare Pages<br/>static assets]
+    C --> N[Browser<br/>calculation + .docx]
+    A[Daily exchange-rate job<br/>GitHub Actions] -- pull request --> D
 ```
 
-Los valores —roles, ítems, categorías de monotributo, ingresos brutos por
-provincia, precio del combustible— viven en `datos/`, con su vigencia y la norma
-que los respalda, y se validan contra un esquema. El código no contiene montos:
-agregar un rol, un ítem o una categoría es agregar un dato.
+**Data-driven by design.** Every value — roles, line items, tax categories, provincial gross-income tax, fuel prices — lives in `datos/` with its effective date (`vigencia`) and the regulation that backs it, validated against a JSON Schema. The code contains no amounts: adding a role, an item or a tax category means adding data, and the UI picks it up automatically.
 
-## Datos
-
-| Archivo | Qué guarda |
+| File | Contents |
 |---|---|
-| `roles.json` | Los roles, con su valor base mensual y el convenio del que sale |
-| `items.json` | Los ítems del honorario, sus grupos (con sus subgrupos plegables) y los conjuntos excluyentes (plazo, tipo de cliente) |
-| `monotributo.json` | Categorías del monotributo: impuesto integrado, SIPA, obra social y tope |
-| `provincias.json` | Cómo tributa ingresos brutos un monotributista en cada provincia |
-| `combustible.json` | Precio del litro de nafta por provincia |
-| `parametros.json` | Horas mensuales, jornada, vida útil de equipos, consumo del auto, vacaciones, SAC y dólar |
-| `esquema/` | Un JSON Schema por archivo, más `comun.schema.json` con las definiciones compartidas |
+| `roles.json` | Roles, their monthly base salary and source agreement |
+| `items.json` | Fee items, their groups and collapsible subgroups, and mutually exclusive sets (deadline, client type) |
+| `monotributo.json` | Simplified-regime categories: tax, pension, health insurance and caps |
+| `provincias.json` | How each province taxes gross income |
+| `combustible.json` | Fuel price per province |
+| `parametros.json` | Monthly hours, working day, equipment lifespan, vehicle consumption, vacation, year-end bonus and USD rate |
 
-Cada valor lleva su `vigencia` (`AAAA-MM`) y la `norma` que lo respalda. Los
-ítems tienen un `tipo` que define cómo entran al cálculo:
+Each item has a `tipo` that defines how it enters the calculation: `porcentual` (percentage of the hourly value), `mensual` (monthly cost spread per hour, in pesos or dollars), `por-jornada` (per 6-hour working day), `por-trabajo` (one-off amount per job) or `calculado` (a dedicated formula in the engine: taxes, vacation fund, depreciation, transport).
 
-| Tipo | Cómo se calcula |
+## Features
+
+- **Live calculation:** the result recomputes on every change, with a breakdown per line item and a bar showing how the total is composed (base fee, bonuses, taxes and funds, costs).
+- **Word quote** generated client-side with `docx`, loaded on demand with `import()` so it stays out of the main bundle; the HTML preview reads the same content model as the `.docx`.
+- **Pesos or US dollars:** every line is converted and rounded to cents, and the total is the sum of the lines.
+- **Accessible:** the total is announced to screen readers once typing stops, every state is distinguishable without relying on color, and animations respect `prefers-reduced-motion`.
+- **Designed, not templated:** dark theme with contrast ratios calculated for every color pair, self-hosted variable fonts by Argentine type designers (Alegreya and Archivo) and tabular figures so amounts don't jump while recalculating.
+
+## Project structure
+
+```
+datos/                 calculation values and their JSON Schemas
+scripts/               data validation and the daily exchange-rate updater
+src/
+├── main.tsx · App.tsx bootstrap
+├── paginas/           the calculator page, built from datos/
+├── componentes/       numeric input, exclusive options, breakdown, quote preview, …
+├── layout/            header and footer
+├── hooks/             useCalculadora (form state), animated total, deferred announcements
+├── contexto/          selected currency
+├── util/              pure functions: calculation engine, quote content, typed data loading
+├── estilos/           tokens.css (design tokens), base and per-section stylesheets
+└── test/              Vitest, mirroring src/
+.github/workflows/     PR checks, deploy from main, daily exchange rate
+```
+
+The state of the form lives in `useCalculadora`; `util/formulario.ts` translates it into the selection the engine receives, and the engine itself is a set of pure functions with no React.
+
+## Getting started
+
+```bash
+npm install
+npm run dev              # http://localhost:5173
+```
+
+### Quality checks
+
+```bash
+npm test                 # Vitest: engine, data references, quote content, components
+npm run lint
+npm run validar-datos    # validates datos/ against its JSON Schemas
+npm run build            # type-check + production build
+```
+
+Tests also check that every cross-reference between data files resolves and that no amount is hard-coded in `src/`.
+
+## CI/CD
+
+| Workflow | What it does |
 |---|---|
-| `porcentual` | Porcentaje del valor hora por las horas del trabajo |
-| `mensual` | Costo mensual prorrateado por hora; en pesos (`valor`) o en dólares (`dolares`) |
-| `por-jornada` | Monto por cada jornada de 6 horas, redondeando hacia arriba |
-| `por-trabajo` | Monto que carga el usuario, una vez por trabajo |
-| `calculado` | Fórmula propia del motor (`monotributo`, `ingresos-brutos`, `fondo-vacaciones`, `fondo-sac`, `amortizacion`, `movilidad`) |
+| **Verification** | Runs on every pull request: data validation, lint, type-check, tests and build |
+| **Publish** | On every merge to `main`: repeats the verification, builds and deploys to Cloudflare Pages with `wrangler` |
+| **Daily USD rate** | Fetches the day's rate; if it changed, verifies the change, opens a pull request that touches only that value, merges it and publishes. A value below half or above double the previous one stops the run without changing anything |
 
-`porRol` reemplaza el valor para un rol puntual. `actualizacion.regla` indica
-cómo se mantiene al día el valor: `manual`, `ipc-nea`, `dolar-oficial`,
-`combustible` o `fija`.
-
-Para cambiar o agregar un valor se edita el JSON y se corre
-`npm run validar-datos`. La verificación de cada PR lo corre también, y los
-tests comprueban las referencias entre archivos y que ningún monto quede
-escrito en `src/`.
-
-## Interfaz
-
-Una sola página (`src/paginas/Calculadora.tsx`) que se arma desde `datos/`: los
-roles, los grupos, las casillas, las opciones excluyentes y las categorías
-salen de los JSON, así que un ítem o una categoría nueva aparece sola. El
-estado del formulario vive en `useCalculadora`; `src/util/formulario.ts` lo
-traduce a la selección que recibe el motor, y el resultado se recalcula con
-cada cambio.
-
-| Componente | Qué hace |
-|---|---|
-| `layout/Encabezado` · `layout/PieDePagina` | Título, vigencia de los valores, aviso, fuentes y crédito |
-| `componentes/CampoNumerico` | Campo de texto con teclado decimal; acepta «1,5» y «2.400.000» |
-| `componentes/OpcionesExcluyentes` | Radios de un conjunto excluyente (tipo de cliente, plazo) |
-| `componentes/ItemConCasilla` | Casilla de un ítem, con los datos que pide al marcarse |
-| `componentes/Aporte` | «Suma $ X a este trabajo» bajo cada ítem marcado, o qué dato le falta |
-| `componentes/SubgrupoPlegable` | Subgrupo plegable de costos operativos, con lo que suma sin abrirlo |
-| `componentes/SelectorDeVehiculo` | Auto o moto, que fija el consumo por defecto |
-| `componentes/TituloDeSeccion` | Título de cada panel con su ícono |
-| `componentes/NormaDelItem` | Norma y vigencia de cada ítem, plegable |
-| `componentes/Desglose` | Total, renglones y lo que falta para calcular; anuncia el total a los lectores de pantalla |
-| `componentes/ComposicionDelTotal` | Barra y leyenda de la composición del total |
-| `componentes/SelectorDeMoneda` | Pesos o dólares, debajo del desglose |
-| `componentes/BarraDelTotal` | Total fijo abajo en el celular, con enlace al desglose |
-| `componentes/DescargaDePresupuesto` | Datos del presupuesto y descarga del `.docx`, que se genera con `import()` al pedirlo |
-| `componentes/VistaPreviaDelPresupuesto` | La hoja del presupuesto en HTML; lee el mismo contenido que el `.docx` (`util/presupuesto/contenido.ts`) |
-
-**Tema.** Oscuro siempre, sin depender de la preferencia del sistema
-(`color-scheme: dark`). La paleta vive en `src/estilos/tokens.css` con los
-contrastes calculados de cada par: base verde azulada casi negra, el petróleo
-de marca en la franja del encabezado, un único verde agua para lo elegido y un
-ámbar para el foco del teclado y los avisos. El verde agua más luminoso es sólo
-del total. Las casillas y los radios se dibujan con esos colores, iguales en
-todos los navegadores.
-
-**Tipografía.** Dos familias de diseñadores argentinos: Alegreya (Juan Pablo
-del Peral, Huerta Tipográfica) para títulos, el valor hora y el total, y
-Archivo (Omnibus-Type) para el resto. Las dos son variables y autoalojadas con
-`@fontsource-variable`: van dentro del bundle y se precargan en `index.html`.
-Los montos usan cifras tabulares para que no bailen al recalcular.
-
-**Composición.** Cada sección del formulario es un panel con su ícono (Lucide,
-dentro del bundle); adentro, cada ítem va en un marco como el de las opciones,
-y la marca dice si suma (cuadrado) o si se elige (círculo; también en los
-costos operativos, por pedido del cliente). El panel del resultado muestra debajo
-del total una barra con su composición (honorario base, adicionales, impuestos
-y fondos, costos), que sale de `util/composicion.ts`: lo que queda para el
-profesional en verde, lo que se va en grises. En escritorio esa cabeza queda
-fija y el desglose sigue el scroll de la página.
-
-**Movimiento.** Uno solo: al cambiar, el total cuenta hasta su valor nuevo
-(`hooks/useNumeroAnimado.ts`) y la barra de la composición se reacomoda. Con
-`prefers-reduced-motion` el número salta directo y la barra no se anima.
-
-Los headers de seguridad que aplica Cloudflare están en `public/_headers`.
-
-## Estructura
-
-| Ruta | Qué vive adentro |
-|---|---|
-| `datos/` | Valores de cálculo y su esquema |
-| `scripts/` | `validar-datos.mjs` y `actualizar-dolar-blue.ts`, que trae la cotización del día |
-| `src/main.tsx` · `src/App.tsx` | Arranque |
-| `src/util/datos/` | Carga tipada de `datos/` |
-| `src/util/` | Funciones puras: motor de cálculo, armado del presupuesto (`presupuesto/`, con `fechas.ts` aparte para no arrastrar `docx` al bundle principal) y `memoria.ts`, lo que se recuerda entre visitas |
-| `src/paginas/` · `src/componentes/` · `src/layout/` | Interfaz |
-| `src/hooks/` | `useCalculadora` (estado del formulario), `useNumeroAnimado` (el total que cuenta) y `useValorDiferido` (el anuncio del total cuando se termina de escribir) |
-| `src/contexto/` | `Moneda.tsx`: el formato de la moneda elegida, que usan todos los montos de la pantalla |
-| `src/estilos/` | `tokens.css` (variables de diseño), `base.css`, `calculadora.css` (página y formulario) y `desglose.css` (resultado) |
-| `src/test/` | Tests de Vitest, espejando `src/` |
-| `.github/workflows/` | Verificación de cada PR, publicación desde `main` y dólar blue diario |
-| `wrangler.jsonc` | Proyecto de Cloudflare Pages que sirve `dist/` |
-
-## Despliegue
-
-El sitio es un proyecto de Cloudflare Pages sólo de archivos estáticos,
-configurado en `wrangler.jsonc`: sirve `dist/` en
-`calculadora-honorarios-nea.pages.dev` y aplica los headers de `public/_headers`. Se
-publica solo al llegar un merge a `main`. La acción `Publicación` repite la
-verificación, construye y sube con `wrangler pages deploy`; la primera vez crea
-el proyecto. Necesita dos secretos en el entorno `produccion` del repo:
-`CLOUDFLARE_API_TOKEN`, un token con permiso de edición de Cloudflare Pages, y
-`CLOUDFLARE_ACCOUNT_ID`.
-
-### Dólar blue diario
-
-Un selector «Pesos / Dólares» muestra todos los montos del resultado y del Word
-en dólares. El motor calcula en pesos y recibe un `Formato` (`src/util/moneda.ts`)
-que convierte cada renglón y lo redondea a centavos; el total es la suma de los
-renglones, como en pesos. La conversión usa el dólar blue (venta) de
-`datos/parametros.json`.
-El sitio no consulta ninguna API: todos los días, la Action `Dólar blue`
-corre `npm run actualizar-dolar-blue`, que lee dolarapi.com. Si la cotización
-cambió, un primer job corre la verificación completa sobre ese cambio; un
-segundo, que no instala dependencias, abre un PR a `main` que toca sólo ese
-valor, lo mergea, sincroniza `develop` y publica. Un valor menos de la
-mitad o más del doble que el anterior frena la corrida sin tocar nada. La
-Action necesita que el repo permita a GitHub Actions crear PR (*Settings →
-Actions → General*).
+Security headers served by Cloudflare are defined in `public/_headers`.
