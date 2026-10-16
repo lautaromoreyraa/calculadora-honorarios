@@ -40,8 +40,8 @@
     "fuente": "BCRA, cotización de referencia (API de estadísticas cambiarias)"
   },
   "dolarBlue": {
-    "valor": 1550,
-    "fecha": "2026-10-14",
+    "valor": 1545,
+    "fecha": "2026-10-16",
     "fuente": "dolarapi.com, dólar blue (venta)"
   }
 }
