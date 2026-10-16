@@ -38,8 +38,13 @@ describe('RF-29 · dólar blue diario', () => {
 
   it('cambia sólo el bloque dolarBlue de parametros.json, sin reformatear el resto', () => {
     const texto = readFileSync(new URL('../../../datos/parametros.json', import.meta.url), 'utf8');
-    const nuevo = conDolarBlue(texto, { valor: 1575, fecha: '2026-10-15', fuente: FUENTE_DEL_BLUE });
-    expect(JSON.parse(nuevo).dolarBlue).toEqual({ valor: 1575, fecha: '2026-10-15', fuente: FUENTE_DEL_BLUE });
+    // El valor nuevo se deriva del que tiene el archivo y no se fija a mano: la
+    // Action escribe la cotizacion real antes de correr los tests, y el dia que
+    // coincidia con el valor fijo el "cambio" no cambiaba nada y la corrida frenaba.
+    const actual = JSON.parse(texto).dolarBlue;
+    const cotizacion = { valor: actual.valor + 25, fecha: actual.fecha === '2000-01-01' ? '2000-01-02' : '2000-01-01', fuente: FUENTE_DEL_BLUE };
+    const nuevo = conDolarBlue(texto, cotizacion);
+    expect(JSON.parse(nuevo).dolarBlue).toEqual(cotizacion);
     const distintas = nuevo.split('\n').filter((linea, i) => linea !== texto.split('\n')[i]);
     expect(distintas).toHaveLength(2);
     expect(JSON.parse(nuevo).dolarOficial).toEqual(JSON.parse(texto).dolarOficial);
