@@ -117,6 +117,17 @@
       "vigencia": "2026-10"
     },
     {
+      "id": "cuota-sindical",
+      "nombre": "Cuota sindical",
+      "descripcion": "El 1 % de la hora base, para quien está afiliado a un sindicato",
+      "grupo": "fiscales",
+      "tipo": "porcentual",
+      "porcentaje": 0.01,
+      "norma": "Criterio de la investigación",
+      "actualizacion": { "regla": "fija" },
+      "vigencia": "2026-10"
+    },
+    {
       "id": "conectividad",
       "nombre": "Conectividad domiciliaria",
       "grupo": "operativos",
