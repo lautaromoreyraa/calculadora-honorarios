@@ -88,28 +88,36 @@
   gap: var(--espacio-3);
 }
 
-/* En escritorio el desglose queda fijo en su columna hasta el presupuesto
-   (RNF-14), que es donde la columna termina (calculadora.css). Si es más alto
-   que la pantalla, el top negativo lo deja acompañar el scroll hasta que se ve
-   su final y recién ahí se fija: fijo arriba, el Total quedaba cortado, y un
-   scroll propio era una segunda barra. useAltoEnVariable publica el alto.
-   Mientras tanto la cabeza con la moneda sigue fija sola, dentro del desglose;
-   el selector no tiene panel propio, así que el fondo de la página, estirado
-   hasta el hueco de abajo, tapa los renglones que pasan detrás. */
+/* En escritorio el panel entero queda fijo en su columna hasta el presupuesto
+   (RNF-14), que es donde la columna termina (calculadora.css), y nunca pasa
+   del alto de la pantalla (RNF-15). Lautaro pidió el 2026-10-17 que el detalle
+   tenga su propia barra: cuando el panel acompañaba el scroll de la página,
+   los renglones se iban de la vista al subir y bajar por el formulario. La
+   cabeza y la moneda no se encogen; el que cede lugar y se recorre es el
+   cuerpo. */
 @media (min-width: 60rem) {
   .desglose {
     position: sticky;
-    top: min(var(--espacio-4), calc(100vh - var(--alto-del-desglose, 0px) - var(--espacio-4)));
+    top: var(--espacio-4);
     align-self: start;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 2 * var(--espacio-4));
+    max-height: calc(100dvh - 2 * var(--espacio-4));
   }
 
   .desglose__fijo {
-    position: sticky;
-    top: var(--espacio-4);
-    z-index: 1;
-    padding-bottom: var(--espacio-3);
-    margin-bottom: calc(-1 * var(--espacio-3));
-    background: var(--color-fondo);
+    flex-shrink: 0;
+  }
+
+  .desglose__cuerpo {
+    /* Con una pantalla muy baja, al menos unos renglones a la vista. */
+    min-height: 8rem;
+    overflow-y: auto;
+    /* Al llegar al final del desglose, la rueda no sigue moviendo la página. */
+    overscroll-behavior: contain;
+    /* El lugar de la barra queda reservado: que aparezca no corre los montos. */
+    scrollbar-gutter: stable;
   }
 }
 
