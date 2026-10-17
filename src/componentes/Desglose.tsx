@@ -11,14 +11,14 @@ import { idDeCampo } from '../util/formulario.ts';
 
 interface Props {
   calculo: Calculo;
-  /** Lo que va pegado debajo de la cabeza y queda fijo con ella: el selector de moneda (RNF-14). */
+  /** Lo que va pegado arriba de la cabeza y queda fijo con ella: el selector de moneda (RNF-14, RNF-16). */
   children?: ReactNode;
 }
 
 /**
  * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Arriba
- * la cabeza (total y composición) con el selector de moneda; abajo el cuerpo con
- * los renglones. En escritorio todo queda fijo al costado (RNF-14).
+ * el selector de moneda (RNF-16) y la cabeza (total y composición); abajo el
+ * cuerpo con los renglones. En escritorio todo queda fijo al costado (RNF-14).
  */
 export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
@@ -38,8 +38,8 @@ export function Desglose({ calculo, children }: Props) {
         <Resultado calculo={calculo}>{children}</Resultado>
       ) : (
         <div className="desglose__fijo">
-          <Pendiente errores={calculo.errores} />
           {children}
+          <Pendiente errores={calculo.errores} />
         </div>
       )}
     </div>
@@ -83,6 +83,7 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
   return (
     <>
       <div className="desglose__fijo">
+        {children}
         <div className="desglose__cabeza">
           <p className="desglose__total-etiqueta">Total del trabajo</p>
           <p className="desglose__total" aria-hidden="true">
@@ -93,7 +94,6 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
           </p>
           <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
         </div>
-        {children}
       </div>
 
       {/* En escritorio el cuerpo se recorre con su propia barra (RNF-15): con

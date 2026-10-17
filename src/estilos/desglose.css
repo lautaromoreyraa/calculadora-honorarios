@@ -81,7 +81,7 @@
   }
 }
 
-/* La cabeza y el selector de moneda van juntos: la moneda se cambia mirando el total. */
+/* El selector de moneda va arriba de la cabeza y juntos (RNF-16): se elige la moneda y se lee el total. */
 .desglose__fijo {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
