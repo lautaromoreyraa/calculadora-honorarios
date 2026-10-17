@@ -123,7 +123,6 @@
       "grupo": "fiscales",
       "tipo": "porcentual",
       "porcentaje": 0.01,
-      "norma": "Criterio de la investigación",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
