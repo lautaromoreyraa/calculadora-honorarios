@@ -158,6 +158,8 @@ export interface Parametros {
   dolarOficial: { valor: number; fecha: string; fuente: string };
   /** Para ver los montos en dólares (RF-28); se actualiza cada día (RF-29). */
   dolarBlue: { valor: number; fecha: string; fuente: string };
+  /** Formulario de la etapa de prueba (RF-31); sin él no hay invitación. */
+  encuesta?: { url: string };
 }
 
 export interface Datos {

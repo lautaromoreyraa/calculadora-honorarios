@@ -15,6 +15,11 @@ describe('datos', () => {
     expect(repetidos(datos.exclusiones.map((e) => e.id))).toEqual([]);
   });
 
+  it('RF-31 · la encuesta, si está, es un formulario de Google', () => {
+    const url = datos.parametros.encuesta?.url;
+    if (url) expect(url).toMatch(/^https:\/\/(docs\.google\.com\/forms\/|forms\.gle\/)/);
+  });
+
   it('tiene los ocho roles de la investigación', () => {
     expect(idsDeRoles).toHaveLength(8);
   });

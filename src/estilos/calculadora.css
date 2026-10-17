@@ -55,6 +55,18 @@
   font-weight: 600;
 }
 
+/* La invitación a la encuesta (RF-31) va debajo de la vigencia, en el color
+   del texto del encabezado: el acento verde agua no llega a 3:1 sobre la franja. */
+.encabezado__encuesta {
+  font-size: var(--texto-chico);
+  color: var(--color-encabezado-suave);
+}
+
+.encabezado__encuesta a {
+  color: var(--color-sobre-encabezado);
+  font-weight: 600;
+}
+
 .encabezado__bajada-extendida {
   display: none;
 }

@@ -64,6 +64,19 @@
         "fuente": { "$ref": "comun.schema.json#/$defs/texto" }
       }
     },
+    "encuesta": {
+      "description": "Formulario de la etapa de prueba (RF-31): si no está, el encabezado no muestra la invitación",
+      "type": "object",
+      "required": ["url"],
+      "additionalProperties": false,
+      "properties": {
+        "url": {
+          "description": "Sólo Google Forms: es el único destino externo que el sitio enlaza",
+          "type": "string",
+          "pattern": "^https://(docs\\.google\\.com/forms/|forms\\.gle/)"
+        }
+      }
+    },
     "dolarOficial": {
       "type": "object",
       "required": ["valor", "fecha", "fuente"],
