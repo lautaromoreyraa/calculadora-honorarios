@@ -18,7 +18,7 @@ export function Encabezado({ vigencia }: Props) {
           Calculadora de <em>honorarios</em>
         </h1>
         <p className="encabezado__bajada">
-          Para autónomos de la comunicación de Chaco y Corrientes.
+          Para autónomos de la comunicación del NEA.
           {/* En el celular, una línea que diga qué suma: sin ella, quien entra por
               primera vez no sabe que el total incluye sus costos. */}
           <span className="encabezado__bajada-corta"> Tu hora de convenio, más lo que cuesta trabajar por tu cuenta.</span>

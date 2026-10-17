@@ -1,6 +1,6 @@
 # Fee Calculator for Freelance Communicators
 
-Web app that calculates an **hourly rate** for freelance communication workers — community managers, reporters, content creators, hosts, copywriters, photojournalists, producers and video editors — registered under Argentina's simplified tax regime (*monotributo*) in the provinces of Chaco and Corrientes.
+Web app that calculates an **hourly rate** for freelance communication workers — community managers, reporters, content creators, hosts, copywriters, photojournalists, producers and video editors — registered under Argentina's simplified tax regime (*monotributo*) in Argentina's Northeast (NEA). Province-specific values (gross income tax, fuel) currently cover Chaco and Corrientes.
 
 The rate starts from the collective-agreement salary for each role and adds, depending on what the user selects, agreement bonuses, the costs a freelancer pays out of pocket (taxes, equipment, connectivity, transport), vacation and year-end bonus funds, and an adjustment by client type. The result downloads as an **editable Word quote** — numbered, with both parties' details, the work and its hourly value, the total and payment terms — and a live preview shows the document while it's being filled in.
 
