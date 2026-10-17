@@ -25,6 +25,7 @@ import {
   leerNumero,
   resumenDelItem,
   valorHoraDelRol,
+  vaPorAntiguedad,
   vigenciaDeLosDatos,
   type Aporte,
   type Campo,
@@ -83,7 +84,11 @@ export function Calculadora() {
         };
       case 'consumo':
         return estado.vehiculo === 'moto'
-          ? { etiqueta: 'Consumo de la moto', unidad: 'l/100 km' }
+          ? {
+              etiqueta: 'Consumo de la moto',
+              unidad: 'l/100 km',
+              ayuda: datos.parametros.consumoDeLaMotoCada100Km.aclaracion,
+            }
           : {
               etiqueta: 'Consumo del auto',
               unidad: 'l/100 km',
@@ -93,6 +98,14 @@ export function Calculadora() {
   };
 
   const resumen = (item: Item) => resumenDelItem(item, estado, datos);
+
+  // RF-33: el adicional por antigüedad no tiene casilla; el campo de años dice
+  // cuánto suma, con el valor del rol elegido.
+  const porAntiguedad = datos.items.filter(vaPorAntiguedad);
+  const ayudaDeAntiguedad = [
+    'Años de ejercicio profesional.',
+    ...porAntiguedad.map((i) => `${i.nombre}: ${resumen(i)}.`),
+  ].join(' ');
 
   // Cuánto suma cada ítem a este trabajo, para mostrarlo junto a su casilla.
   const aportes = new Map<string, Aporte>();
@@ -161,7 +174,7 @@ export function Calculadora() {
 
   return (
     <ProveedorDeFormato value={formato}>
-      <Encabezado vigencia={vigencia} />
+      <Encabezado vigencia={vigencia} encuesta={datos.parametros.encuesta?.url} />
       {/* Las keys llevan prefijo: son hermanos en el mismo fragmento y una key repetida
           hace que React no sepa cuál quitar y deje el formulario viejo en la página. */}
       <main className="calculadora" key={`formulario-${vuelta}`}>
@@ -221,7 +234,7 @@ export function Calculadora() {
                 id={idDeCampo('antiguedad')}
                 etiqueta="Antigüedad"
                 unidad="años"
-                ayuda="Años de ejercicio profesional."
+                ayuda={ayudaDeAntiguedad}
                 valor={estado.antiguedad}
                 alCambiar={(v) => cambiar('antiguedad', v)}
                 error={errorDeNumero(estado.antiguedad, 'no-negativo')}
@@ -252,7 +265,7 @@ export function Calculadora() {
           {datos.grupos.map((grupo) => {
             const delGrupo = datos.items.filter((i) => i.grupo === grupo.id);
             const exclusiones = datos.exclusiones.filter((e) => delGrupo.some((i) => i.exclusion === e.id));
-            const sueltos = delGrupo.filter((i) => !i.exclusion);
+            const sueltos = delGrupo.filter((i) => !i.exclusion && !vaPorAntiguedad(i));
             const idTitulo = `grupo-${grupo.id}`;
             return (
               <section
@@ -329,8 +342,8 @@ export function Calculadora() {
             <h2 className="solo-lectores" id={idTituloResultado}>
               Resultado
             </h2>
-            {/* La moneda va debajo del total, no arriba: ahí era lo más fuerte de
-                la columna y se leía antes. Queda fija con él (RNF-14). */}
+            {/* La moneda va arriba del total: se elige antes de leerlo (RNF-16).
+                Queda fija con él (RNF-14). */}
             <Desglose calculo={calculo}>
               <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
             </Desglose>

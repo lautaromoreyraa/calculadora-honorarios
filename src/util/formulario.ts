@@ -90,20 +90,12 @@ function tieneAntiguedad(texto: string): boolean {
 }
 
 /**
- * Cambia la antigüedad y marca o desmarca el adicional por antigüedad (RF-10):
- * quien carga sus años quiere que se le paguen. Sólo actúa al pasar de cero a
- * más de cero o al revés, así corregir 5 por 6 no vuelve a marcar un adicional
- * que el profesional desmarcó a mano.
+ * Ítems que no tienen casilla: se suman solos cuando hay años de antigüedad
+ * cargados (RF-33). Quien escribe sus años quiere que se le paguen; una casilla
+ * aparte era un paso más que se olvidaba.
  */
-export function conAntiguedad(estado: EstadoDelFormulario, texto: string, datos: Datos): EstadoDelFormulario {
-  const antes = tieneAntiguedad(estado.antiguedad);
-  const ahora = tieneAntiguedad(texto);
-  if (antes === ahora) return { ...estado, antiguedad: texto };
-  const marcados = { ...estado.marcados };
-  for (const item of datos.items.filter((i) => i.tipo === 'mensual' && i.multiplicaPor === 'antiguedad' && !i.exclusion)) {
-    marcados[item.id] = ahora;
-  }
-  return { ...estado, antiguedad: texto, marcados };
+export function vaPorAntiguedad(item: Item): boolean {
+  return item.tipo === 'mensual' && item.multiplicaPor === 'antiguedad' && !item.exclusion;
 }
 
 /**
@@ -139,7 +131,11 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
   const elegidos = new Set(Object.values(estado.elegidos).filter((id): id is string => id !== null));
 
   for (const item of datos.items) {
-    const marcado = item.exclusion ? elegidos.has(item.id) : estado.marcados[item.id];
+    const marcado = item.exclusion
+      ? elegidos.has(item.id)
+      : vaPorAntiguedad(item)
+        ? tieneAntiguedad(estado.antiguedad)
+        : estado.marcados[item.id];
     if (!marcado) continue;
     const entrada: EntradaDeItem = {};
     for (const campo of camposDeItem(item)) {

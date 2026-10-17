@@ -5,7 +5,6 @@ import { formatearPesos } from '../../util/formato.ts';
 import {
   aSeleccion,
   camposDeItem,
-  conAntiguedad,
   conVehiculo,
   cuentaDelSubgrupo,
   estadoInicial,
@@ -14,6 +13,7 @@ import {
   leerNumero,
   resumenDelItem,
   valorHoraDelRol,
+  vaPorAntiguedad,
   vigenciaDeLosDatos,
   type EstadoDelFormulario,
 } from '../../util/formulario.ts';
@@ -211,30 +211,36 @@ describe('RF-13 · auto o moto', () => {
   it('el auto lleva la aclaración del consumo en los datos', () => {
     expect(datos.parametros.consumoDelAutoCada100Km.aclaracion).toMatch(/uso mixto \(ciudad \+ ruta\)/);
   });
+
+  it('RF-34 · la moto lleva su propia aclaración, con su consumo', () => {
+    const { aclaracion, valor } = datos.parametros.consumoDeLaMotoCada100Km;
+    expect(aclaracion).toMatch(/uso mixto \(ciudad \+ ruta\)/);
+    expect(aclaracion).toContain(`${valor} L / 100 km`);
+  });
 });
 
-describe('RF-10 · la antigüedad marca su adicional', () => {
-  it('escribir 5 años marca el adicional sin tocar la casilla', () => {
-    const e = conAntiguedad(estado({ antiguedad: '0' }), '5', datos);
-    expect(e.antiguedad).toBe('5');
-    expect(e.marcados.antiguedad).toBe(true);
-  });
-
-  it('volver a 0, o borrar el campo, lo desmarca', () => {
-    const con = conAntiguedad(estado({ antiguedad: '0' }), '5', datos);
-    expect(conAntiguedad(con, '0', datos).marcados.antiguedad).toBe(false);
-    expect(conAntiguedad(con, '', datos).marcados.antiguedad).toBe(false);
-  });
-
-  it('corregir 5 por 6 respeta un adicional desmarcado a mano', () => {
-    const desmarcado = { ...estado({ antiguedad: '5' }), marcados: { antiguedad: false } };
-    expect(conAntiguedad(desmarcado, '6', datos).marcados.antiguedad).toBe(false);
-  });
-
-  it('con 5 años y 180 horas el adicional suma $ 33.990', () => {
-    const e = conAntiguedad(estado({ antiguedad: '0', horas: '180' }), '5', datos);
+describe('RF-33 · la antigüedad suma su adicional sin casilla', () => {
+  const adicional = (e: EstadoDelFormulario) => {
     const c = calcular(aSeleccion(e, datos), datos);
     if (!c.ok) throw new Error('no calculó');
-    expect(c.resultado.renglones.find((r) => r.id === 'antiguedad')?.monto).toBe(33990);
+    return c.resultado.renglones.find((r) => r.id === 'antiguedad');
+  };
+
+  it('el adicional por antigüedad no lleva casilla', () => {
+    expect(vaPorAntiguedad(item('antiguedad'))).toBe(true);
+    expect(datos.items.filter(vaPorAntiguedad).map((i) => i.id)).toEqual(['antiguedad']);
+  });
+
+  it('con 5 años y 180 horas el desglose suma $ 33.990 sin marcar nada', () => {
+    expect(adicional(estado({ antiguedad: '5', horas: '180' }))?.monto).toBe(33990);
+  });
+
+  it('con 0 años o el campo vacío no aparece', () => {
+    expect(adicional(estado({ antiguedad: '0' }))).toBeUndefined();
+    expect(adicional(estado({ antiguedad: '' }))).toBeUndefined();
+  });
+
+  it('una marca vieja guardada en el navegador no lo suma con 0 años', () => {
+    expect(adicional({ ...estado({ antiguedad: '0' }), marcados: { antiguedad: true } })).toBeUndefined();
   });
 });
