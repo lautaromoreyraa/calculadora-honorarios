@@ -35,6 +35,9 @@
     "sueldosPorAnio": 1,
     "norma": "Ley de Contrato de Trabajo 20.744, arts. 121 y 122; Ley 23.041"
   },
+  "encuesta": {
+    "url": "https://docs.google.com/forms/d/e/1FAIpQLSd55yQCjU9Yq4b4edqJqXPEZH5p8r1UEQdV0XRDoUPc3yFTXQ/viewform?usp=dialog"
+  },
   "dolarOficial": {
     "valor": 1512.5,
     "fecha": "2026-10-13",

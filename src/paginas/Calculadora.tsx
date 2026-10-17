@@ -174,7 +174,7 @@ export function Calculadora() {
 
   return (
     <ProveedorDeFormato value={formato}>
-      <Encabezado vigencia={vigencia} />
+      <Encabezado vigencia={vigencia} encuesta={datos.parametros.encuesta?.url} />
       {/* Las keys llevan prefijo: son hermanos en el mismo fragmento y una key repetida
           hace que React no sepa cuál quitar y deje el formulario viejo en la página. */}
       <main className="calculadora" key={`formulario-${vuelta}`}>
