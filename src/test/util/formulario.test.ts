@@ -211,6 +211,12 @@ describe('RF-13 · auto o moto', () => {
   it('el auto lleva la aclaración del consumo en los datos', () => {
     expect(datos.parametros.consumoDelAutoCada100Km.aclaracion).toMatch(/uso mixto \(ciudad \+ ruta\)/);
   });
+
+  it('RF-34 · la moto lleva su propia aclaración, con su consumo', () => {
+    const { aclaracion, valor } = datos.parametros.consumoDeLaMotoCada100Km;
+    expect(aclaracion).toMatch(/uso mixto \(ciudad \+ ruta\)/);
+    expect(aclaracion).toContain(`${valor} L / 100 km`);
+  });
 });
 
 describe('RF-33 · la antigüedad suma su adicional sin casilla', () => {
