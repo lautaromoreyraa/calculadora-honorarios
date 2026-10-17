@@ -338,8 +338,8 @@ export function Calculadora() {
             <h2 className="solo-lectores" id={idTituloResultado}>
               Resultado
             </h2>
-            {/* La moneda va debajo del total, no arriba: ahí era lo más fuerte de
-                la columna y se leía antes. Queda fija con él (RNF-14). */}
+            {/* La moneda va arriba del total: se elige antes de leerlo (RNF-16).
+                Queda fija con él (RNF-14). */}
             <Desglose calculo={calculo}>
               <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
             </Desglose>
