@@ -25,6 +25,7 @@ import {
   leerNumero,
   resumenDelItem,
   valorHoraDelRol,
+  vaPorAntiguedad,
   vigenciaDeLosDatos,
   type Aporte,
   type Campo,
@@ -93,6 +94,14 @@ export function Calculadora() {
   };
 
   const resumen = (item: Item) => resumenDelItem(item, estado, datos);
+
+  // RF-33: el adicional por antigüedad no tiene casilla; el campo de años dice
+  // cuánto suma, con el valor del rol elegido.
+  const porAntiguedad = datos.items.filter(vaPorAntiguedad);
+  const ayudaDeAntiguedad = [
+    'Años de ejercicio profesional.',
+    ...porAntiguedad.map((i) => `${i.nombre}: ${resumen(i)}.`),
+  ].join(' ');
 
   // Cuánto suma cada ítem a este trabajo, para mostrarlo junto a su casilla.
   const aportes = new Map<string, Aporte>();
@@ -221,7 +230,7 @@ export function Calculadora() {
                 id={idDeCampo('antiguedad')}
                 etiqueta="Antigüedad"
                 unidad="años"
-                ayuda="Años de ejercicio profesional."
+                ayuda={ayudaDeAntiguedad}
                 valor={estado.antiguedad}
                 alCambiar={(v) => cambiar('antiguedad', v)}
                 error={errorDeNumero(estado.antiguedad, 'no-negativo')}
@@ -252,7 +261,7 @@ export function Calculadora() {
           {datos.grupos.map((grupo) => {
             const delGrupo = datos.items.filter((i) => i.grupo === grupo.id);
             const exclusiones = datos.exclusiones.filter((e) => delGrupo.some((i) => i.exclusion === e.id));
-            const sueltos = delGrupo.filter((i) => !i.exclusion);
+            const sueltos = delGrupo.filter((i) => !i.exclusion && !vaPorAntiguedad(i));
             const idTitulo = `grupo-${grupo.id}`;
             return (
               <section
