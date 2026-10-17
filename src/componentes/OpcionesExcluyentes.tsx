@@ -73,7 +73,7 @@ export function OpcionesExcluyentes({ exclusion, opciones, resumen, elegido, alE
               <Aporte id={`${nombre}-${item.id}-aporte`} aporte={elegido === item.id ? aporte : undefined} />
             </span>
           </label>
-          <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
+          {item.norma && <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />}
         </div>
       ))}
     </fieldset>

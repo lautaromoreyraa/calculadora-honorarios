@@ -333,6 +333,8 @@ describe('RF-28 · montos en dólares', () => {
 describe('RF-36 · cuota sindical', () => {
   it('CM, 10 horas: el 1 % de la hora base, $468, entre los fiscales', () => {
     expect(monto(resultado(seleccion({}, { 'cuota-sindical': {} })), 'cuota-sindical')).toBe(468);
-    expect(datos.items.find((i) => i.id === 'cuota-sindical')?.grupo).toBe('fiscales');
+    const item = datos.items.find((i) => i.id === 'cuota-sindical');
+    expect(item?.grupo).toBe('fiscales');
+    expect(item?.norma).toBeUndefined();
   });
 });

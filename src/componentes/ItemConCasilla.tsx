@@ -86,7 +86,7 @@ export function ItemConCasilla({
           })}
         </div>
       )}
-      <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />
+      {item.norma && <NormaDelItem nombre={item.nombre} norma={item.norma} vigencia={item.vigencia} />}
     </div>
   );
 }
