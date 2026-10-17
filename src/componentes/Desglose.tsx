@@ -1,4 +1,3 @@
-import { useAltoEnVariable } from '../hooks/useAltoEnVariable.ts';
 import { useNumeroAnimado } from '../hooks/useNumeroAnimado.ts';
 import { useValorDiferido } from '../hooks/useValorDiferido.ts';
 import type { MouseEvent, ReactNode } from 'react';
@@ -23,7 +22,6 @@ interface Props {
  */
 export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
-  const raiz = useAltoEnVariable<HTMLDivElement>('--alto-del-desglose');
   // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
   // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
   const anuncio = useValorDiferido(
@@ -32,7 +30,7 @@ export function Desglose({ calculo, children }: Props) {
   );
 
   return (
-    <div ref={raiz} className="desglose">
+    <div className="desglose">
       <p className="solo-lectores" role="status">
         {anuncio}
       </p>
@@ -98,7 +96,9 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
         {children}
       </div>
 
-      <div className="desglose__cuerpo">
+      {/* En escritorio el cuerpo se recorre con su propia barra (RNF-15): con
+          tabIndex se llega con el teclado y se mueve con las flechas. */}
+      <div className="desglose__cuerpo" tabIndex={0} role="region" aria-label="Desglose del honorario">
         {r.avisos.length > 0 && (
           <ul className="desglose__avisos">
             {r.avisos.map((a) => (
