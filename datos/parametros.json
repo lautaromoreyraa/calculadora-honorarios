@@ -18,7 +18,8 @@
   },
   "consumoDeLaMotoCada100Km": {
     "valor": 4,
-    "norma": "Moto en uso mixto; el usuario lo puede cambiar"
+    "norma": "Moto en uso mixto; el usuario lo puede cambiar",
+    "aclaracion": "Para una moto de uso diario, 4 L / 100 km es un promedio razonable únicamente para un uso mixto (ciudad + ruta). Se contempla el peso del equipamiento a transportar."
   },
   "vacaciones": {
     "divisorDelDia": 25,

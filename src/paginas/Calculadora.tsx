@@ -84,7 +84,11 @@ export function Calculadora() {
         };
       case 'consumo':
         return estado.vehiculo === 'moto'
-          ? { etiqueta: 'Consumo de la moto', unidad: 'l/100 km' }
+          ? {
+              etiqueta: 'Consumo de la moto',
+              unidad: 'l/100 km',
+              ayuda: datos.parametros.consumoDeLaMotoCada100Km.aclaracion,
+            }
           : {
               etiqueta: 'Consumo del auto',
               unidad: 'l/100 km',
