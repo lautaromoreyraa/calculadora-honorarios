@@ -329,3 +329,10 @@ describe('RF-28 · montos en dólares', () => {
     expect(c.resultado.renglones.find((r) => r.id === 'conectividad')!.detalle).toMatch(/US\$/);
   });
 });
+
+describe('RF-36 · cuota sindical', () => {
+  it('CM, 10 horas: el 1 % de la hora base, $468, entre los fiscales', () => {
+    expect(monto(resultado(seleccion({}, { 'cuota-sindical': {} })), 'cuota-sindical')).toBe(468);
+    expect(datos.items.find((i) => i.id === 'cuota-sindical')?.grupo).toBe('fiscales');
+  });
+});
