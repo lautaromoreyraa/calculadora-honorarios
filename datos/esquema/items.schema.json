@@ -84,7 +84,7 @@
     },
     "item": {
       "type": "object",
-      "required": ["id", "nombre", "grupo", "tipo", "norma", "actualizacion", "vigencia"],
+      "required": ["id", "nombre", "grupo", "tipo", "actualizacion", "vigencia"],
       "properties": {
         "id": { "$ref": "comun.schema.json#/$defs/id" },
         "nombre": { "$ref": "comun.schema.json#/$defs/texto" },

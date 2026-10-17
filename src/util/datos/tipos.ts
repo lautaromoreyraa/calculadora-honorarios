@@ -50,7 +50,8 @@ interface ItemBase {
   /** Id de un subgrupo de su grupo, si el grupo los tiene. */
   subgrupo?: string;
   exclusion?: string;
-  norma: string;
+  /** Sin norma cuando el valor no sale de ninguna: la pantalla no inventa una. */
+  norma?: string;
   actualizacion: { regla: ReglaDeActualizacion; origen?: Vigencia };
   vigencia: Vigencia;
 }
