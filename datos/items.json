@@ -16,16 +16,29 @@
   ],
   "exclusiones": [
     { "id": "plazo", "nombre": "Plazo de entrega", "obligatorio": false },
+    { "id": "titulo", "nombre": "Título", "obligatorio": false },
     { "id": "tipo-de-cliente", "nombre": "Tipo de cliente", "obligatorio": true }
   ],
   "items": [
     {
-      "id": "titulo",
-      "nombre": "Título universitario o terciario",
+      "id": "titulo-universitario",
+      "nombre": "Título universitario",
       "grupo": "convencionales",
       "tipo": "mensual",
-      "valor": 43120,
-      "norma": "Acta acuerdo FATPREN, cláusula accesoria 1",
+      "valor": 54478,
+      "exclusion": "titulo",
+      "norma": "CCT 541/08, escala FATPREN-ADIRA: asignación por título universitario",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "titulo-terciario",
+      "nombre": "Título terciario",
+      "grupo": "convencionales",
+      "tipo": "mensual",
+      "valor": 39959,
+      "exclusion": "titulo",
+      "norma": "CCT 541/08, escala FATPREN-ADIRA: asignación por título terciario",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
     },
@@ -35,10 +48,10 @@
       "descripcion": "Por cada año de ejercicio profesional",
       "grupo": "convencionales",
       "tipo": "mensual",
-      "valor": 6798,
+      "valor": 7121,
       "multiplicaPor": "antiguedad",
-      "porRol": { "productor": { "valor": 10782.34 } },
-      "norma": "CCT 541/08, art. 32; productor: escala SATSAID de medios del interior, junio de 2026",
+      "porRol": { "productor": { "valor": 11236.47 } },
+      "norma": "CCT 541/08, art. 32; productor: CCT 131/75, SATSAID",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
     },
@@ -261,7 +274,7 @@
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "por-jornada",
-      "valor": 7992.87,
+      "valor": 8329.5,
       "norma": "CCT 131/75, SATSAID",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
@@ -273,7 +286,7 @@
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "por-jornada",
-      "valor": 9955.05,
+      "valor": 10374.34,
       "norma": "CCT 131/75, SATSAID",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"

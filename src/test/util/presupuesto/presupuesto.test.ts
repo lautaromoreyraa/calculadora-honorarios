@@ -161,18 +161,18 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain('50 % de anticipo');
   });
 
-  it('el renglón del trabajo: 10 h y $ 50.142 dan $ 5.014,20 por hora', async () => {
+  it('el renglón del trabajo: 10 h y $ 52.371 dan $ 5.237,10 por hora', async () => {
     const r = resultado({
       rolId: 'cm',
       horas: 10,
       antiguedad: 0,
       items: { 'cliente-a': {}, monotributo: {}, 'ingresos-brutos': {} },
     });
-    expect(r.total).toBe(50142);
+    expect(r.total).toBe(52371);
     const texto = await textoDelWord(r, completo);
     expect(texto).toContain('Valor por hora');
     expect(texto).toContain('10 h');
-    expect(texto).toContain(formatearPesosConCentavos(5014.2));
+    expect(texto).toContain(formatearPesosConCentavos(5237.1));
   });
 
   it('con el monotributo dice «Factura C»; sin él no menciona el IVA', async () => {

@@ -26,21 +26,21 @@ function resultado(s: Seleccion, d: Datos = datos): Resultado {
 const monto = (r: Resultado, id: string) => r.renglones.find((x) => x.id === id)?.monto;
 
 describe('RF-01 · elegir el rol', () => {
-  it('productor: valor hora de $6.727,52 y su convenio', () => {
+  it('productor: valor hora de $7.010,86 y su convenio', () => {
     const r = resultado(seleccion({ rolId: 'productor' }));
-    expect(r.valorHora).toBeCloseTo(6727.52, 2);
+    expect(r.valorHora).toBeCloseTo(7010.86, 2);
     expect(r.rol.convenio).toContain('CCT 131/75');
     expect(r.rol.convenio).toContain('SATSAID');
   });
 });
 
 describe('RF-02 · cotizar por horas', () => {
-  it('CM con 10 horas: honorario base de $46.811', () => {
-    expect(monto(resultado(seleccion()), 'honorario-base')).toBe(46811);
+  it('CM con 10 horas: honorario base de $49.040', () => {
+    expect(monto(resultado(seleccion()), 'honorario-base')).toBe(49040);
   });
 
   it('acepta horas con decimales', () => {
-    expect(monto(resultado(seleccion({ horas: 1.5 })), 'honorario-base')).toBe(7022);
+    expect(monto(resultado(seleccion({ horas: 1.5 })), 'honorario-base')).toBe(7356);
   });
 
   it.each([0, -3, Number.NaN])('con %s horas no calcula y avisa', (horas) => {
@@ -59,27 +59,27 @@ describe('RF-02 · cotizar por horas', () => {
 describe('RF-03 · adicionales porcentuales', () => {
   it('CM, 10 horas, multifunción y nocturnidad: se suman al base sin componerse', () => {
     const r = resultado(seleccion({}, { multifuncion: {}, nocturnidad: {} }));
-    expect(monto(r, 'multifuncion')).toBe(18724);
-    expect(monto(r, 'nocturnidad')).toBe(11703);
-    expect(r.total).toBe(46811 + 18724 + 11703);
+    expect(monto(r, 'multifuncion')).toBe(19616);
+    expect(monto(r, 'nocturnidad')).toBe(12260);
+    expect(r.total).toBe(49040 + 19616 + 12260);
   });
 
   it('feriado: 100 % del valor hora', () => {
-    expect(monto(resultado(seleccion({}, { feriado: {} })), 'feriado')).toBe(46811);
+    expect(monto(resultado(seleccion({}, { feriado: {} })), 'feriado')).toBe(49040);
   });
 
   it('cobertura de emergencia: 30 % para fotoperiodista y 15 % para el resto (RN-04)', () => {
     const foto = resultado(seleccion({ rolId: 'fotoperiodista' }, { 'cobertura-de-emergencia': {} }));
     const cm = resultado(seleccion({}, { 'cobertura-de-emergencia': {} }));
-    expect(monto(foto, 'cobertura-de-emergencia')).toBe(14043);
-    expect(monto(cm, 'cobertura-de-emergencia')).toBe(7022);
+    expect(monto(foto, 'cobertura-de-emergencia')).toBe(14712);
+    expect(monto(cm, 'cobertura-de-emergencia')).toBe(7356);
   });
 });
 
 describe('RF-04 · tipo de cliente', () => {
   it('D suma el 40 % del honorario base y A no suma nada', () => {
     const d = resultado({ ...seleccion(), items: { 'cliente-d': {} } });
-    expect(monto(d, 'cliente-d')).toBe(18724);
+    expect(monto(d, 'cliente-d')).toBe(19616);
     expect(monto(resultado(seleccion()), 'cliente-a')).toBe(0);
   });
 
@@ -107,7 +107,7 @@ describe('RF-05 · plazo de entrega', () => {
   });
 
   it('muy urgente suma el 75 % del honorario base', () => {
-    expect(monto(resultado(seleccion({}, { 'muy-urgente': {} })), 'muy-urgente')).toBe(35108);
+    expect(monto(resultado(seleccion({}, { 'muy-urgente': {} })), 'muy-urgente')).toBe(36780);
   });
 });
 
@@ -187,21 +187,21 @@ describe('RF-08 · ingresos brutos según la provincia', () => {
 });
 
 describe('RF-09 · fondos de vacaciones y aguinaldo', () => {
-  it('CM, 3 años, 180 horas: SAC $70.217 y vacaciones $39.321', () => {
+  it('CM, 3 años, 180 horas: SAC $73.560 y vacaciones $41.194', () => {
     const r = resultado(seleccion({ horas: 180, antiguedad: 3 }, { 'fondo-sac': {}, 'fondo-vacaciones': {} }));
-    expect(monto(r, 'fondo-sac')).toBe(70217);
-    expect(monto(r, 'fondo-vacaciones')).toBe(39321);
+    expect(monto(r, 'fondo-sac')).toBe(73560);
+    expect(monto(r, 'fondo-vacaciones')).toBe(41194);
   });
 
   it('con 5 años de antigüedad pasan a ser 21 días de vacaciones', () => {
     const r = resultado(seleccion({ horas: 180, antiguedad: 5 }, { 'fondo-vacaciones': {} }));
-    expect(monto(r, 'fondo-vacaciones')).toBe(Math.round((842598 / 25) * 21 / 12));
+    expect(monto(r, 'fondo-vacaciones')).toBe(Math.round((882721 / 25) * 21 / 12));
   });
 });
 
 describe('RF-10 · título y antigüedad', () => {
-  it('5 años de antigüedad, 180 horas: $33.990', () => {
-    expect(monto(resultado(seleccion({ horas: 180, antiguedad: 5 }, { antiguedad: {} })), 'antiguedad')).toBe(33990);
+  it('5 años de antigüedad, 180 horas: $35.605', () => {
+    expect(monto(resultado(seleccion({ horas: 180, antiguedad: 5 }, { antiguedad: {} })), 'antiguedad')).toBe(35605);
   });
 
   it('marcada con 0 años suma cero y avisa dónde cargar la antigüedad', () => {
@@ -213,11 +213,16 @@ describe('RF-10 · título y antigüedad', () => {
 
   it('el productor usa su propio valor de antigüedad', () => {
     const r = resultado(seleccion({ rolId: 'productor', horas: 180, antiguedad: 1 }, { antiguedad: {} }));
-    expect(monto(r, 'antiguedad')).toBe(10782);
+    expect(monto(r, 'antiguedad')).toBe(11236);
   });
 
-  it('título: $43.120 por mes prorrateado', () => {
-    expect(monto(resultado(seleccion({ horas: 90 }, { titulo: {} })), 'titulo')).toBe(21560);
+  it('título universitario: $54.478 por mes prorrateado', () => {
+    expect(monto(resultado(seleccion({ horas: 90 }, { 'titulo-universitario': {} })), 'titulo-universitario')).toBe(27239);
+  });
+
+  it('título terciario: $39.959 por mes; no va junto con el universitario', () => {
+    expect(monto(resultado(seleccion({ horas: 180 }, { 'titulo-terciario': {} })), 'titulo-terciario')).toBe(39959);
+    expect(calcular(seleccion({}, { 'titulo-universitario': {}, 'titulo-terciario': {} }), datos).ok).toBe(false);
   });
 });
 
@@ -262,14 +267,14 @@ describe('RF-13 · movilidad por kilómetros', () => {
 });
 
 describe('RF-14 · refrigerio y exteriores por jornada', () => {
-  it('8 horas son 2 jornadas: refrigerio $15.986 y exteriores $19.910', () => {
+  it('8 horas son 2 jornadas: refrigerio $16.659 y exteriores $20.749', () => {
     const r = resultado(seleccion({ horas: 8 }, { refrigerio: {}, exteriores: {} }));
-    expect(monto(r, 'refrigerio')).toBe(15986);
-    expect(monto(r, 'exteriores')).toBe(19910);
+    expect(monto(r, 'refrigerio')).toBe(16659);
+    expect(monto(r, 'exteriores')).toBe(20749);
   });
 
   it('6 horas son 1 jornada', () => {
-    expect(monto(resultado(seleccion({ horas: 6 }, { refrigerio: {} })), 'refrigerio')).toBe(7993);
+    expect(monto(resultado(seleccion({ horas: 6 }, { refrigerio: {} })), 'refrigerio')).toBe(8330);
   });
 });
 
@@ -331,8 +336,8 @@ describe('RF-28 · montos en dólares', () => {
 });
 
 describe('RF-36 · cuota sindical', () => {
-  it('CM, 10 horas: el 1 % de la hora base, $468, entre los fiscales', () => {
-    expect(monto(resultado(seleccion({}, { 'cuota-sindical': {} })), 'cuota-sindical')).toBe(468);
+  it('CM, 10 horas: el 1 % de la hora base, $490, entre los fiscales', () => {
+    expect(monto(resultado(seleccion({}, { 'cuota-sindical': {} })), 'cuota-sindical')).toBe(490);
     const item = datos.items.find((i) => i.id === 'cuota-sindical');
     expect(item?.grupo).toBe('fiscales');
     expect(item?.norma).toBeUndefined();
