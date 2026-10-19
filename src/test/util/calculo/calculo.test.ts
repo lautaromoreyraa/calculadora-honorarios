@@ -112,8 +112,8 @@ describe('RF-05 · plazo de entrega', () => {
 });
 
 describe('RF-06 · costos operativos mensuales', () => {
-  it('conectividad de $32.000 en 9 horas suma $1.600', () => {
-    expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} })), 'conectividad')).toBe(1600);
+  it('conectividad de $72.000 en 9 horas suma $3.600', () => {
+    expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} })), 'conectividad')).toBe(3600);
   });
 
   it('licencias e IA salen del precio en dólares (RN-15)', () => {

@@ -131,7 +131,7 @@
       "grupo": "operativos",
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
-      "valor": 32000,
+      "valor": 72000,
       "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
       "vigencia": "2026-10"
     },

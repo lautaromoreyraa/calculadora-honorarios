@@ -121,7 +121,7 @@ describe('resumenDelItem', () => {
     const redactor = estado({ rolId: 'redactor-digital' });
     expect(resumenDelItem(item('multifuncion'), cm, datos)).toBe('40 % del valor hora');
     expect(resumenDelItem(item('cobertura-de-emergencia'), foto, datos)).toBe('30 % del valor hora');
-    expect(resumenDelItem(item('conectividad'), cm, datos)).toMatch(/32\.000 por mes$/);
+    expect(resumenDelItem(item('conectividad'), cm, datos)).toMatch(/72\.000 por mes$/);
     expect(resumenDelItem(item('ia-y-redes'), redactor, datos)).toMatch(/15\.125 por mes$/);
     expect(resumenDelItem(item('antiguedad'), cm, datos)).toMatch(/por mes por año$/);
     expect(resumenDelItem(item('refrigerio'), cm, datos)).toMatch(/por jornada de 6 h$/);
