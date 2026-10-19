@@ -74,7 +74,7 @@ describe('camposDeItem', () => {
 describe('aSeleccion', () => {
   it('lleva las casillas marcadas y la opción elegida de cada conjunto excluyente', () => {
     const s = aSeleccion(
-      estado({ marcados: { conectividad: true, titulo: false }, elegidos: { plazo: 'urgente', 'tipo-de-cliente': 'cliente-d' } }),
+      estado({ marcados: { conectividad: true, 'titulo-universitario': false }, elegidos: { plazo: 'urgente', 'tipo-de-cliente': 'cliente-d' } }),
       datos,
     );
     expect(Object.keys(s.items).sort()).toEqual(['cliente-d', 'conectividad', 'urgente']);
@@ -110,7 +110,7 @@ describe('aSeleccion', () => {
   it('el resultado se puede calcular de punta a punta', () => {
     const calculo = calcular(aSeleccion(estado({ marcados: { multifuncion: true } }), datos), datos);
     expect(calculo.ok).toBe(true);
-    if (calculo.ok) expect(calculo.resultado.total).toBe(46811 + 18724);
+    if (calculo.ok) expect(calculo.resultado.total).toBe(49040 + 19616);
   });
 });
 
@@ -144,7 +144,7 @@ describe('resumenDelItem', () => {
   });
 
   it('el valor hora del rol es el base mensual sobre las horas de referencia', () => {
-    expect(valorHoraDelRol('productor', datos)).toBeCloseTo(6727.52, 2);
+    expect(valorHoraDelRol('productor', datos)).toBeCloseTo(7010.86, 2);
   });
 
   it('el consumo de la movilidad arranca en el del parámetro', () => {
@@ -231,8 +231,8 @@ describe('RF-33 · la antigüedad suma su adicional sin casilla', () => {
     expect(datos.items.filter(vaPorAntiguedad).map((i) => i.id)).toEqual(['antiguedad']);
   });
 
-  it('con 5 años y 180 horas el desglose suma $ 33.990 sin marcar nada', () => {
-    expect(adicional(estado({ antiguedad: '5', horas: '180' }))?.monto).toBe(33990);
+  it('con 5 años y 180 horas el desglose suma $ 35.605 sin marcar nada', () => {
+    expect(adicional(estado({ antiguedad: '5', horas: '180' }))?.monto).toBe(35605);
   });
 
   it('con 0 años o el campo vacío no aparece', () => {
