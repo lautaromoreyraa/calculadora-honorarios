@@ -103,4 +103,13 @@ describe('datos', () => {
     expect(tramos[0]).toBe(0);
     expect(tramos).toEqual([...tramos].sort((a, b) => a - b));
   });
+
+  // Un criterio propio mostrado como «Norma» le hace creer al usuario que hay una
+  // ley detrás; si el texto aporta algo, va en la descripción.
+  it('RF-41 · la norma de un ítem no es un criterio de la investigación ni un costo de mercado', () => {
+    const criterios = /costo de mercado|criterio de la investigación|precio del alquiler|sobre la base de cálculo/i;
+    for (const item of datos.items) {
+      if (item.norma) expect(item.norma, item.id).not.toMatch(criterios);
+    }
+  });
 });
