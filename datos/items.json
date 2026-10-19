@@ -16,16 +16,29 @@
   ],
   "exclusiones": [
     { "id": "plazo", "nombre": "Plazo de entrega", "obligatorio": false },
+    { "id": "titulo", "nombre": "Título", "obligatorio": false },
     { "id": "tipo-de-cliente", "nombre": "Tipo de cliente", "obligatorio": true }
   ],
   "items": [
     {
-      "id": "titulo",
-      "nombre": "Título universitario o terciario",
+      "id": "titulo-universitario",
+      "nombre": "Título universitario",
       "grupo": "convencionales",
       "tipo": "mensual",
-      "valor": 43120,
-      "norma": "Acta acuerdo FATPREN, cláusula accesoria 1",
+      "valor": 54478,
+      "exclusion": "titulo",
+      "norma": "CCT 541/08, escala FATPREN-ADIRA: asignación por título universitario",
+      "actualizacion": { "regla": "manual" },
+      "vigencia": "2026-10"
+    },
+    {
+      "id": "titulo-terciario",
+      "nombre": "Título terciario",
+      "grupo": "convencionales",
+      "tipo": "mensual",
+      "valor": 39959,
+      "exclusion": "titulo",
+      "norma": "CCT 541/08, escala FATPREN-ADIRA: asignación por título terciario",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
     },
@@ -35,10 +48,10 @@
       "descripcion": "Por cada año de ejercicio profesional",
       "grupo": "convencionales",
       "tipo": "mensual",
-      "valor": 6798,
+      "valor": 7121,
       "multiplicaPor": "antiguedad",
-      "porRol": { "productor": { "valor": 10782.34 } },
-      "norma": "CCT 541/08, art. 32; productor: escala SATSAID de medios del interior, junio de 2026",
+      "porRol": { "productor": { "valor": 11236.47 } },
+      "norma": "CCT 541/08, art. 32; productor: CCT 131/75, SATSAID",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
     },
@@ -90,7 +103,6 @@
       "grupo": "fiscales",
       "tipo": "mensual",
       "valor": 20000,
-      "norma": "Costo de mercado",
       "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
       "vigencia": "2026-10"
     },
@@ -133,7 +145,6 @@
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
       "valor": 32000,
-      "norma": "Costo de mercado",
       "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
       "vigencia": "2026-10"
     },
@@ -144,13 +155,13 @@
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
       "valor": 70000,
-      "norma": "Costo de mercado",
       "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
       "vigencia": "2026-10"
     },
     {
       "id": "licencias",
       "nombre": "Licencia de software profesional",
+      "descripcion": "Se cobra el 50 % del precio en dólares, a la cotización oficial",
       "grupo": "operativos",
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
@@ -158,13 +169,13 @@
         "herramientas": [{ "nombre": "Adobe Creative Cloud Pro", "precio": 69.99 }],
         "proporcion": 0.5
       },
-      "norma": "50 % de la cotización oficial",
       "actualizacion": { "regla": "dolar-oficial" },
       "vigencia": "2026-10"
     },
     {
       "id": "ia-y-redes",
       "nombre": "IA y gestión de redes sociales",
+      "descripcion": "Se cobra el 50 % del precio en dólares, a la cotización oficial",
       "grupo": "operativos",
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
@@ -183,7 +194,6 @@
           }
         }
       },
-      "norma": "50 % de la cotización oficial",
       "actualizacion": { "regla": "dolar-oficial" },
       "vigencia": "2026-10"
     },
@@ -195,7 +205,6 @@
       "subgrupo": "equipo",
       "tipo": "calculado",
       "formula": "amortizacion",
-      "norma": "Valor del equipo en 24 meses",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -206,7 +215,6 @@
       "subgrupo": "equipo",
       "tipo": "mensual",
       "valor": 9300,
-      "norma": "Costo de mercado",
       "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
       "vigencia": "2026-10"
     },
@@ -217,7 +225,6 @@
       "subgrupo": "equipo",
       "tipo": "calculado",
       "formula": "amortizacion",
-      "norma": "Valor del equipo en 24 meses",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -227,7 +234,6 @@
       "grupo": "operativos",
       "subgrupo": "equipo",
       "tipo": "por-trabajo",
-      "norma": "Precio del alquiler",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -238,7 +244,6 @@
       "subgrupo": "equipo",
       "tipo": "calculado",
       "formula": "amortizacion",
-      "norma": "Valor del equipo en 24 meses",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -248,19 +253,17 @@
       "grupo": "operativos",
       "subgrupo": "equipo",
       "tipo": "por-trabajo",
-      "norma": "Precio del alquiler",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
     {
       "id": "movilidad",
       "nombre": "Movilidad",
-      "descripcion": "Combustible para los kilómetros del trabajo",
+      "descripcion": "Combustible para los kilómetros del trabajo, con el litro de nafta súper de la provincia",
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "calculado",
       "formula": "movilidad",
-      "norma": "Litro de nafta súper en la provincia",
       "actualizacion": { "regla": "combustible" },
       "vigencia": "2026-10"
     },
@@ -271,7 +274,7 @@
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "por-jornada",
-      "valor": 7992.87,
+      "valor": 8329.5,
       "norma": "CCT 131/75, SATSAID",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
@@ -283,7 +286,7 @@
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "por-jornada",
-      "valor": 9955.05,
+      "valor": 10374.34,
       "norma": "CCT 131/75, SATSAID",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
@@ -295,7 +298,6 @@
       "subgrupo": "salidas",
       "tipo": "porcentual",
       "porcentaje": 0.4,
-      "norma": "Sobre la base de cálculo",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -307,7 +309,6 @@
       "tipo": "porcentual",
       "porcentaje": 0.15,
       "porRol": { "fotoperiodista": { "porcentaje": 0.3 } },
-      "norma": "Sobre la base de cálculo",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -328,7 +329,6 @@
       "tipo": "porcentual",
       "porcentaje": 0.5,
       "exclusion": "plazo",
-      "norma": "Criterio de la investigación",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
@@ -339,7 +339,6 @@
       "tipo": "porcentual",
       "porcentaje": 0.75,
       "exclusion": "plazo",
-      "norma": "Criterio de la investigación",
       "actualizacion": { "regla": "fija" },
       "vigencia": "2026-10"
     },
