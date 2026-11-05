@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { datos } from '../../util/datos/index.ts';
-import { datosAlOrigen } from '../fixture/datos.ts';
+// Los montos esperados salen del SRS: se prueban con los datos en su valor
+// cargado, sin lo que los índices vivos les sumaron (ver test/fixture/datos.ts).
+import { datosAlOrigen, datosAlOrigen as datos } from '../fixture/datos.ts';
 import { calcular } from '../../util/calculo/index.ts';
 import { formatearPesos } from '../../util/formato.ts';
 import {

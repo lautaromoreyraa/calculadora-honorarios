@@ -16,8 +16,12 @@ export function indicesHasta(mes: string, indices: Indices = datos.indices): Ind
   return { series };
 }
 
-/** Los datos con los costos indexados en su valor de origen (2026-10): ningún mes posterior publicado. */
-export const datosAlOrigen: Datos = { ...datos, indices: indicesHasta('2026-09') };
+/**
+ * Los datos con cada monto en su valor cargado: los índices cortados en
+ * agosto de 2024, el mes de la escala más vieja (conductor). Ni los costos
+ * indexados (origen 2026-10) ni los salarios de convenio (RF-35) se mueven.
+ */
+export const datosAlOrigen: Datos = { ...datos, indices: indicesHasta('2024-08') };
 
 /** Los datos con un mes de índice agregado a cada serie, para probar la actualización. */
 export function conMes(mes: string, valores: Partial<Record<IdDeSerie, number>>, base: Datos = datosAlOrigen): Datos {

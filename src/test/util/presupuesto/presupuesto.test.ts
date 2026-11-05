@@ -2,7 +2,9 @@ import { Packer } from 'docx';
 import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 import { calcular, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
-import { datos } from '../../../util/datos/index.ts';
+// Los montos esperados salen del SRS: se prueban con los datos en su valor
+// cargado, sin lo que los índices vivos les sumaron (ver test/fixture/datos.ts).
+import { datosAlOrigen as datos } from '../../fixture/datos.ts';
 import { formatearPesos, formatearPesosConCentavos } from '../../../util/formato.ts';
 import { enDolares } from '../../../util/moneda.ts';
 import {
@@ -124,6 +126,8 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain('12 h');
     expect(texto).toContain('Validez de la oferta: hasta el 28 de octubre de 2026');
     expect(texto).toContain(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`);
+    // RF-35: el Word dice de qué escala sale el valor hora y cuánto se le sumó.
+    expect(texto).toContain('Escala de septiembre de 2026 (CCT 131/75) + 0,0 % por salarios + 0,0 % por IPC NEA');
   });
 
   it('con Corrientes el total ya incluye ingresos brutos y no se muestra el subtotal', async () => {

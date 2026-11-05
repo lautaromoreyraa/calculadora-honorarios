@@ -92,6 +92,7 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
           <p className="desglose__contexto">
             {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
           </p>
+          <p className="desglose__contexto">{r.rol.escala}</p>
           <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
         </div>
       </div>
