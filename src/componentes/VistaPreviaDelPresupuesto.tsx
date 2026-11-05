@@ -68,6 +68,7 @@ export function VistaPreviaDelPresupuesto({ contenido: c }: { contenido: Conteni
         <p>
           <strong>Validez de la oferta:</strong> {c.validez}
         </p>
+        <p className="hoja__gris">{c.fundamento}</p>
         <p className="hoja__gris">{c.vigencia}</p>
       </div>
     </figure>

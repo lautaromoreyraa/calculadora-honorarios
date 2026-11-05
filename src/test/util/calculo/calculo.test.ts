@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { datos } from '../../../util/datos/index.ts';
 import { enDolares } from '../../../util/moneda.ts';
 import type { Datos } from '../../../util/datos/tipos.ts';
-import { conMes, datosAlOrigen } from '../../fixture/datos.ts';
+// Los montos esperados salen del SRS: se prueban con los datos en su valor
+// cargado, sin lo que los índices vivos les sumaron (ver test/fixture/datos.ts).
+import { conMes, datosAlOrigen, datosAlOrigen as datos, indicesHasta } from '../../fixture/datos.ts';
 import { calcular, necesitaCategoria, type EntradaDeItem, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
 
 // Un test por criterio de aceptación del SRS (RNF-05). Los números esperados
@@ -119,7 +120,9 @@ describe('RF-06 · costos operativos mensuales', () => {
 
   it('RF-20 · un mes nuevo del IPC Comunicación lleva la conectividad desde su origen (RN-12)', () => {
     // Origen 2026-10: con Comunicación en 100 en octubre y 105 en noviembre, $32.000 pasa a $33.600.
-    const octubre = conMes('2026-10', { 'ipc-nea-comunicacion': 100, 'ipc-nea-general': 100 });
+    // Parte de los índices hasta 2026-09: la proyección de los roles (RF-35) necesita su mes de escala.
+    const hastaSeptiembre = { ...datos, indices: indicesHasta('2026-09') };
+    const octubre = conMes('2026-10', { 'ipc-nea-comunicacion': 100, 'ipc-nea-general': 100 }, hastaSeptiembre);
     const noviembre = conMes('2026-11', { 'ipc-nea-comunicacion': 105, 'ipc-nea-general': 200 }, octubre);
     expect(monto(resultado(seleccion({ horas: 180 }, { conectividad: {} }), octubre), 'conectividad')).toBe(32000);
     expect(monto(resultado(seleccion({ horas: 180 }, { conectividad: {} }), noviembre), 'conectividad')).toBe(33600);
