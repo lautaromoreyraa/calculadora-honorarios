@@ -1,3 +1,5 @@
+import type { RangoDeVariacion } from '../actualizacion/validacion.ts';
+
 // Forma de los archivos de datos/. Espeja datos/esquema/*.schema.json: el esquema
 // es el que valida (en la verificación de cada PR) y estos tipos son los que usa
 // el código. Si se cambia uno, se cambia el otro.
@@ -172,6 +174,8 @@ export interface Parametros {
   dolarBlue: { valor: number; fecha: string; fuente: string };
   /** Formulario de la etapa de prueba (RF-31); sin él no hay invitación. */
   encuesta?: { url: string };
+  /** Cuánto puede moverse cada dato externo entre una actualización y la siguiente (RF-23). */
+  rangosDeVariacion: Record<'dolar' | 'ipc' | 'salarios' | 'combustible', RangoDeVariacion>;
 }
 
 export interface Datos {

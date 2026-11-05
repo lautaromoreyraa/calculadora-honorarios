@@ -38,6 +38,12 @@
   "encuesta": {
     "url": "https://docs.google.com/forms/d/e/1FAIpQLSd55yQCjU9Yq4b4edqJqXPEZH5p8r1UEQdV0XRDoUPc3yFTXQ/viewform?usp=dialog"
   },
+  "rangosDeVariacion": {
+    "dolar": { "maximaSubida": 1, "maximaBajada": 0.5 },
+    "ipc": { "maximaSubida": 0.2, "maximaBajada": 0.05 },
+    "salarios": { "maximaSubida": 0.2, "maximaBajada": 0.05 },
+    "combustible": { "maximaSubida": 0.3, "maximaBajada": 0.3 }
+  },
   "dolarOficial": {
     "valor": 1512.5,
     "fecha": "2026-10-13",
