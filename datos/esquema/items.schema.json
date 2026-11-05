@@ -102,8 +102,14 @@
           "required": ["regla"],
           "additionalProperties": false,
           "properties": {
-            "regla": { "enum": ["manual", "ipc-nea", "dolar-oficial", "combustible", "fija"] },
-            "origen": { "$ref": "comun.schema.json#/$defs/vigencia" }
+            "regla": { "enum": ["manual", "escala", "ipc-nea", "dolar-oficial", "combustible", "fija"] },
+            "origen": { "$ref": "comun.schema.json#/$defs/vigencia" },
+            "fuente": { "$ref": "comun.schema.json#/$defs/enlace" }
+          },
+          "if": { "properties": { "regla": { "const": "escala" } } },
+          "then": {
+            "description": "Un valor de convenio dice de qué mes es su escala y dónde está el acuerdo (TAR-08): sin eso no se puede proyectar (RN-12)",
+            "required": ["origen", "fuente"]
           }
         },
         "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
@@ -144,7 +150,11 @@
                 "additionalProperties": false,
                 "properties": {
                   "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
-                  "dolares": { "$ref": "#/$defs/dolares" }
+                  "dolares": { "$ref": "#/$defs/dolares" },
+                  "escala": {
+                    "description": "Escala propia del rol cuando sale de otro convenio que el valor general",
+                    "$ref": "comun.schema.json#/$defs/escala"
+                  }
                 }
               }
             }
