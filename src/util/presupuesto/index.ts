@@ -168,6 +168,7 @@ export function armarPresupuesto(resultado: Resultado, datos: Datos, presupuesto
           new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun('Condiciones')] }),
           ...c.condiciones.map((x) => new Paragraph({ spacing: { after: 120 }, children: [new TextRun(x)] })),
           campo('Validez de la oferta', c.validez),
+          linea(c.fundamento, { gris: true }),
           linea(c.vigencia, { gris: true }),
         ],
       },

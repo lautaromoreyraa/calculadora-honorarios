@@ -58,6 +58,8 @@ export interface ContenidoDelPresupuesto {
   /** Párrafos de las condiciones de pago, con la factura C si corresponde. */
   condiciones: string[];
   validez: string;
+  /** De qué escala sale el valor hora y cuánto se le sumó (RF-35). */
+  fundamento: string;
   vigencia: string;
 }
 
@@ -131,6 +133,7 @@ export function contenidoDelPresupuesto(
       : undefined,
     condiciones,
     validez: completar(textoDeValidez(p.validez), MARCADORES.validez),
+    fundamento: `Valor hora de ${resultado.rol.nombre.toLowerCase()} según el convenio: ${resultado.rol.escala}.`,
     vigencia: `Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`,
   };
 }

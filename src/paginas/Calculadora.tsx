@@ -13,7 +13,7 @@ import { TituloDeSeccion } from '../componentes/TituloDeSeccion.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
 import { PieDePagina } from '../layout/PieDePagina.tsx';
-import { necesitaCategoria } from '../util/calculo/index.ts';
+import { necesitaCategoria, valorBaseDelRol } from '../util/calculo/index.ts';
 import { datos } from '../util/datos/index.ts';
 import type { Item } from '../util/datos/tipos.ts';
 import { formatearPesos } from '../util/formato.ts';
@@ -214,9 +214,11 @@ export function Calculadora() {
                   {formato.desdePesosConCentavos(valorHoraDelRol(rol.id, datos))} la hora
                 </span>
                 <span className="ficha-del-rol__convenio">
-                  {formato.desdePesos(rol.valorBaseMensual)} por mes de convenio
+                  {formato.desdePesos(valorBaseDelRol(rol, datos).valorBaseMensual)} por mes de convenio
                 </span>
                 <span className="ficha-del-rol__convenio">{rol.convenio}</span>
+                {/* RF-35: de qué escala sale el valor y cuánto se le sumó, para poder justificarlo. */}
+                <span className="ficha-del-rol__convenio">{valorBaseDelRol(rol, datos).escala}</span>
               </p>
             </div>
 
