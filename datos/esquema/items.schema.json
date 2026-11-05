@@ -104,13 +104,28 @@
           "properties": {
             "regla": { "enum": ["manual", "escala", "ipc-nea", "dolar-oficial", "combustible", "fija"] },
             "origen": { "$ref": "comun.schema.json#/$defs/vigencia" },
-            "fuente": { "$ref": "comun.schema.json#/$defs/enlace" }
+            "fuente": { "$ref": "comun.schema.json#/$defs/enlace" },
+            "serie": {
+              "description": "Serie del IPC Noreste con la que se actualiza (RN-13)",
+              "enum": ["general", "comunicacion"]
+            }
           },
-          "if": { "properties": { "regla": { "const": "escala" } } },
-          "then": {
-            "description": "Un valor de convenio dice de qué mes es su escala y dónde está el acuerdo (TAR-08): sin eso no se puede proyectar (RN-12)",
-            "required": ["origen", "fuente"]
-          }
+          "allOf": [
+            {
+              "if": { "properties": { "regla": { "const": "escala" } } },
+              "then": {
+                "description": "Un valor de convenio dice de qué mes es su escala y dónde está el acuerdo (TAR-08): sin eso no se puede proyectar (RN-12)",
+                "required": ["origen", "fuente"]
+              }
+            },
+            {
+              "if": { "properties": { "regla": { "const": "ipc-nea" } } },
+              "then": {
+                "description": "Un costo indexado dice desde qué mes y con qué serie se actualiza (RF-20)",
+                "required": ["origen", "serie"]
+              }
+            }
+          ]
         },
         "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
       },
