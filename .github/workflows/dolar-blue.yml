@@ -1,15 +1,19 @@
-# Dólar blue del día (RF-29). Consulta dolarapi.com y, si la cotización cambió,
-# abre un PR a main que toca sólo ese valor, corre la verificación completa, lo
-# mergea y publica. Es la única excepción al pase a producción manual, decidida
-# por Lautaro el 2026-10-14. Si la API no responde o da un valor absurdo, el
-# script falla, no hay PR y la corrida queda en rojo a la vista.
+# Cotizaciones del dólar del día: el blue de dolarapi.com (RF-29) y el oficial
+# de referencia del BCRA (RF-21). Si alguna cambió, abre un PR a main que toca
+# sólo esos valores, corre la verificación completa, lo mergea y publica. Es la
+# excepción al pase a producción manual, decidida por Lautaro el 2026-10-14 y
+# extendida a toda actualización de rutina por RF-23.
+#
+# Cada fuente es independiente: si una API no responde o da un valor fuera del
+# rango de RF-23, esa cotización no se toca, la otra se publica igual y la
+# corrida termina en rojo (job «avisar») con el error a la vista.
 # Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
 #
 # Dos jobs (RNF-07): el que instala dependencias y las ejecuta (npm ci, lint,
 # tests, build) no tiene ningún permiso de escritura; el que puede escribir en
 # main y mergear no instala ni ejecuta nada de terceros. Así una dependencia
 # comprometida no alcanza el token que publica.
-name: Dólar blue
+name: Cotizaciones del dólar
 
 on:
   schedule:
@@ -31,10 +35,11 @@ jobs:
       contents: read
     outputs:
       cambio: ${{ steps.cotizacion.outputs.cambio }}
-      valor: ${{ steps.cotizacion.outputs.valor }}
       fecha: ${{ steps.cotizacion.outputs.fecha }}
-      parche: ${{ steps.parche.outputs.parche }}
+      titulo: ${{ steps.cotizacion.outputs.titulo }}
       tabla: ${{ steps.cotizacion.outputs.tabla }}
+      errores: ${{ steps.cotizacion.outputs.errores }}
+      parche: ${{ steps.parche.outputs.parche }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -47,7 +52,7 @@ jobs:
       # Antes de npm ci: el script sólo usa código del repo, y el parche queda
       # fijado antes de que corra cualquier dependencia.
       - id: cotizacion
-        run: npm run actualizar-dolar-blue
+        run: npm run actualizar-cotizaciones
       - id: parche
         if: steps.cotizacion.outputs.cambio == 'true'
         run: |
@@ -73,8 +78,8 @@ jobs:
       contents: write
       pull-requests: write
     env:
-      VALOR: ${{ needs.cotizar.outputs.valor }}
       FECHA: ${{ needs.cotizar.outputs.fecha }}
+      TITULO: ${{ needs.cotizar.outputs.titulo }}
       PARCHE: ${{ needs.cotizar.outputs.parche }}
       TABLA: ${{ needs.cotizar.outputs.tabla }}
     steps:
@@ -88,21 +93,21 @@ jobs:
           test "$(git status --porcelain)" = " M datos/parametros.json"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -c "datos/dolar-blue-$FECHA"
-          git commit -am "RF-29: dólar blue a \$ $VALOR ($FECHA)"
+          git switch -c "datos/cotizaciones-$FECHA"
+          git commit -am "RF-21 y RF-29: $(echo "$TITULO" | base64 -d) ($FECHA)"
       # Un PR abierto con este token no dispara el workflow de verificación: la
       # verificación ya corrió sobre este mismo cambio en el job anterior.
       - name: PR a main y merge
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          rama="datos/dolar-blue-$FECHA"
+          rama="datos/cotizaciones-$FECHA"
           git push origin "$rama"
           # Comillas simples: el texto lleva backticks de Markdown y no se ejecutan.
-          cuerpo='Actualización diaria del dólar blue (venta) desde dolarapi.com. Toca sólo `dolarBlue` en `datos/parametros.json`; validación de datos, lint, tests y build pasaron en esta corrida.'
+          cuerpo='Actualización diaria de las cotizaciones del dólar: blue (venta) de dolarapi.com y oficial de referencia del BCRA. Toca sólo `datos/parametros.json`; validación de datos, lint, tests y build pasaron en esta corrida.'
           cuerpo="$cuerpo"$'\n\n'"$(echo "$TABLA" | base64 -d)"
           gh pr create --base main --head "$rama" \
-            --title "RF-29: dólar blue a \$ $VALOR ($FECHA)" \
+            --title "RF-21 y RF-29: $(echo "$TITULO" | base64 -d) ($FECHA)" \
             --body "$cuerpo"
           gh pr merge "$rama" --merge --delete-branch
       - name: Sincronizar develop
@@ -113,11 +118,11 @@ jobs:
           # mergear limpio, queda un PR de main a develop para resolverlo a mano.
           git fetch origin main develop
           git switch develop
-          if git merge --no-ff origin/main -m "Merge main: dólar blue del $FECHA"; then
+          if git merge --no-ff origin/main -m "Merge main: cotizaciones del dólar del $FECHA"; then
             git push origin develop
           else
             git merge --abort
-            gh pr create --base develop --head main --title "Sincronizar develop con el dólar blue del $FECHA" \
+            gh pr create --base develop --head main --title "Sincronizar develop con las cotizaciones del $FECHA" \
               --body "El merge automático de main en develop tuvo conflictos: resolver a mano." || true
           fi
 
@@ -127,3 +132,17 @@ jobs:
     with:
       ref: main
     secrets: inherit
+
+  # Si una fuente falló, la otra ya se publicó; esto deja la corrida en rojo
+  # para que el error no pase desapercibido.
+  avisar:
+    needs: cotizar
+    if: needs.cotizar.outputs.errores != ''
+    runs-on: ubuntu-latest
+    permissions: {}
+    env:
+      ERRORES: ${{ needs.cotizar.outputs.errores }}
+    steps:
+      - run: |
+          echo "$ERRORES" | base64 -d | sed 's/^/::error::/'
+          exit 1
