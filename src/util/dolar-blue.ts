@@ -1,19 +1,14 @@
 // Dólar blue del día (RF-29). Funciones puras: las usa el script que corre la
-// GitHub Action diaria (scripts/actualizar-dolar-blue.ts), que es quien lee la
+// GitHub Action diaria (scripts/actualizar-cotizaciones.ts), que es quien lee la
 // API y escribe datos/parametros.json. El sitio no consulta ninguna API: lee
 // el valor que quedó en los datos (RNF-06).
 
-import { noEsAnterior, validarVariacion, type RangoDeVariacion } from './actualizacion/validacion.ts';
+import { conCotizacion, type Cotizacion } from './cotizaciones.ts';
+
+export type { Cotizacion };
 
 export const API_DEL_BLUE = 'https://dolarapi.com/v1/dolares/blue';
 export const FUENTE_DEL_BLUE = 'dolarapi.com, dólar blue (venta)';
-
-export interface Cotizacion {
-  valor: number;
-  /** Día de la cotización en Argentina, AAAA-MM-DD. */
-  fecha: string;
-  fuente: string;
-}
 
 /** Día en Argentina de un instante ISO: a las 22 h de Buenos Aires ya es mañana en UTC. */
 function diaEnArgentina(instante: string): string {
@@ -32,23 +27,7 @@ export function leerRespuesta(respuesta: unknown): Cotizacion {
   return { valor: r.venta, fecha: diaEnArgentina(r.fechaActualizacion), fuente: FUENTE_DEL_BLUE };
 }
 
-/**
- * Si hay que actualizar. Un salto fuera del rango configurado (RF-23; para el
- * dólar, menos de la mitad o más del doble) es más probablemente un error de
- * la API que una corrida cambiaria: se frena y alguien lo mira.
- */
-export function hayQueActualizar(anterior: Cotizacion, nueva: Cotizacion, rango: RangoDeVariacion): boolean {
-  validarVariacion('Dólar blue', anterior.valor, nueva.valor, rango);
-  if (!noEsAnterior(nueva.fecha, anterior.fecha)) return false;
-  return nueva.valor !== anterior.valor || nueva.fecha !== anterior.fecha;
-}
-
-/**
- * Cambia sólo el bloque dolarBlue del texto de parametros.json, sin reformatear
- * el resto: el PR diario tiene que mostrar una diferencia de dos líneas.
- */
+/** Cambia sólo el bloque dolarBlue de parametros.json. */
 export function conDolarBlue(texto: string, c: Cotizacion): string {
-  const bloque = /("dolarBlue": \{\s*"valor": )[^,]+(,\s*"fecha": ")[^"]+(",\s*"fuente": ")[^"]+(")/;
-  if (!bloque.test(texto)) throw new Error('No encontré el bloque dolarBlue en parametros.json.');
-  return texto.replace(bloque, `$1${c.valor}$2${c.fecha}$3${c.fuente}$4`);
+  return conCotizacion(texto, 'dolarBlue', c);
 }
