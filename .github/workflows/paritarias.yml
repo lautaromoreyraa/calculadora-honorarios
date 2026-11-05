@@ -1,0 +1,71 @@
+# Aviso de paritarias nuevas (RF-40). Una vez por semana mira la primera
+# sección del Boletín Oficial (homologaciones de los convenios del proyecto) y
+# las páginas donde FATPREN, SATSAID y SiPreBA publican sus escalas, y abre un
+# issue por convenio con lo nuevo. Es informativo: no abre PR ni toca datos/.
+#
+# La memoria entre semanas son los propios issues con la etiqueta
+# «paritarias»: lo que ya apareció en uno (abierto o cerrado) no se vuelve a
+# avisar. La primera corrida abre y cierra un issue de línea de base.
+#
+# No instala dependencias: el script sólo usa código del repo y no recibe el
+# token. El único permiso de escritura es el de issues.
+# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
+name: Paritarias nuevas
+
+on:
+  schedule:
+    # Los martes a las 13:00 UTC = 10:00 en Argentina.
+    - cron: '0 13 * * 2'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - name: Historia de los avisos
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # Sólo los issues que abrió esta Action: quien pueda poner la etiqueta a
+        # mano no puede silenciar avisos pegando enlaces en otro issue.
+        run: |
+          gh issue list --state all --label paritarias --limit 1000 --json body,author             --jq '[.[] | select(.author.login == "app/github-actions" or .author.login == "github-actions[bot]") | {body}]'             > "$RUNNER_TEMP/historia.json"
+      - run: node scripts/paritarias.ts "$RUNNER_TEMP/historia.json" "$RUNNER_TEMP/salida.json"
+      - name: Abrir los issues que falten
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          salida="$RUNNER_TEMP/salida.json"
+          gh label create paritarias --color 0E8A16 --description "Aviso de paritarias (RF-40)" --force
+          cantidad=$(jq '.avisos | length' "$salida")
+          for i in $(seq 0 $((cantidad - 1))); do
+            etiqueta=$(jq -r ".avisos[$i].etiqueta" "$salida")
+            titulo=$(jq -r ".avisos[$i].titulo" "$salida")
+            if [ "$(gh issue list --state open --label "$etiqueta" --json number --jq length)" -gt 0 ]; then
+              echo "Ya hay un issue abierto con $etiqueta: no se duplica."
+              continue
+            fi
+            gh label create "$etiqueta" --color FBCA04 --description "Aviso de paritarias (RF-40)" --force
+            jq -r ".avisos[$i].cuerpo" "$salida" > "$RUNNER_TEMP/cuerpo.md"
+            url=$(gh issue create --title "$titulo" --label paritarias --label "$etiqueta" --body-file "$RUNNER_TEMP/cuerpo.md")
+            if [ "$(jq -r .base "$salida")" = "true" ]; then gh issue close "$url" --reason completed; fi
+          done
+      # Una fuente caída no frena las otras, pero deja la corrida en rojo.
+      - name: Fuentes con error
+        run: |
+          if [ "$(jq '.errores | length' "$RUNNER_TEMP/salida.json")" -gt 0 ]; then
+            jq -r '.errores[]' "$RUNNER_TEMP/salida.json" | sed 's/^/::error::/'
+            exit 1
+          fi
