@@ -5,6 +5,7 @@ import type { Datos, Dolares, Item, ItemCalculado, ItemMensual } from '../datos/
 import { formatearNumero, formatearPorcentaje } from '../formato.ts';
 import { EN_PESOS, type Formato } from '../moneda.ts';
 import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
+import { factorDesde } from '../indices.ts';
 
 export type * from './tipos.ts';
 
@@ -41,7 +42,18 @@ export function valorMensual(item: ItemMensual, rolId: string, datos: Datos): nu
   const propio = item.porRol?.[rolId];
   const dolares = propio?.dolares ?? (propio?.valor === undefined ? item.dolares : undefined);
   if (dolares) return pesosDeDolares(dolares, datos.parametros.dolarOficial.valor);
-  return propio?.valor ?? item.valor ?? 0;
+  return (propio?.valor ?? item.valor ?? 0) * factorDeActualizacion(item, datos);
+}
+
+/**
+ * Cuánto se movió el IPC Noreste desde el mes de origen de un costo indexado
+ * (RF-20, RN-12): el monto cargado se multiplica por esto, siempre desde el
+ * origen, nunca encadenando meses. Los demás ítems no se tocan.
+ */
+export function factorDeActualizacion(item: Item, datos: Datos): number {
+  const { regla, origen, serie } = item.actualizacion;
+  if (regla !== 'ipc-nea' || !origen || !serie) return 1;
+  return factorDesde(datos.indices.series[serie === 'general' ? 'ipc-nea-general' : 'ipc-nea-comunicacion'], origen);
 }
 
 /** Días de vacaciones de la LCT según la antigüedad (art. 150). */

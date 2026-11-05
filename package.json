@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "validar-datos": "node scripts/validar-datos.mjs",
-    "actualizar-cotizaciones": "node scripts/actualizar-cotizaciones.ts"
+    "actualizar-cotizaciones": "node scripts/actualizar-cotizaciones.ts",
+    "actualizar-indices": "node scripts/actualizar-indices.ts"
   },
   "dependencies": {
     "@fontsource-variable/alegreya": "5.3.0",

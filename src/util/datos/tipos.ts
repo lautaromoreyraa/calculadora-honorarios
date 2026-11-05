@@ -1,4 +1,5 @@
 import type { RangoDeVariacion } from '../actualizacion/validacion.ts';
+import type { Indices } from '../indices.ts';
 
 // Forma de los archivos de datos/. Espeja datos/esquema/*.schema.json: el esquema
 // es el que valida (en la verificación de cada PR) y estos tipos son los que usa
@@ -65,7 +66,13 @@ interface ItemBase {
   /** Sin norma cuando el valor no sale de ninguna: la pantalla no inventa una. */
   norma?: string;
   /** Con regla «escala», origen y fuente son obligatorios (lo exige el esquema). */
-  actualizacion: { regla: ReglaDeActualizacion; origen?: Vigencia; fuente?: string };
+  actualizacion: {
+    regla: ReglaDeActualizacion;
+    origen?: Vigencia;
+    fuente?: string;
+    /** Con regla «ipc-nea», qué serie del IPC Noreste usa (RN-13). */
+    serie?: 'general' | 'comunicacion';
+  };
   vigencia: Vigencia;
 }
 
@@ -193,4 +200,6 @@ export interface Datos {
     precios: Record<string, PrecioDeCombustible>;
   };
   parametros: Parametros;
+  /** Índices del INDEC que llevan cada monto desde su mes de origen (RF-20, RN-12). */
+  indices: Indices;
 }

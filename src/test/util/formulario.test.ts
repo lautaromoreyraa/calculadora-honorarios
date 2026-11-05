@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { datos } from '../../util/datos/index.ts';
+import { datosAlOrigen } from '../fixture/datos.ts';
 import { calcular } from '../../util/calculo/index.ts';
 import { formatearPesos } from '../../util/formato.ts';
 import {
@@ -121,7 +122,7 @@ describe('resumenDelItem', () => {
     const redactor = estado({ rolId: 'redactor-digital' });
     expect(resumenDelItem(item('multifuncion'), cm, datos)).toBe('40 % del valor hora');
     expect(resumenDelItem(item('cobertura-de-emergencia'), foto, datos)).toBe('30 % del valor hora');
-    expect(resumenDelItem(item('conectividad'), cm, datos)).toMatch(/32\.000 por mes$/);
+    expect(resumenDelItem(item('conectividad'), cm, datosAlOrigen)).toMatch(/32\.000 por mes$/);
     // Cotización fija: la Action diaria (RF-21) cambia la de los datos antes de correr los tests.
     const conOficial = { ...datos, parametros: { ...datos.parametros, dolarOficial: { ...datos.parametros.dolarOficial, valor: 1512.5 } } };
     expect(resumenDelItem(item('ia-y-redes'), redactor, conOficial)).toMatch(/15\.125 por mes$/);
