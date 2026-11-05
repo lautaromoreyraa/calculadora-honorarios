@@ -34,6 +34,7 @@ jobs:
       valor: ${{ steps.cotizacion.outputs.valor }}
       fecha: ${{ steps.cotizacion.outputs.fecha }}
       parche: ${{ steps.parche.outputs.parche }}
+      tabla: ${{ steps.cotizacion.outputs.tabla }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -50,8 +51,8 @@ jobs:
       - id: parche
         if: steps.cotizacion.outputs.cambio == 'true'
         run: |
-          # El PR tiene que tocar sólo este archivo: si no, no se mergea solo.
-          test "$(git status --porcelain)" = " M datos/parametros.json"
+          # El PR tiene que tocar sólo este archivo: si no, no se mergea solo (RF-23).
+          node scripts/controlar-archivos.ts datos/parametros.json
           echo "parche=$(git diff | base64 -w0)" >> "$GITHUB_OUTPUT"
       - if: steps.cotizacion.outputs.cambio == 'true'
         run: npm ci
@@ -75,6 +76,7 @@ jobs:
       VALOR: ${{ needs.cotizar.outputs.valor }}
       FECHA: ${{ needs.cotizar.outputs.fecha }}
       PARCHE: ${{ needs.cotizar.outputs.parche }}
+      TABLA: ${{ needs.cotizar.outputs.tabla }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -96,9 +98,12 @@ jobs:
         run: |
           rama="datos/dolar-blue-$FECHA"
           git push origin "$rama"
+          # Comillas simples: el texto lleva backticks de Markdown y no se ejecutan.
+          cuerpo='Actualización diaria del dólar blue (venta) desde dolarapi.com. Toca sólo `dolarBlue` en `datos/parametros.json`; validación de datos, lint, tests y build pasaron en esta corrida.'
+          cuerpo="$cuerpo"$'\n\n'"$(echo "$TABLA" | base64 -d)"
           gh pr create --base main --head "$rama" \
             --title "RF-29: dólar blue a \$ $VALOR ($FECHA)" \
-            --body "Actualización diaria del dólar blue (venta) desde dolarapi.com. Toca sólo \`dolarBlue\` en \`datos/parametros.json\`; validación de datos, lint, tests y build pasaron en esta corrida."
+            --body "$cuerpo"
           gh pr merge "$rama" --merge --delete-branch
       - name: Sincronizar develop
         env:

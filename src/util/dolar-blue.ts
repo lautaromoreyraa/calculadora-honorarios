@@ -3,6 +3,8 @@
 // API y escribe datos/parametros.json. El sitio no consulta ninguna API: lee
 // el valor que quedó en los datos (RNF-06).
 
+import { noEsAnterior, validarVariacion, type RangoDeVariacion } from './actualizacion/validacion.ts';
+
 export const API_DEL_BLUE = 'https://dolarapi.com/v1/dolares/blue';
 export const FUENTE_DEL_BLUE = 'dolarapi.com, dólar blue (venta)';
 
@@ -31,15 +33,13 @@ export function leerRespuesta(respuesta: unknown): Cotizacion {
 }
 
 /**
- * Si hay que actualizar. Un valor menos de la mitad o más del doble que el
- * anterior es más probablemente un error de la API que una corrida cambiaria:
- * se frena y alguien lo mira, en vez de publicarlo.
+ * Si hay que actualizar. Un salto fuera del rango configurado (RF-23; para el
+ * dólar, menos de la mitad o más del doble) es más probablemente un error de
+ * la API que una corrida cambiaria: se frena y alguien lo mira.
  */
-export function hayQueActualizar(anterior: Cotizacion, nueva: Cotizacion): boolean {
-  if (nueva.valor < anterior.valor / 2 || nueva.valor > anterior.valor * 2) {
-    throw new Error(`Valor fuera de rango: ${nueva.valor} contra ${anterior.valor} del ${anterior.fecha}.`);
-  }
-  if (nueva.fecha < anterior.fecha) return false;
+export function hayQueActualizar(anterior: Cotizacion, nueva: Cotizacion, rango: RangoDeVariacion): boolean {
+  validarVariacion('Dólar blue', anterior.valor, nueva.valor, rango);
+  if (!noEsAnterior(nueva.fecha, anterior.fecha)) return false;
   return nueva.valor !== anterior.valor || nueva.fecha !== anterior.fecha;
 }
 
