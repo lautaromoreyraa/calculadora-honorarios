@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "validar-datos": "node scripts/validar-datos.mjs",
-    "actualizar-dolar-blue": "node scripts/actualizar-dolar-blue.ts"
+    "actualizar-cotizaciones": "node scripts/actualizar-cotizaciones.ts"
   },
   "dependencies": {
     "@fontsource-variable/alegreya": "5.3.0",
