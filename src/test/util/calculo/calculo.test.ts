@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { datos } from '../../../util/datos/index.ts';
 import { enDolares } from '../../../util/moneda.ts';
 import type { Datos } from '../../../util/datos/tipos.ts';
+import { conMes, datosAlOrigen } from '../../fixture/datos.ts';
 import { calcular, necesitaCategoria, type EntradaDeItem, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
 
 // Un test por criterio de aceptación del SRS (RNF-05). Los números esperados
@@ -113,7 +114,19 @@ describe('RF-05 · plazo de entrega', () => {
 
 describe('RF-06 · costos operativos mensuales', () => {
   it('conectividad de $32.000 en 9 horas suma $1.600', () => {
-    expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} })), 'conectividad')).toBe(1600);
+    expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} }), datosAlOrigen), 'conectividad')).toBe(1600);
+  });
+
+  it('RF-20 · un mes nuevo del IPC Comunicación lleva la conectividad desde su origen (RN-12)', () => {
+    // Origen 2026-10: con Comunicación en 100 en octubre y 105 en noviembre, $32.000 pasa a $33.600.
+    const octubre = conMes('2026-10', { 'ipc-nea-comunicacion': 100, 'ipc-nea-general': 100 });
+    const noviembre = conMes('2026-11', { 'ipc-nea-comunicacion': 105, 'ipc-nea-general': 200 }, octubre);
+    expect(monto(resultado(seleccion({ horas: 180 }, { conectividad: {} }), octubre), 'conectividad')).toBe(32000);
+    expect(monto(resultado(seleccion({ horas: 180 }, { conectividad: {} }), noviembre), 'conectividad')).toBe(33600);
+    // Datos móviles también van por Comunicación (+5 %); la ART y el seguro, por el nivel general (×2).
+    expect(monto(resultado(seleccion({ horas: 180 }, { 'datos-moviles': {} }), noviembre), 'datos-moviles')).toBe(73500);
+    expect(monto(resultado(seleccion({ horas: 180 }, { art: {} }), noviembre), 'art')).toBe(40000);
+    expect(monto(resultado(seleccion({ horas: 180 }, { 'seguro-equipamiento': {} }), noviembre), 'seguro-equipamiento')).toBe(18600);
   });
 
   // La cotización se fija acá: la Action diaria (RF-21) cambia la de los datos y

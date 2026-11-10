@@ -4,6 +4,7 @@ import monotributo from '../../../datos/monotributo.json';
 import provincias from '../../../datos/provincias.json';
 import combustible from '../../../datos/combustible.json';
 import parametros from '../../../datos/parametros.json';
+import indices from '../../../datos/indices.json';
 import type { Datos } from './tipos.ts';
 
 // TypeScript infiere de un JSON tipos anchos (`tipo: string`, no la unión de
@@ -18,6 +19,7 @@ export const datos: Datos = {
   provincias: provincias.provincias as unknown as Datos['provincias'],
   combustible,
   parametros,
+  indices: indices as unknown as Datos['indices'],
 };
 
 export type * from './tipos.ts';

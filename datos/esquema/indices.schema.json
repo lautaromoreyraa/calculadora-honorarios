@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "indices.schema.json",
+  "title": "Índices del INDEC con los que se actualizan los montos (RF-20, RN-12)",
+  "type": "object",
+  "required": ["series"],
+  "additionalProperties": false,
+  "properties": {
+    "series": {
+      "type": "object",
+      "required": ["ipc-nea-general", "ipc-nea-comunicacion", "salarios"],
+      "additionalProperties": false,
+      "properties": {
+        "ipc-nea-general": { "$ref": "#/$defs/serie" },
+        "ipc-nea-comunicacion": { "$ref": "#/$defs/serie" },
+        "salarios": { "$ref": "#/$defs/serie" }
+      }
+    }
+  },
+  "$defs": {
+    "serie": {
+      "type": "object",
+      "required": ["nombre", "fuente", "meses"],
+      "additionalProperties": false,
+      "properties": {
+        "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
+        "fuente": { "$ref": "comun.schema.json#/$defs/texto" },
+        "meses": {
+          "description": "Valor del índice por mes AAAA-MM; los huecos los controla el test de datos",
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "$ref": "comun.schema.json#/$defs/vigencia" },
+          "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }
+        }
+      }
+    }
+  }
+}
