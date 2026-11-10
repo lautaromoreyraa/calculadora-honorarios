@@ -20,6 +20,10 @@ describe('datos', () => {
     if (url) expect(url).toMatch(/^https:\/\/(docs\.google\.com\/forms\/|forms\.gle\/)/);
   });
 
+  it('RF-42 · terminó la etapa de prueba: no hay encuesta', () => {
+    expect(datos.parametros.encuesta).toBeUndefined();
+  });
+
   it('tiene los ocho roles de la investigación', () => {
     expect(idsDeRoles).toHaveLength(8);
   });
