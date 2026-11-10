@@ -41,7 +41,15 @@ export interface Renglon {
 }
 
 export interface Resultado {
-  rol: { id: string; nombre: string; convenio: string; valorBaseMensual: number };
+  rol: {
+    id: string;
+    nombre: string;
+    convenio: string;
+    /** Proyectado desde la escala (RF-35). */
+    valorBaseMensual: number;
+    /** De qué escala sale y cuánto se le sumó: «Escala de julio de 2026 (CCT 131/75) + …». */
+    escala: string;
+  };
   /** Sin redondear, en la moneda del resultado: se muestra con centavos. */
   valorHora: number;
   horas: number;

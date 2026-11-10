@@ -1,11 +1,12 @@
 // Motor de cálculo: aplica las reglas de negocio del SRS (RN-01 a RN-15) a lo
 // que eligió el profesional. Funciones puras, sin React: todo lo que entra son
 // datos y una selección, y lo que sale es el desglose.
-import type { Datos, Dolares, Item, ItemCalculado, ItemMensual } from '../datos/tipos.ts';
+import type { Datos, Dolares, Item, ItemCalculado, ItemMensual, ItemPorJornada, Rol } from '../datos/tipos.ts';
 import { formatearNumero, formatearPorcentaje } from '../formato.ts';
 import { EN_PESOS, type Formato } from '../moneda.ts';
 import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
 import { factorDesde } from '../indices.ts';
+import { proyectarDesdeEscala, textoDeLaProyeccion } from '../proyeccion.ts';
 
 export type * from './tipos.ts';
 
@@ -42,16 +43,38 @@ export function valorMensual(item: ItemMensual, rolId: string, datos: Datos): nu
   const propio = item.porRol?.[rolId];
   const dolares = propio?.dolares ?? (propio?.valor === undefined ? item.dolares : undefined);
   if (dolares) return pesosDeDolares(dolares, datos.parametros.dolarOficial.valor);
-  return (propio?.valor ?? item.valor ?? 0) * factorDeActualizacion(item, datos);
+  return (propio?.valor ?? item.valor ?? 0) * factorDeActualizacion(item, datos, rolId);
+}
+
+/** Monto por jornada de un ítem, con su actualización (RN-12). */
+export function valorPorJornada(item: ItemPorJornada, datos: Datos): number {
+  return item.valor * factorDeActualizacion(item, datos);
+}
+
+/** El valor base mensual del rol proyectado desde su escala (RF-35), con la explicación. */
+export function valorBaseDelRol(rol: Rol, datos: Datos): { valorBaseMensual: number; escala: string } {
+  const proyeccion = proyectarDesdeEscala(rol.escala.origen, datos.indices);
+  return {
+    valorBaseMensual: rol.valorBaseMensual * proyeccion.factor,
+    escala: textoDeLaProyeccion(proyeccion, rol.convenio),
+  };
 }
 
 /**
- * Cuánto se movió el IPC Noreste desde el mes de origen de un costo indexado
- * (RF-20, RN-12): el monto cargado se multiplica por esto, siempre desde el
- * origen, nunca encadenando meses. Los demás ítems no se tocan.
+ * Por cuánto se multiplica el monto cargado de un ítem (RN-12), siempre desde
+ * su origen, nunca encadenando meses:
+ * - un costo indexado (RF-20), por lo que se movió su serie del IPC Noreste;
+ * - un valor de convenio (RF-35), por la proyección desde su escala; si el rol
+ *   tiene una escala propia (la antigüedad del productor), por la de él.
+ * Los demás ítems no se tocan.
  */
-export function factorDeActualizacion(item: Item, datos: Datos): number {
+export function factorDeActualizacion(item: Item, datos: Datos, rolId?: string): number {
   const { regla, origen, serie } = item.actualizacion;
+  if (regla === 'escala') {
+    const propia = item.tipo === 'mensual' && rolId ? item.porRol?.[rolId]?.escala : undefined;
+    const desde = propia?.origen ?? origen;
+    return desde ? proyectarDesdeEscala(desde, datos.indices).factor : 1;
+  }
   if (regla !== 'ipc-nea' || !origen || !serie) return 1;
   return factorDesde(datos.indices.series[serie === 'general' ? 'ipc-nea-general' : 'ipc-nea-comunicacion'], origen);
 }
@@ -122,7 +145,10 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
   const errores = validar(seleccion, datos);
   if (errores.length > 0) return { ok: false, errores };
 
-  const rol = datos.roles.find((r) => r.id === seleccion.rolId)!;
+  const rolCargado = datos.roles.find((r) => r.id === seleccion.rolId)!;
+  // El valor de convenio llevado desde su escala hasta hoy (RF-35): de acá sale el valor hora.
+  const { valorBaseMensual, escala } = valorBaseDelRol(rolCargado, datos);
+  const rol = { ...rolCargado, valorBaseMensual };
   const provincia = datos.provincias.find((p) => p.id === seleccion.provinciaId)!;
   // Sólo está garantizada si algo la usa (validar): se lee dentro de esos casos.
   const categoria = datos.monotributo.categorias.find((c) => c.letra === seleccion.categoria);
@@ -238,8 +264,9 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
       }
       case 'por-jornada': {
         const n = jornadas(horas, datos);
+        const porJornada = valorPorJornada(item, datos);
         renglones.push(
-          renglon(item, item.valor * n, `${n} ${n === 1 ? 'jornada' : 'jornadas'} × ${formato.desdePesos(item.valor)}`),
+          renglon(item, porJornada * n, `${n} ${n === 1 ? 'jornada' : 'jornadas'} × ${formato.desdePesos(porJornada)}`),
         );
         break;
       }
@@ -288,6 +315,7 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         nombre: rol.nombre,
         convenio: rol.convenio,
         valorBaseMensual: rol.valorBaseMensual,
+        escala,
       },
       valorHora: valorHora / formato.factor,
       horas,

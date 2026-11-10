@@ -3,7 +3,7 @@
 // estado y lo pasa por aSeleccion en cada cambio.
 import type { Datos, Item } from './datos/tipos.ts';
 import type { EntradaDeItem, Seleccion } from './calculo/tipos.ts';
-import { diasDeVacaciones, valorMensual } from './calculo/index.ts';
+import { diasDeVacaciones, valorBaseDelRol, valorMensual, valorPorJornada } from './calculo/index.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPorcentaje } from './formato.ts';
 import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
 import { CONDICIONES_POR_DEFECTO } from './presupuesto/contenido.ts';
@@ -159,7 +159,7 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
 /** Valor hora del rol (RN-01), para mostrarlo antes de que haya un cálculo completo. */
 export function valorHoraDelRol(rolId: string, datos: Datos): number {
   const rol = datos.roles.find((r) => r.id === rolId);
-  return rol ? rol.valorBaseMensual / datos.parametros.horasMensuales.valor : 0;
+  return rol ? valorBaseDelRol(rol, datos).valorBaseMensual / datos.parametros.horasMensuales.valor : 0;
 }
 
 /**
@@ -179,7 +179,7 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
       return item.multiplicaPor === 'antiguedad' ? `${mensual} por mes por año` : `${mensual} por mes`;
     }
     case 'por-jornada':
-      return `${formatearPesosConCentavos(item.valor)} por jornada de ${datos.parametros.horasPorJornada.valor} h`;
+      return `${formatearPesosConCentavos(valorPorJornada(item, datos))} por jornada de ${datos.parametros.horasPorJornada.valor} h`;
     case 'por-trabajo':
       return 'Una vez por trabajo';
     case 'calculado':
