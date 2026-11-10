@@ -11,13 +11,14 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["id", "nombre", "valorBaseMensual", "convenio", "vigencia"],
+        "required": ["id", "nombre", "valorBaseMensual", "convenio", "escala", "vigencia"],
         "additionalProperties": false,
         "properties": {
           "id": { "$ref": "comun.schema.json#/$defs/id" },
           "nombre": { "$ref": "comun.schema.json#/$defs/texto" },
           "valorBaseMensual": { "$ref": "comun.schema.json#/$defs/pesos" },
           "convenio": { "$ref": "comun.schema.json#/$defs/texto" },
+          "escala": { "$ref": "comun.schema.json#/$defs/escala" },
           "vigencia": { "$ref": "comun.schema.json#/$defs/vigencia" }
         }
       }

@@ -5,11 +5,20 @@
 /** Mes desde el que rige un valor, AAAA-MM. */
 export type Vigencia = string;
 
+/** Escala de convenio de la que sale un monto (TAR-08): su mes y el acuerdo. */
+export interface Escala {
+  /** Mes de la escala, no el de la carga: desde acá se proyecta (RN-12). */
+  origen: Vigencia;
+  /** Enlace al acuerdo o a la escala publicada. */
+  fuente: string;
+}
+
 export interface Rol {
   id: string;
   nombre: string;
   valorBaseMensual: number;
   convenio: string;
+  escala: Escala;
   vigencia: Vigencia;
 }
 
@@ -34,7 +43,8 @@ export interface Exclusion {
   obligatorio: boolean;
 }
 
-export type ReglaDeActualizacion = 'manual' | 'ipc-nea' | 'dolar-oficial' | 'combustible' | 'fija';
+/** «escala»: valor de convenio, con su mes y su acuerdo (RN-13, TAR-08). */
+export type ReglaDeActualizacion = 'manual' | 'escala' | 'ipc-nea' | 'dolar-oficial' | 'combustible' | 'fija';
 
 export interface Dolares {
   herramientas: { nombre: string; precio: number }[];
@@ -52,7 +62,8 @@ interface ItemBase {
   exclusion?: string;
   /** Sin norma cuando el valor no sale de ninguna: la pantalla no inventa una. */
   norma?: string;
-  actualizacion: { regla: ReglaDeActualizacion; origen?: Vigencia };
+  /** Con regla «escala», origen y fuente son obligatorios (lo exige el esquema). */
+  actualizacion: { regla: ReglaDeActualizacion; origen?: Vigencia; fuente?: string };
   vigencia: Vigencia;
 }
 
@@ -69,7 +80,7 @@ export interface ItemMensual extends ItemBase {
   valor?: number;
   dolares?: Dolares;
   multiplicaPor?: 'antiguedad';
-  porRol?: Record<string, { valor?: number; dolares?: Dolares }>;
+  porRol?: Record<string, { valor?: number; dolares?: Dolares; escala?: Escala }>;
 }
 
 /** Monto por jornada de trabajo (RN-14). */
