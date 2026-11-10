@@ -9,6 +9,8 @@ import {
   camposDeItem,
   conVehiculo,
   cuentaDelSubgrupo,
+  datosQueFaltan,
+  textoDeLoQueFalta,
   estadoInicial,
   formatearFecha,
   formatearVigencia,
@@ -160,6 +162,29 @@ describe('fechas', () => {
     const v = vigenciaDeLosDatos(datos);
     expect(v).toMatch(/^\d{4}-\d{2}$/);
     expect(datos.roles.every((r) => r.vigencia <= v)).toBe(true);
+  });
+});
+
+describe('RF-45 · lo que falta se nota', () => {
+  it('dice cuántos datos faltan, en singular y en plural', () => {
+    expect(textoDeLoQueFalta(1)).toBe('Falta 1 dato');
+    expect(textoDeLoQueFalta(3)).toBe('Faltan 3 datos');
+  });
+
+  it('con movilidad marcada y sin kilómetros, falta 1 dato aunque haya total', () => {
+    const c = calcular(aSeleccion(estado({ marcados: { movilidad: true } }), datos), datos);
+    expect(c.ok).toBe(true);
+    expect(datosQueFaltan(c)).toBe(1);
+  });
+
+  it('sin horas, cuenta lo que impide calcular', () => {
+    const c = calcular(aSeleccion(estado({ horas: '' }), datos), datos);
+    expect(c.ok).toBe(false);
+    expect(datosQueFaltan(c)).toBe(1);
+  });
+
+  it('con todo cargado no falta nada', () => {
+    expect(datosQueFaltan(calcular(aSeleccion(estado(), datos), datos))).toBe(0);
   });
 });
 

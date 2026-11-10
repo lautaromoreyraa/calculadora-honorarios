@@ -2,7 +2,7 @@
 // Vive fuera de React para poder probarlo sin DOM: la pantalla sólo guarda este
 // estado y lo pasa por aSeleccion en cada cambio.
 import type { Datos, Item } from './datos/tipos.ts';
-import type { EntradaDeItem, Seleccion } from './calculo/tipos.ts';
+import type { Calculo, EntradaDeItem, Seleccion } from './calculo/tipos.ts';
 import { diasDeVacaciones, valorBaseDelRol, valorMensual, valorPorJornada } from './calculo/index.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPorcentaje } from './formato.ts';
 import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
@@ -214,6 +214,20 @@ export interface Aporte {
   monto: number;
   /** Suma cero porque falta un dato, no porque valga cero. */
   falta?: boolean;
+}
+
+/**
+ * Cuántos datos faltan, para decirlo donde se ve el total (RF-45): sin cálculo,
+ * los que lo impiden; con cálculo, los ítems marcados que todavía no suman.
+ * Cero si no falta nada.
+ */
+export function datosQueFaltan(calculo: Calculo): number {
+  return calculo.ok ? calculo.resultado.avisos.length : calculo.errores.length;
+}
+
+/** «Falta 1 dato» o «Faltan 3 datos» (RF-45). */
+export function textoDeLoQueFalta(cantidad: number): string {
+  return cantidad === 1 ? 'Falta 1 dato' : `Faltan ${cantidad} datos`;
 }
 
 /**

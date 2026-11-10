@@ -143,14 +143,42 @@
 /* El total cuenta hasta su valor nuevo (useNumeroAnimado): las cifras
    tabulares hacen que no baile mientras cambia. */
 
-/* Sin resultado, lo principal es la lista de lo que falta, no el aviso. */
-.desglose__total--vacio {
+/* RF-45: lo que falta va en un recuadro de aviso. En gris se leía como un
+   texto más y nadie entendía por qué no aparecía el total. El aviso sobre su
+   fondo da 9,2:1 (tokens.css). */
+.desglose__lo-que-falta {
+  display: grid;
+  gap: var(--espacio-2);
+  padding: var(--espacio-3) var(--espacio-4);
+  background: var(--color-aviso-suave);
+  border: 1px solid var(--color-aviso);
+  border-radius: var(--radio-chico);
+  color: var(--color-aviso);
+}
+
+.desglose__total--vacio,
+.desglose__titulo-de-falta {
+  display: flex;
+  align-items: center;
+  gap: var(--espacio-2);
   font-family: var(--fuente-base);
-  color: var(--color-texto-suave);
-  font-size: var(--texto-medio);
+  color: var(--color-aviso);
   font-weight: 650;
   line-height: 1.4;
   letter-spacing: 0;
+}
+
+.desglose__total--vacio {
+  font-size: var(--texto-medio);
+}
+
+.desglose__titulo-de-falta {
+  font-size: var(--texto-chico);
+}
+
+.desglose__total--vacio svg,
+.desglose__titulo-de-falta svg {
+  flex: none;
 }
 
 .desglose__contexto {
@@ -170,14 +198,15 @@
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
+  color: var(--color-aviso);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .desglose__avisos {
   margin: 0;
-  padding: var(--espacio-3) var(--espacio-3) var(--espacio-3) var(--espacio-6);
-  background: var(--color-aviso-suave);
+  padding-left: var(--espacio-5);
   color: var(--color-aviso);
-  border-radius: var(--radio-chico);
   font-size: var(--texto-chico);
   font-weight: 600;
 }

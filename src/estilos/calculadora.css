@@ -891,6 +891,14 @@
   background: var(--color-acento-suave);
 }
 
+/* RF-45: marcado sin el dato que pide. El borde de aviso le gana al del
+   acento: lo que importa es que falta algo, no que está marcado. */
+.item--falta,
+.item--falta:has(> .item__fila:hover) {
+  border-color: var(--color-aviso);
+  box-shadow: inset 3px 0 0 var(--color-aviso);
+}
+
 .item__fila {
   display: flex;
   gap: var(--espacio-3);
@@ -930,7 +938,19 @@
 }
 
 .item__aporte--falta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  margin-top: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-2);
+  background: var(--color-aviso-suave);
+  border-radius: var(--radio-chico);
   color: var(--color-aviso);
+}
+
+.item__aporte--falta svg {
+  flex: none;
 }
 
 .item__descripcion {
@@ -1154,11 +1174,23 @@
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* RF-45: cuántos datos faltan, en el color de aviso (sobre la barra, 9,5:1). */
 .barra-del-total__monto--vacio {
   font-family: var(--fuente-base);
   font-size: var(--texto-base);
-  font-weight: 600;
-  color: var(--color-texto-suave);
+  font-weight: 650;
+  color: var(--color-aviso);
+}
+
+.barra-del-total__resultado {
+  display: grid;
+  min-width: 0;
+}
+
+.barra-del-total__falta {
+  font-size: var(--texto-chico);
+  font-weight: 650;
+  color: var(--color-aviso);
 }
 
 .barra-del-total--oculta {

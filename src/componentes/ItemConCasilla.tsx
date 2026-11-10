@@ -42,7 +42,8 @@ export function ItemConCasilla({
 }: Props) {
   const id = useId();
   return (
-    <div className={`item${marcado ? ' item--marcado' : ''}`}>
+    // RF-45: marcado pero sin el dato que pide, la tarjeta entera lo hace notar.
+    <div className={`item${marcado ? ' item--marcado' : ''}${marcado && aporte?.falta ? ' item--falta' : ''}`}>
       {/* La etiqueta envuelve la casilla y ocupa todo el ancho de la tarjeta:
           tocar cualquier parte del texto la marca, no sólo el cuadradito. */}
       <label className="item__fila">
