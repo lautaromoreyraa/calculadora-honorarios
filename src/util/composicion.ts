@@ -34,7 +34,7 @@ function parteDe(renglonId: string, datos: Datos): Parte {
 export function composicionDelTotal(resultado: Resultado, datos: Datos): PorcionDelTotal[] {
   const montos: Record<Parte, number> = { base: 0, adicionales: 0, impuestos: 0, costos: 0 };
   for (const r of resultado.renglones) montos[parteDe(r.id, datos)] += r.monto;
-  // Ingresos brutos sobre el total (Corrientes) no es un renglón, pero es impuesto.
+  // Ingresos brutos sobre el total (RF-43) no es un renglón, pero es impuesto.
   montos.impuestos += resultado.ingresosBrutosSobreTotal?.monto ?? 0;
   return (Object.keys(montos) as Parte[])
     .filter((p) => montos[p] > 0)

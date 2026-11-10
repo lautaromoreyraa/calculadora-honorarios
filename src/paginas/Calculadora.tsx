@@ -17,6 +17,7 @@ import { necesitaCategoria, valorBaseDelRol } from '../util/calculo/index.ts';
 import { datos } from '../util/datos/index.ts';
 import type { Item } from '../util/datos/tipos.ts';
 import { formatearPesos } from '../util/formato.ts';
+import { naftaDelNea } from '../util/nea.ts';
 import {
   camposDeItem,
   cuentaDelSubgrupo,
@@ -61,8 +62,8 @@ export function Calculadora() {
   const idTituloResultado = useId();
 
   const rol = datos.roles.find((r) => r.id === estado.rolId)!;
-  const provincia = datos.provincias.find((p) => p.id === estado.provinciaId)!;
-  const nafta = datos.combustible.precios[provincia.id];
+  // RF-43: el litro más caro del NEA, el mismo que usa el cálculo.
+  const nafta = naftaDelNea(datos);
 
   const describirCampo = (campo: Campo): DescripcionDeCampo => {
     switch (campo) {
@@ -79,7 +80,7 @@ export function Calculadora() {
           etiqueta: 'Kilómetros a recorrer',
           unidad: 'km',
           ayuda: nafta
-            ? `Nafta súper en ${provincia.nombre}: ${formatearPesos(nafta.precio)} el litro, precio al ${formatearFecha(nafta.fecha)}.`
+            ? `Nafta súper: ${formatearPesos(nafta.precio)} el litro, el precio más alto del NEA (${nafta.provincia}) al ${formatearFecha(nafta.fecha)}.`
             : undefined,
         };
       case 'consumo':
@@ -124,7 +125,7 @@ export function Calculadora() {
     (document.getElementById(idAviso) ?? document.getElementById(`${idRol}-titulo`))?.focus();
   }, [vuelta, idAviso, idRol]);
 
-  const conCategoria = necesitaCategoria((id) => Boolean(estado.marcados[id]), estado.provinciaId, datos);
+  const conCategoria = necesitaCategoria((id) => Boolean(estado.marcados[id]), datos);
   const selectorDeCategoria = (
     <div className="campo campo--categoria">
       <label className="campo__etiqueta" htmlFor={idDeCampo('categoria')}>
@@ -242,26 +243,6 @@ export function Calculadora() {
                 error={errorDeNumero(estado.antiguedad, 'no-negativo')}
               />
             </div>
-
-            <fieldset className="opciones opciones--en-linea">
-              <legend className="opciones__titulo">Provincia</legend>
-              {datos.provincias.map((p, i) => (
-                <label key={p.id} className={`opcion${estado.provinciaId === p.id ? ' opcion--elegida' : ''}`}>
-                  <input
-                    id={i === 0 ? idDeCampo('provincia') : undefined}
-                    className="opcion__radio"
-                    type="radio"
-                    name="provincia"
-                    checked={estado.provinciaId === p.id}
-                    onChange={() => cambiar('provinciaId', p.id)}
-                  />
-                  <span className="opcion__texto">
-                    <span className="opcion__nombre">{p.nombre}</span>
-                  </span>
-                </label>
-              ))}
-            </fieldset>
-
           </section>
 
           {datos.grupos.map((grupo) => {

@@ -34,7 +34,6 @@ function almacen(): Storage {
 const lleno = (): EstadoDelFormulario => ({
   ...estadoInicial(datos),
   rolId: datos.roles[2].id,
-  provinciaId: 'corrientes',
   categoria: 'B',
   horas: '12',
   antiguedad: '6',
@@ -67,10 +66,9 @@ describe('RF-26 · recordar los datos del profesional', () => {
     expect(e.horas).toBe('');
   });
 
-  it('recuerda rol, provincia, categoría, antigüedad, nombre y los datos del equipo', () => {
+  it('recuerda rol, categoría, antigüedad, nombre y los datos del equipo', () => {
     const e = recargar(lleno());
     expect(e.rolId).toBe(datos.roles[2].id);
-    expect(e.provinciaId).toBe('corrientes');
     expect(e.categoria).toBe('B');
     expect(e.antiguedad).toBe('6');
     expect(e.profesional).toBe('Ana Gómez');
@@ -85,6 +83,14 @@ describe('RF-26 · recordar los datos del profesional', () => {
     expect(Object.values(e.elegidos).every((v) => v === null)).toBe(true);
     expect(e.entradas.movilidad?.km).toBeUndefined();
     expect(e.entradas['alquiler-kit-liviano']).toBeUndefined();
+  });
+
+  it('RF-43 · un perfil guardado con provincia se lee sin perder lo demás', () => {
+    const viejo = { ...perfilDe(lleno()), provinciaId: 'corrientes' };
+    const e = restaurar(viejo, datos);
+    expect(e.rolId).toBe(datos.roles[2].id);
+    expect(e.categoria).toBe('B');
+    expect(e).not.toHaveProperty('provinciaId');
   });
 
   it('olvidar deja todo como en la primera visita', () => {

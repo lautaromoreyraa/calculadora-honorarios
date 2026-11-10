@@ -63,7 +63,6 @@ describe('RF-35 · en el cálculo, la pantalla y el Word', () => {
   };
   const seleccion = {
     rolId: 'productor',
-    provinciaId: 'chaco',
     categoria: 'A',
     horas: 180,
     antiguedad: 1,

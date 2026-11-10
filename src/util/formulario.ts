@@ -7,6 +7,7 @@ import { diasDeVacaciones, valorBaseDelRol, valorMensual, valorPorJornada } from
 import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPorcentaje } from './formato.ts';
 import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
 import { CONDICIONES_POR_DEFECTO } from './presupuesto/contenido.ts';
+import { ingresosBrutosDelNea, naftaDelNea } from './nea.ts';
 
 /** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
@@ -16,7 +17,6 @@ export type Vehiculo = 'auto' | 'moto';
 
 export interface EstadoDelFormulario {
   rolId: string;
-  provinciaId: string;
   categoria: string;
   /** Texto tal cual lo escribe el usuario: «1,5» o «1.5». */
   horas: string;
@@ -42,7 +42,6 @@ export interface EstadoDelFormulario {
 export function estadoInicial(datos: Datos): EstadoDelFormulario {
   return {
     rolId: datos.roles[0].id,
-    provinciaId: datos.provincias[0].id,
     categoria: datos.monotributo.categorias[0].letra,
     horas: '',
     antiguedad: '0',
@@ -148,7 +147,6 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
 
   return {
     rolId: estado.rolId,
-    provinciaId: estado.provinciaId,
     categoria: estado.categoria,
     horas: leerNumero(estado.horas),
     antiguedad: estado.antiguedad.trim() === '' ? 0 : leerNumero(estado.antiguedad),
@@ -164,7 +162,7 @@ export function valorHoraDelRol(rolId: string, datos: Datos): number {
 
 /**
  * Cuánto vale un ítem, en una línea, para mostrarlo junto a su casilla. Los
- * calculados dependen de lo ya elegido (categoría, provincia, antigüedad): por
+ * calculados dependen de lo ya elegido (categoría, antigüedad): por
  * eso recibe el estado del formulario y no sólo el rol.
  */
 export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: Datos): string {
@@ -191,14 +189,8 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
             : 'Cuota de tu categoría, por mes';
         }
         case 'ingresos-brutos': {
-          const p = datos.provincias.find((x) => x.id === estado.provinciaId);
-          if (!p) return 'Según tu provincia';
-          const iibb = p.ingresosBrutos;
-          if (iibb.modo === 'alicuota') return `${p.nombre}: ${formatearPorcentaje(iibb.alicuota)} sobre el total facturado`;
-          const fijo = iibb.montos[estado.categoria];
-          return fijo === undefined
-            ? `${p.nombre}: monto fijo por categoría`
-            : `${p.nombre}: ${formatearPesos(fijo)} por mes en la categoría ${estado.categoria}`;
+          const iibb = ingresosBrutosDelNea(datos);
+          return iibb ? `${formatearPorcentaje(iibb.alicuota)} sobre el total facturado` : 'Sobre el total facturado';
         }
         case 'fondo-vacaciones': {
           const anios = leerNumero(estado.antiguedad);
@@ -210,7 +202,7 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
         case 'amortizacion':
           return `Precio del equipo en ${datos.parametros.vidaUtilDeEquiposEnMeses.valor} meses`;
         case 'movilidad': {
-          const nafta = datos.combustible.precios[estado.provinciaId];
+          const nafta = naftaDelNea(datos);
           return nafta ? `Nafta súper a ${formatearPesos(nafta.precio)} el litro` : 'Nafta para los kilómetros del trabajo';
         }
       }

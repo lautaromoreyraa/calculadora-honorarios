@@ -1,6 +1,6 @@
 # Fee Calculator for Freelance Communicators
 
-Web app that calculates an **hourly rate** for freelance communication workers — community managers, reporters, content creators, hosts, copywriters, photojournalists, producers and video editors — registered under Argentina's simplified tax regime (*monotributo*) in Argentina's Northeast (NEA). Province-specific values (gross income tax, fuel) currently cover Chaco and Corrientes.
+Web app that calculates an **hourly rate** for freelance communication workers — community managers, reporters, content creators, hosts, copywriters, photojournalists, producers and video editors — registered under Argentina's simplified tax regime (*monotributo*) in Argentina's Northeast (NEA). One calculation serves the whole region: wherever a value differs by province (gross income tax, fuel), the highest one in the NEA is used, so nobody undercharges wherever they work. The data currently covers Chaco and Corrientes.
 
 The rate starts from the collective-agreement salary for each role and adds, depending on what the user selects, agreement bonuses, the costs a freelancer pays out of pocket (taxes, equipment, connectivity, transport), vacation and year-end bonus funds, and an adjustment by client type. The result downloads as an **editable Word quote** — numbered, with both parties' details, the work and its hourly value, the total and payment terms — and a live preview shows the document while it's being filled in.
 
@@ -32,8 +32,8 @@ flowchart LR
 | `roles.json` | Roles, their monthly base salary and source agreement |
 | `items.json` | Fee items, their groups and collapsible subgroups, and mutually exclusive sets (deadline, client type) |
 | `monotributo.json` | Simplified-regime categories: tax, pension, health insurance and caps |
-| `provincias.json` | How each province taxes gross income |
-| `combustible.json` | Fuel price per province |
+| `provincias.json` | How each province taxes gross income; the calculation applies the highest rate on billed income |
+| `combustible.json` | Fuel price per province; the calculation uses the highest |
 | `parametros.json` | Monthly hours, working day, equipment lifespan, vehicle consumption, vacation, year-end bonus and USD rate |
 
 Each item has a `tipo` that defines how it enters the calculation: `porcentual` (percentage of the hourly value), `mensual` (monthly cost spread per hour, in pesos or dollars), `por-jornada` (per 6-hour working day), `por-trabajo` (one-off amount per job) or `calculado` (a dedicated formula in the engine: taxes, vacation fund, depreciation, transport).
