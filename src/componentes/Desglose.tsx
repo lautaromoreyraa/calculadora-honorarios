@@ -7,7 +7,8 @@ import { composicionDelTotal } from '../util/composicion.ts';
 import { datos } from '../util/datos/index.ts';
 import { formatearNumero } from '../util/formato.ts';
 import { ComposicionDelTotal } from './ComposicionDelTotal.tsx';
-import { idDeCampo } from '../util/formulario.ts';
+import { datosQueFaltan, idDeCampo, textoDeLoQueFalta } from '../util/formulario.ts';
+import { TriangleAlert } from 'lucide-react';
 
 interface Props {
   calculo: Calculo;
@@ -24,8 +25,12 @@ export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
   // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
   // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
+  // RF-45: con total, también dice si falta algo; si no, el faltante sólo se ve.
+  const faltan = datosQueFaltan(calculo);
   const anuncio = useValorDiferido(
-    calculo.ok ? `Total del trabajo: ${formato.monto(calculo.resultado.total)}` : 'Faltan datos para calcular el total',
+    calculo.ok
+      ? `Total del trabajo: ${formato.monto(calculo.resultado.total)}${faltan > 0 ? `. ${textoDeLoQueFalta(faltan)}` : ''}`
+      : 'Faltan datos para calcular el total',
     600,
   );
 
@@ -59,16 +64,22 @@ function Pendiente({ errores }: { errores: Falta[] }) {
   return (
     <div className="desglose__cabeza">
       <p className="desglose__total-etiqueta">Total del trabajo</p>
-      <p className="desglose__total desglose__total--vacio">Faltan datos para calcular</p>
-      <ul className="desglose__falta">
-        {errores.map((e) => (
-          <li key={e.mensaje}>
-            <a href={`#${idDeCampo(e.campo)}`} onClick={(evento) => irAlCampo(evento, e.campo)}>
-              {e.mensaje}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {/* RF-45: lo que falta va en un recuadro de aviso, no como texto gris. */}
+      <div className="desglose__lo-que-falta">
+        <p className="desglose__total desglose__total--vacio">
+          <TriangleAlert size={20} strokeWidth={2} aria-hidden="true" />
+          {textoDeLoQueFalta(errores.length)} para calcular
+        </p>
+        <ul className="desglose__falta">
+          {errores.map((e) => (
+            <li key={e.mensaje}>
+              <a href={`#${idDeCampo(e.campo)}`} onClick={(evento) => irAlCampo(evento, e.campo)}>
+                {e.mensaje}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
@@ -92,6 +103,7 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
           <p className="desglose__contexto">
             {r.rol.nombre}, {formatearNumero(r.horas)} h a {formato.montoConCentavos(r.valorHora)} la hora
           </p>
+          <p className="desglose__contexto">{r.rol.escala}</p>
           <ComposicionDelTotal partes={composicionDelTotal(r, datos)} total={r.total} />
         </div>
       </div>
@@ -100,11 +112,17 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
           tabIndex se llega con el teclado y se mueve con las flechas. */}
       <div className="desglose__cuerpo" tabIndex={0} role="region" aria-label="Desglose del honorario">
         {r.avisos.length > 0 && (
-          <ul className="desglose__avisos">
-            {r.avisos.map((a) => (
-              <li key={a}>{a}</li>
-            ))}
-          </ul>
+          <div className="desglose__lo-que-falta">
+            <p className="desglose__titulo-de-falta">
+              <TriangleAlert size={18} strokeWidth={2} aria-hidden="true" />
+              {textoDeLoQueFalta(r.avisos.length)}: el total todavía no lo incluye
+            </p>
+            <ul className="desglose__avisos">
+              {r.avisos.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+            </ul>
+          </div>
         )}
 
         <table className="desglose__tabla">

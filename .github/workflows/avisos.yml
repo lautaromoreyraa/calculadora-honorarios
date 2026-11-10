@@ -1,0 +1,51 @@
+# Recordatorios de los valores que no se actualizan solos (RF-24). El día 1 de
+# cada mes arma los avisos que correspondan: en febrero y agosto, monotributo y
+# RS de Chaco; en octubre, la revisión anual de escalas y costos de mercado. Por
+# cada uno abre un issue, salvo que ya haya uno abierto con su etiqueta.
+#
+# No instala dependencias: el script sólo usa código del repo. El único permiso
+# de escritura es el de issues; no toca el código ni los datos.
+# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
+name: Avisos de valores manuales
+
+on:
+  schedule:
+    # Día 1 a las 13:00 UTC = 10:00 en Argentina.
+    - cron: '0 13 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  avisar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+      - run: node scripts/avisos-del-mes.ts "$RUNNER_TEMP/avisos.json"
+      - name: Abrir los issues que falten
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cantidad=$(jq length "$RUNNER_TEMP/avisos.json")
+          for i in $(seq 0 $((cantidad - 1))); do
+            etiqueta=$(jq -r ".[$i].etiqueta" "$RUNNER_TEMP/avisos.json")
+            titulo=$(jq -r ".[$i].titulo" "$RUNNER_TEMP/avisos.json")
+            abiertos=$(gh issue list --state open --label "$etiqueta" --json number --jq length)
+            if [ "$abiertos" -gt 0 ]; then
+              echo "Ya hay un issue abierto con $etiqueta: no se duplica."
+              continue
+            fi
+            gh label create "$etiqueta" --color FBCA04 --description "Recordatorio automático (RF-24)" --force
+            jq -r ".[$i].cuerpo" "$RUNNER_TEMP/avisos.json" > "$RUNNER_TEMP/cuerpo.md"
+            gh issue create --title "$titulo" --label "$etiqueta" --body-file "$RUNNER_TEMP/cuerpo.md"
+          done

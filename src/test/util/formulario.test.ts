@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { datos } from '../../util/datos/index.ts';
+// Los montos esperados salen del SRS: se prueban con los datos en su valor
+// cargado, sin lo que los índices vivos les sumaron (ver test/fixture/datos.ts).
+import { datosAlOrigen, datosAlOrigen as datos } from '../fixture/datos.ts';
 import { calcular } from '../../util/calculo/index.ts';
 import { formatearPesos } from '../../util/formato.ts';
 import {
@@ -7,6 +9,9 @@ import {
   camposDeItem,
   conVehiculo,
   cuentaDelSubgrupo,
+  datosQueFaltan,
+  textoDeLoQueFalta,
+  resumenDeSubgrupos,
   estadoInicial,
   formatearFecha,
   formatearVigencia,
@@ -48,10 +53,9 @@ describe('leerNumero', () => {
 });
 
 describe('estadoInicial', () => {
-  it('arranca con el primer rol, provincia y categoría de los datos, sin horas ni opciones elegidas', () => {
+  it('arranca con el primer rol y categoría de los datos, sin horas ni opciones elegidas', () => {
     const e = estadoInicial(datos);
     expect(e.rolId).toBe(datos.roles[0].id);
-    expect(e.provinciaId).toBe(datos.provincias[0].id);
     expect(e.categoria).toBe(datos.monotributo.categorias[0].letra);
     expect(e.horas).toBe('');
     expect(Object.values(e.elegidos).every((v) => v === null)).toBe(true);
@@ -121,26 +125,23 @@ describe('resumenDelItem', () => {
     const redactor = estado({ rolId: 'redactor-digital' });
     expect(resumenDelItem(item('multifuncion'), cm, datos)).toBe('40 % del valor hora');
     expect(resumenDelItem(item('cobertura-de-emergencia'), foto, datos)).toBe('30 % del valor hora');
-    expect(resumenDelItem(item('conectividad'), cm, datos)).toMatch(/32\.000 por mes$/);
-    expect(resumenDelItem(item('ia-y-redes'), redactor, datos)).toMatch(/15\.125 por mes$/);
+    expect(resumenDelItem(item('conectividad'), cm, datosAlOrigen)).toMatch(/32\.000 por mes$/);
+    // Cotización fija: la Action diaria (RF-21) cambia la de los datos antes de correr los tests.
+    const conOficial = { ...datos, parametros: { ...datos.parametros, dolarOficial: { ...datos.parametros.dolarOficial, valor: 1512.5 } } };
+    expect(resumenDelItem(item('ia-y-redes'), redactor, conOficial)).toMatch(/15\.125 por mes$/);
     expect(resumenDelItem(item('antiguedad'), cm, datos)).toMatch(/por mes por año$/);
     expect(resumenDelItem(item('refrigerio'), cm, datos)).toMatch(/por jornada de 6 h$/);
   });
 
-  it('los calculados reflejan la categoría, la provincia y la antigüedad elegidas', () => {
+  it('los calculados reflejan la categoría y la antigüedad elegidas, y el NEA', () => {
     expect(resumenDelItem(item('monotributo'), estado({ categoria: 'B' }), datos)).toMatch(/56\.379 por mes en la categoría B$/);
-    const chaco = datos.provincias.find((p) => p.id === 'chaco')!.ingresosBrutos;
-    const fijoA = chaco.modo === 'fijo-por-categoria' ? chaco.montos.A : 0;
-    expect(resumenDelItem(item('ingresos-brutos'), estado(), datos)).toBe(
-      `Chaco: ${formatearPesos(fijoA)} por mes en la categoría A`,
-    );
-    expect(resumenDelItem(item('ingresos-brutos'), estado({ provinciaId: 'corrientes' }), datos)).toBe(
-      'Corrientes: 3 % sobre el total facturado',
-    );
+    // RF-43: la categoría ya no cambia los ingresos brutos, y la nafta es la más cara.
+    for (const categoria of ['A', 'B']) {
+      expect(resumenDelItem(item('ingresos-brutos'), estado({ categoria }), datos)).toBe('3 % sobre el total facturado');
+    }
     expect(resumenDelItem(item('fondo-vacaciones'), estado({ antiguedad: '12' }), datos)).toMatch(/^28 días/);
-    expect(resumenDelItem(item('movilidad'), estado({ provinciaId: 'corrientes' }), datos)).toBe(
-      `Nafta súper a ${formatearPesos(datos.combustible.precios.corrientes.precio)} el litro`,
-    );
+    const masCara = Math.max(...Object.values(datos.combustible.precios).map((p) => p.precio));
+    expect(resumenDelItem(item('movilidad'), estado(), datos)).toBe(`Nafta súper a ${formatearPesos(masCara)} el litro`);
   });
 
   it('el valor hora del rol es el base mensual sobre las horas de referencia', () => {
@@ -165,27 +166,57 @@ describe('fechas', () => {
   });
 });
 
-describe('RF-27 · cuenta de un subgrupo plegado', () => {
+describe('RF-45 · lo que falta se nota', () => {
+  it('dice cuántos datos faltan, en singular y en plural', () => {
+    expect(textoDeLoQueFalta(1)).toBe('Falta 1 dato');
+    expect(textoDeLoQueFalta(3)).toBe('Faltan 3 datos');
+  });
+
+  it('con movilidad marcada y sin kilómetros, falta 1 dato aunque haya total', () => {
+    const c = calcular(aSeleccion(estado({ marcados: { movilidad: true } }), datos), datos);
+    expect(c.ok).toBe(true);
+    expect(datosQueFaltan(c)).toBe(1);
+  });
+
+  it('sin horas, cuenta lo que impide calcular', () => {
+    const c = calcular(aSeleccion(estado({ horas: '' }), datos), datos);
+    expect(c.ok).toBe(false);
+    expect(datosQueFaltan(c)).toBe(1);
+  });
+
+  it('con todo cargado no falta nada', () => {
+    expect(datosQueFaltan(calcular(aSeleccion(estado(), datos), datos))).toBe(0);
+  });
+});
+
+describe('RF-27, RF-46 · cuenta de un subgrupo plegado', () => {
   const operativos = datos.items.filter((i) => i.subgrupo === 'conectividad-y-software');
 
-  it('sin nada marcado lo dice', () => {
-    expect(cuentaDelSubgrupo(operativos, {}, new Map())).toBe('Ninguno marcado');
+  it('sin nada marcado dice cuántos ítems tiene y que no hay ninguno marcado', () => {
+    expect(cuentaDelSubgrupo(operativos, {}, new Map())).toBe('4 ítems · ninguno marcado');
   });
 
   it('con dos marcados dice cuántos y cuánto suman', () => {
     const marcados = { conectividad: true, licencias: true };
     const aportes = new Map([['conectividad', { monto: 1600 }], ['licencias', { monto: 7400 }]]);
-    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(9000)}`);
+    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`4 ítems · 2 marcados · ${formatearPesos(9000)}`);
   });
 
   it('avisa cuántos esperan un dato', () => {
     const marcados = { conectividad: true, licencias: true };
     const aportes = new Map([['conectividad', { monto: 1600 }], ['licencias', { monto: 0, falta: true }]]);
-    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(1600)} · 1 sin completar`);
+    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`4 ítems · 2 marcados · ${formatearPesos(1600)} · 1 sin completar`);
   });
 
   it('sin cálculo todavía, sólo la cantidad', () => {
-    expect(cuentaDelSubgrupo(operativos, { conectividad: true }, new Map())).toBe('1 marcado');
+    expect(cuentaDelSubgrupo(operativos, { conectividad: true }, new Map())).toBe('4 ítems · 1 marcado');
+  });
+
+  it('la línea del grupo cuenta los ítems y los subgrupos de los datos', () => {
+    const grupo = datos.grupos.find((g) => g.id === 'operativos')!;
+    const items = datos.items.filter((i) => i.grupo === 'operativos' && i.subgrupo);
+    expect(resumenDeSubgrupos(items.length, grupo.subgrupos!.length)).toBe('15 ítems en 3 grupos: revisalos todos');
+    expect(resumenDeSubgrupos(1, 1)).toBe('1 ítem en 1 grupo: revisalos todos');
   });
 });
 

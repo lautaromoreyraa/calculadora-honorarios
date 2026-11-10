@@ -28,7 +28,7 @@
       "valor": 54478,
       "exclusion": "titulo",
       "norma": "CCT 541/08, escala FATPREN-ADIRA: asignación por título universitario",
-      "actualizacion": { "regla": "manual" },
+      "actualizacion": { "regla": "escala", "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -39,7 +39,7 @@
       "valor": 39959,
       "exclusion": "titulo",
       "norma": "CCT 541/08, escala FATPREN-ADIRA: asignación por título terciario",
-      "actualizacion": { "regla": "manual" },
+      "actualizacion": { "regla": "escala", "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -50,9 +50,14 @@
       "tipo": "mensual",
       "valor": 7121,
       "multiplicaPor": "antiguedad",
-      "porRol": { "productor": { "valor": 11236.47 } },
+      "porRol": {
+        "productor": {
+          "valor": 11236.47,
+          "escala": { "origen": "2026-09", "fuente": "https://satsaid.com.ar/noticias/satsaid-firmo-un-nuevo-acuerdo-con-ata-y-capit/" }
+        }
+      },
       "norma": "CCT 541/08, art. 32; productor: CCT 131/75, SATSAID",
-      "actualizacion": { "regla": "manual" },
+      "actualizacion": { "regla": "escala", "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -89,11 +94,11 @@
     {
       "id": "ingresos-brutos",
       "nombre": "Ingresos brutos",
-      "descripcion": "Chaco: monto fijo mensual del régimen simplificado. Corrientes: alícuota sobre el total facturado",
+      "descripcion": "La alícuota más alta del NEA sobre el total facturado, para no cobrar de menos en ninguna provincia",
       "grupo": "fiscales",
       "tipo": "calculado",
       "formula": "ingresos-brutos",
-      "norma": "Chaco: Ley 83-F, art. 149 bis. Corrientes: RG DGR 293/2025",
+      "norma": "Corrientes: RG DGR 293/2025, la alícuota más alta de la región",
       "actualizacion": { "regla": "manual" },
       "vigencia": "2026-10"
     },
@@ -103,7 +108,7 @@
       "grupo": "fiscales",
       "tipo": "mensual",
       "valor": 20000,
-      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10", "serie": "general" },
       "vigencia": "2026-10"
     },
     {
@@ -145,7 +150,7 @@
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
       "valor": 32000,
-      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10", "serie": "comunicacion" },
       "vigencia": "2026-10"
     },
     {
@@ -155,7 +160,7 @@
       "subgrupo": "conectividad-y-software",
       "tipo": "mensual",
       "valor": 70000,
-      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10", "serie": "comunicacion" },
       "vigencia": "2026-10"
     },
     {
@@ -215,7 +220,7 @@
       "subgrupo": "equipo",
       "tipo": "mensual",
       "valor": 9300,
-      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10" },
+      "actualizacion": { "regla": "ipc-nea", "origen": "2026-10", "serie": "general" },
       "vigencia": "2026-10"
     },
     {
@@ -259,7 +264,7 @@
     {
       "id": "movilidad",
       "nombre": "Movilidad",
-      "descripcion": "Combustible para los kilómetros del trabajo, con el litro de nafta súper de la provincia",
+      "descripcion": "Combustible para los kilómetros del trabajo, con el litro de nafta súper más caro del NEA",
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "calculado",
@@ -276,7 +281,7 @@
       "tipo": "por-jornada",
       "valor": 8329.5,
       "norma": "CCT 131/75, SATSAID",
-      "actualizacion": { "regla": "manual" },
+      "actualizacion": { "regla": "escala", "origen": "2026-09", "fuente": "https://satsaid.com.ar/noticias/satsaid-firmo-un-nuevo-acuerdo-con-ata-y-capit/" },
       "vigencia": "2026-10"
     },
     {
@@ -288,7 +293,7 @@
       "tipo": "por-jornada",
       "valor": 10374.34,
       "norma": "CCT 131/75, SATSAID",
-      "actualizacion": { "regla": "manual" },
+      "actualizacion": { "regla": "escala", "origen": "2026-09", "fuente": "https://satsaid.com.ar/noticias/satsaid-firmo-un-nuevo-acuerdo-con-ata-y-capit/" },
       "vigencia": "2026-10"
     },
     {
@@ -315,6 +320,7 @@
     {
       "id": "cesion-de-derechos",
       "nombre": "Cesión de derecho de uso",
+      "descripcion": "Para fotografías y redacción digital: el permiso para que quien contrata publique o reutilice la obra",
       "grupo": "contenidos",
       "tipo": "porcentual",
       "porcentaje": 0.4,

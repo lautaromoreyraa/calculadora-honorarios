@@ -8,7 +8,6 @@ import { enDolares } from '../../util/moneda.ts';
 
 const seleccion = (cambios: Partial<Seleccion> = {}): Seleccion => ({
   rolId: 'cm',
-  provinciaId: 'chaco',
   categoria: 'A',
   horas: 10,
   antiguedad: 3,
@@ -30,10 +29,10 @@ const suma = (r: Resultado) =>
   Math.round(composicionDelTotal(r, datos).reduce((s, p) => s + p.monto, 0) * 100) / 100;
 
 describe('RNF-13 · composición del total', () => {
-  it('las partes suman el total, también en Corrientes y en dólares', () => {
+  it('las partes suman el total, también con ingresos brutos y en dólares', () => {
     for (const r of [
       resultado(seleccion()),
-      resultado(seleccion({ provinciaId: 'corrientes', items: { 'cliente-a': {}, 'ingresos-brutos': {} } })),
+      resultado(seleccion({ items: { 'cliente-a': {}, 'ingresos-brutos': {} } })),
       resultado(seleccion(), true),
     ]) {
       expect(suma(r)).toBe(r.total);
@@ -50,8 +49,8 @@ describe('RNF-13 · composición del total', () => {
     expect(partes[2].monto).toBe(impuestos);
   });
 
-  it('el ingreso bruto sobre el total de Corrientes cuenta como impuesto', () => {
-    const r = resultado(seleccion({ provinciaId: 'corrientes', items: { 'cliente-a': {}, 'ingresos-brutos': {} } }));
+  it('el ingreso bruto sobre el total cuenta como impuesto', () => {
+    const r = resultado(seleccion({ items: { 'cliente-a': {}, 'ingresos-brutos': {} } }));
     const impuestos = composicionDelTotal(r, datos).find((p) => p.parte === 'impuestos');
     expect(impuestos?.monto).toBe(r.ingresosBrutosSobreTotal!.monto);
   });

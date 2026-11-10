@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { datos } from '../../../util/datos/index.ts';
 import { enDolares } from '../../../util/moneda.ts';
 import type { Datos } from '../../../util/datos/tipos.ts';
+// Los montos esperados salen del SRS: se prueban con los datos en su valor
+// cargado, sin lo que los índices vivos les sumaron (ver test/fixture/datos.ts).
+import { conMes, datosAlOrigen, datosAlOrigen as datos, indicesHasta } from '../../fixture/datos.ts';
 import { calcular, necesitaCategoria, type EntradaDeItem, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
 
 // Un test por criterio de aceptación del SRS (RNF-05). Los números esperados
@@ -9,7 +11,6 @@ import { calcular, necesitaCategoria, type EntradaDeItem, type Resultado, type S
 
 const seleccion = (cambios: Partial<Seleccion> = {}, items: Record<string, EntradaDeItem> = {}): Seleccion => ({
   rolId: 'cm',
-  provinciaId: 'chaco',
   categoria: 'A',
   horas: 10,
   antiguedad: 0,
@@ -113,15 +114,43 @@ describe('RF-05 · plazo de entrega', () => {
 
 describe('RF-06 · costos operativos mensuales', () => {
   it('conectividad de $32.000 en 9 horas suma $1.600', () => {
-    expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} })), 'conectividad')).toBe(1600);
+    expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} }), datosAlOrigen), 'conectividad')).toBe(1600);
+  });
+
+  it('RF-20 · un mes nuevo del IPC Comunicación lleva la conectividad desde su origen (RN-12)', () => {
+    // Origen 2026-10: con Comunicación en 100 en octubre y 105 en noviembre, $32.000 pasa a $33.600.
+    // Parte de los índices hasta 2026-09: la proyección de los roles (RF-35) necesita su mes de escala.
+    const hastaSeptiembre = { ...datos, indices: indicesHasta('2026-09') };
+    const octubre = conMes('2026-10', { 'ipc-nea-comunicacion': 100, 'ipc-nea-general': 100 }, hastaSeptiembre);
+    const noviembre = conMes('2026-11', { 'ipc-nea-comunicacion': 105, 'ipc-nea-general': 200 }, octubre);
+    expect(monto(resultado(seleccion({ horas: 180 }, { conectividad: {} }), octubre), 'conectividad')).toBe(32000);
+    expect(monto(resultado(seleccion({ horas: 180 }, { conectividad: {} }), noviembre), 'conectividad')).toBe(33600);
+    // Datos móviles también van por Comunicación (+5 %); la ART y el seguro, por el nivel general (×2).
+    expect(monto(resultado(seleccion({ horas: 180 }, { 'datos-moviles': {} }), noviembre), 'datos-moviles')).toBe(73500);
+    expect(monto(resultado(seleccion({ horas: 180 }, { art: {} }), noviembre), 'art')).toBe(40000);
+    expect(monto(resultado(seleccion({ horas: 180 }, { 'seguro-equipamiento': {} }), noviembre), 'seguro-equipamiento')).toBe(18600);
+  });
+
+  // La cotización se fija acá: la Action diaria (RF-21) cambia la de los datos y
+  // corre estos tests antes de publicar, así que no pueden depender de ella.
+  const conOficial = (valor: number): Datos => ({
+    ...datos,
+    parametros: { ...datos.parametros, dolarOficial: { ...datos.parametros.dolarOficial, valor } },
   });
 
   it('licencias e IA salen del precio en dólares (RN-15)', () => {
-    const r = resultado(seleccion({ horas: 180 }, { licencias: {}, 'ia-y-redes': {} }));
+    const d = conOficial(1512.5);
+    const r = resultado(seleccion({ horas: 180 }, { licencias: {}, 'ia-y-redes': {} }), d);
     expect(monto(r, 'licencias')).toBe(52930);
     expect(monto(r, 'ia-y-redes')).toBe(30242);
-    const redactor = resultado(seleccion({ rolId: 'redactor-digital', horas: 180 }, { 'ia-y-redes': {} }));
+    const redactor = resultado(seleccion({ rolId: 'redactor-digital', horas: 180 }, { 'ia-y-redes': {} }), d);
     expect(monto(redactor, 'ia-y-redes')).toBe(15125);
+  });
+
+  it('RF-21 · la licencia se recalcula con la cotización oficial nueva', () => {
+    // Adobe CC Pro, USD 69,99 × 50 %: con $1.512,50 da $52.930; con el doble, el doble.
+    const r = resultado(seleccion({ horas: 180 }, { licencias: {} }), conOficial(3025));
+    expect(monto(r, 'licencias')).toBe(105860);
   });
 });
 
@@ -143,10 +172,10 @@ describe('RF-07 · monotributo por categoría', () => {
     expect(monto(resultado(seleccion({ categoria: 'C', horas: 180 }, { monotributo: {} }), conC), 'monotributo')).toBe(1800);
   });
 
-  it('sin monotributo ni ingresos brutos de Chaco, la categoría no se pide ni suma', () => {
-    const r = resultado(seleccion({ categoria: '' }, { 'fondo-sac': {} }));
+  it('sin monotributo, la categoría no se pide ni suma, aunque haya ingresos brutos', () => {
+    const r = resultado(seleccion({ categoria: '' }, { 'fondo-sac': {}, 'ingresos-brutos': {} }));
     expect(monto(r, 'monotributo')).toBeUndefined();
-    expect(r.total).toBe(r.renglones.reduce((s, x) => s + x.monto, 0));
+    expect(r.subtotal).toBe(r.renglones.reduce((s, x) => s + x.monto, 0));
   });
 
   it('con el monotributo marcado, una categoría inexistente se pide', () => {
@@ -155,32 +184,49 @@ describe('RF-07 · monotributo por categoría', () => {
     if (!c.ok) expect(c.errores.map((e) => e.campo)).toContain('categoria');
   });
 
-  it('la piden el monotributo y los ingresos brutos de Chaco, no los de Corrientes', () => {
+  it('la pide sólo el monotributo: los ingresos brutos del NEA no (RF-43)', () => {
     const marcados = (ids: string[]) => (id: string) => ids.includes(id);
-    expect(necesitaCategoria(marcados([]), 'chaco', datos)).toBe(false);
-    expect(necesitaCategoria(marcados(['fondo-sac']), 'chaco', datos)).toBe(false);
-    expect(necesitaCategoria(marcados(['monotributo']), 'corrientes', datos)).toBe(true);
-    expect(necesitaCategoria(marcados(['ingresos-brutos']), 'chaco', datos)).toBe(true);
-    expect(necesitaCategoria(marcados(['ingresos-brutos']), 'corrientes', datos)).toBe(false);
+    expect(necesitaCategoria(marcados([]), datos)).toBe(false);
+    expect(necesitaCategoria(marcados(['fondo-sac']), datos)).toBe(false);
+    expect(necesitaCategoria(marcados(['monotributo']), datos)).toBe(true);
+    expect(necesitaCategoria(marcados(['ingresos-brutos']), datos)).toBe(false);
   });
 });
 
-describe('RF-08 · ingresos brutos según la provincia', () => {
-  it('Chaco, categoría A, 18 horas: renglón de $1.042', () => {
-    expect(monto(resultado(seleccion({ horas: 18 }, { 'ingresos-brutos': {} })), 'ingresos-brutos')).toBe(1042);
-  });
-
-  it('Corrientes con 3 % y subtotal de $100.000: total de $103.093', () => {
+describe('RF-43 · ingresos brutos del NEA', () => {
+  it('3 % sobre el total y subtotal de $100.000: total de $103.093', () => {
     const cienMil: Datos = structuredClone(datos);
     cienMil.roles[0].valorBaseMensual = 100000;
-    const r = resultado(seleccion({ provinciaId: 'corrientes', horas: 180 }, { 'ingresos-brutos': {} }), cienMil);
+    const r = resultado(seleccion({ horas: 180 }, { 'ingresos-brutos': {} }), cienMil);
     expect(r.subtotal).toBe(100000);
     expect(r.ingresosBrutosSobreTotal?.monto).toBe(3093);
+    expect(r.ingresosBrutosSobreTotal?.detalle).toBe('3 % sobre el total facturado');
     expect(r.total).toBe(103093);
+    expect(monto(r, 'ingresos-brutos')).toBeUndefined();
   });
 
-  it('sin marcar ingresos brutos, Corrientes no suma nada', () => {
-    const r = resultado(seleccion({ provinciaId: 'corrientes' }));
+  it('una provincia con alícuota mayor en los datos pasa a ser la del cálculo', () => {
+    const conMisiones: Datos = structuredClone(datos);
+    conMisiones.provincias.push({
+      id: 'misiones',
+      nombre: 'Misiones',
+      ingresosBrutos: { modo: 'alicuota', alicuota: 0.05, norma: 'Norma de prueba', vigencia: '2026-10' },
+    });
+    conMisiones.roles[0].valorBaseMensual = 95000;
+    const r = resultado(seleccion({ horas: 180 }, { 'ingresos-brutos': {} }), conMisiones);
+    expect(r.total).toBe(100000);
+  });
+
+  it('sin alícuota en los datos, avisa en vez de romper', () => {
+    const sinAlicuota: Datos = structuredClone(datos);
+    sinAlicuota.provincias = sinAlicuota.provincias.filter((p) => p.ingresosBrutos.modo !== 'alicuota');
+    const r = resultado(seleccion({}, { 'ingresos-brutos': {} }), sinAlicuota);
+    expect(r.total).toBe(r.subtotal);
+    expect(r.avisos.join()).toMatch(/alícuota/);
+  });
+
+  it('sin marcar ingresos brutos no suma nada', () => {
+    const r = resultado(seleccion());
     expect(r.ingresosBrutosSobreTotal).toBeUndefined();
     expect(r.total).toBe(r.subtotal);
   });
@@ -250,13 +296,25 @@ describe('RF-13 · movilidad por kilómetros', () => {
   it('50 km a 10 l/100 km con nafta a $2.100: $10.500', () => {
     const nafta: Datos = structuredClone(datos);
     nafta.combustible.precios.chaco.precio = 2100;
+    nafta.combustible.precios.corrientes.precio = 2000;
     const r = resultado(seleccion({}, { movilidad: { km: 50, consumo: 10 } }), nafta);
     expect(monto(r, 'movilidad')).toBe(10500);
   });
 
-  it('sin consumo usa el del auto por defecto, 8 l/100 km', () => {
-    const r = resultado(seleccion({}, { movilidad: { km: 100 } }));
-    expect(monto(r, 'movilidad')).toBe(8 * datos.combustible.precios.chaco.precio);
+  it('RF-43 · con Chaco a $2.189 y Corrientes a $2.199, usa $2.199', () => {
+    const nafta: Datos = structuredClone(datos);
+    nafta.combustible.precios.chaco.precio = 2189;
+    nafta.combustible.precios.corrientes.precio = 2199;
+    const r = resultado(seleccion({}, { movilidad: { km: 100 } }), nafta);
+    expect(monto(r, 'movilidad')).toBe(8 * 2199);
+  });
+
+  it('sin precio de nafta en los datos, avisa en vez de romper', () => {
+    const sinNafta: Datos = structuredClone(datos);
+    sinNafta.combustible.precios = {};
+    const r = resultado(seleccion({}, { movilidad: { km: 50 } }), sinNafta);
+    expect(monto(r, 'movilidad')).toBe(0);
+    expect(r.avisos.join()).toMatch(/nafta/);
   });
 
   it('sin kilómetros suma cero y avisa', () => {
@@ -283,7 +341,7 @@ describe('RF-15 · desglose y total', () => {
     const items = Object.fromEntries(
       datos.items.filter((i) => !i.exclusion).map((i) => [i.id, { precio: 1000000, monto: 5000, km: 30 }]),
     );
-    const r = resultado(seleccion({ provinciaId: 'corrientes', horas: 13.5, antiguedad: 7 }, items));
+    const r = resultado(seleccion({ horas: 13.5, antiguedad: 7 }, items));
     const suma = r.renglones.reduce((t, x) => t + x.monto, 0) + (r.ingresosBrutosSobreTotal?.monto ?? 0);
     expect(r.total).toBe(suma);
     expect(r.renglones.every((x) => Number.isInteger(x.monto))).toBe(true);
@@ -313,9 +371,9 @@ describe('RF-28 · montos en dólares', () => {
     expect(dolares.resultado.cotizacion).toEqual(cotizacion);
   });
 
-  it('la suma de los renglones en dólares es el total en dólares, también en Corrientes', () => {
-    for (const provinciaId of ['chaco', 'corrientes']) {
-      const c = calcular(seleccion({ horas: 13.5, provinciaId }, { ...items, 'ingresos-brutos': {} }), datos, enUsd);
+  it('la suma de los renglones en dólares es el total en dólares, también con ingresos brutos', () => {
+    for (const conIibb of [false, true]) {
+      const c = calcular(seleccion({ horas: 13.5 }, conIibb ? { ...items, 'ingresos-brutos': {} } : items), datos, enUsd);
       if (!c.ok) throw new Error('no calculó');
       const r = c.resultado;
       const suma = r.renglones.reduce((s, x) => s + x.monto, 0) + (r.ingresosBrutosSobreTotal?.monto ?? 0);

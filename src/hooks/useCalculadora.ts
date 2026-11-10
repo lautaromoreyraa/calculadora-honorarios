@@ -22,7 +22,6 @@ import {
 
 export type CampoGeneral =
   | 'rolId'
-  | 'provinciaId'
   | 'categoria'
   | 'horas'
   | 'antiguedad'

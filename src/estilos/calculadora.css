@@ -891,6 +891,14 @@
   background: var(--color-acento-suave);
 }
 
+/* RF-45: marcado sin el dato que pide. El borde de aviso le gana al del
+   acento: lo que importa es que falta algo, no que está marcado. */
+.item--falta,
+.item--falta:has(> .item__fila:hover) {
+  border-color: var(--color-aviso);
+  box-shadow: inset 3px 0 0 var(--color-aviso);
+}
+
 .item__fila {
   display: flex;
   gap: var(--espacio-3);
@@ -930,7 +938,19 @@
 }
 
 .item__aporte--falta {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espacio-1);
+  margin-top: var(--espacio-1);
+  padding: var(--espacio-1) var(--espacio-2);
+  background: var(--color-aviso-suave);
+  border-radius: var(--radio-chico);
   color: var(--color-aviso);
+}
+
+.item__aporte--falta svg {
+  flex: none;
 }
 
 .item__descripcion {
@@ -967,16 +987,49 @@
   border-top: 0;
 }
 
+/* RF-46: el nombre y la invitación a abrir en una fila; debajo, cuántos ítems
+   tiene y cuántos están marcados. Las dos filas siempre, en cualquier ancho. */
 .subgrupo__resumen {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--espacio-1) var(--espacio-3);
   min-height: var(--alto-control);
   padding: var(--espacio-3) 0;
   cursor: pointer;
   list-style: none;
+}
+
+/* Línea del grupo que avisa que hay más ítems que los que se ven (RF-46). */
+.bloque__aviso-de-subgrupos {
+  margin-top: calc(-1 * var(--espacio-3));
+  color: var(--color-acento-fuerte);
+  font-weight: 600;
+}
+
+/* «Ver ítems» con forma de botón: el resumen es el control, esto lo hace notar. */
+.subgrupo__abrir {
+  grid-column: 2;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 var(--espacio-3);
+  border: 1px solid var(--color-acento);
+  border-radius: 999px;
+  color: var(--color-acento);
+  font-size: var(--texto-chico);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.subgrupo[open] .subgrupo__abrir {
+  border-color: var(--color-borde);
+  color: var(--color-texto-suave);
+}
+
+.subgrupo__resumen:hover .subgrupo__abrir {
+  background: var(--color-acento-suave);
 }
 
 .subgrupo__resumen::-webkit-details-marker {
@@ -1010,19 +1063,14 @@
   font-weight: 600;
 }
 
+/* La cuenta va abajo del nombre, alineada con su texto y no con la flecha. */
 .subgrupo__cuenta {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  padding-left: calc(0.5em + var(--espacio-2));
   font-size: var(--texto-chico);
   color: var(--color-texto-suave);
   font-variant-numeric: tabular-nums;
-}
-
-/* En el celular la cuenta va siempre abajo, alineada con el nombre: si no,
-   unos subgrupos la ponían al costado y otros abajo, según el largo del nombre. */
-@media (max-width: 39.99rem) {
-  .subgrupo__cuenta {
-    flex-basis: 100%;
-    padding-left: calc(0.5em + var(--espacio-2));
-  }
 }
 
 .subgrupo__items {
@@ -1154,11 +1202,23 @@
   font-variant-numeric: lining-nums tabular-nums;
 }
 
+/* RF-45: cuántos datos faltan, en el color de aviso (sobre la barra, 9,5:1). */
 .barra-del-total__monto--vacio {
   font-family: var(--fuente-base);
   font-size: var(--texto-base);
-  font-weight: 600;
-  color: var(--color-texto-suave);
+  font-weight: 650;
+  color: var(--color-aviso);
+}
+
+.barra-del-total__resultado {
+  display: grid;
+  min-width: 0;
+}
+
+.barra-del-total__falta {
+  font-size: var(--texto-chico);
+  font-weight: 650;
+  color: var(--color-aviso);
 }
 
 .barra-del-total--oculta {

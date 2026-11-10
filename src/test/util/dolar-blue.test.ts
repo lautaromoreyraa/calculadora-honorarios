@@ -1,9 +1,13 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { conDolarBlue, FUENTE_DEL_BLUE, hayQueActualizar, leerRespuesta } from '../../util/dolar-blue.ts';
+import { hayQueActualizar } from '../../util/cotizaciones.ts';
+import { conDolarBlue, FUENTE_DEL_BLUE, leerRespuesta } from '../../util/dolar-blue.ts';
+import { datos } from '../../util/datos/index.ts';
 
 // RF-29: la Action diaria actualiza el dólar blue sólo con un valor nuevo y razonable.
 
+// El rango es el de los datos: si alguien lo afloja, estos casos lo marcan.
+const rango = datos.parametros.rangosDeVariacion.dolar;
 const anterior = { valor: 1550, fecha: '2026-10-14', fuente: FUENTE_DEL_BLUE };
 
 describe('RF-29 · dólar blue diario', () => {
@@ -22,18 +26,18 @@ describe('RF-29 · dólar blue diario', () => {
   });
 
   it('actualiza si cambia el valor o el día, no si es lo mismo', () => {
-    expect(hayQueActualizar(anterior, { ...anterior, valor: 1565 })).toBe(true);
-    expect(hayQueActualizar(anterior, { ...anterior, fecha: '2026-10-15' })).toBe(true);
-    expect(hayQueActualizar(anterior, anterior)).toBe(false);
+    expect(hayQueActualizar('Dólar blue', anterior, { ...anterior, valor: 1565 }, rango)).toBe(true);
+    expect(hayQueActualizar('Dólar blue', anterior, { ...anterior, fecha: '2026-10-15' }, rango)).toBe(true);
+    expect(hayQueActualizar('Dólar blue', anterior, anterior, rango)).toBe(false);
   });
 
   it('no vuelve atrás a una cotización más vieja', () => {
-    expect(hayQueActualizar(anterior, { ...anterior, valor: 1500, fecha: '2026-10-13' })).toBe(false);
+    expect(hayQueActualizar('Dólar blue', anterior, { ...anterior, valor: 1500, fecha: '2026-10-13' }, rango)).toBe(false);
   });
 
   it('frena un valor absurdo en vez de publicarlo', () => {
-    expect(() => hayQueActualizar(anterior, { ...anterior, valor: 700 })).toThrow(/fuera de rango/);
-    expect(() => hayQueActualizar(anterior, { ...anterior, valor: 3200 })).toThrow(/fuera de rango/);
+    expect(() => hayQueActualizar('Dólar blue', anterior, { ...anterior, valor: 700 }, rango)).toThrow(/fuera de rango/);
+    expect(() => hayQueActualizar('Dólar blue', anterior, { ...anterior, valor: 3200 }, rango)).toThrow(/fuera de rango/);
   });
 
   it('cambia sólo el bloque dolarBlue de parametros.json, sin reformatear el resto', () => {

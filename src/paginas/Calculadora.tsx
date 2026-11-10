@@ -13,13 +13,15 @@ import { TituloDeSeccion } from '../componentes/TituloDeSeccion.tsx';
 import { useCalculadora } from '../hooks/useCalculadora.ts';
 import { Encabezado } from '../layout/Encabezado.tsx';
 import { PieDePagina } from '../layout/PieDePagina.tsx';
-import { necesitaCategoria } from '../util/calculo/index.ts';
+import { necesitaCategoria, valorBaseDelRol } from '../util/calculo/index.ts';
 import { datos } from '../util/datos/index.ts';
 import type { Item } from '../util/datos/tipos.ts';
 import { formatearPesos } from '../util/formato.ts';
+import { naftaDelNea } from '../util/nea.ts';
 import {
   camposDeItem,
   cuentaDelSubgrupo,
+  resumenDeSubgrupos,
   formatearFecha,
   idDeCampo,
   leerNumero,
@@ -61,8 +63,8 @@ export function Calculadora() {
   const idTituloResultado = useId();
 
   const rol = datos.roles.find((r) => r.id === estado.rolId)!;
-  const provincia = datos.provincias.find((p) => p.id === estado.provinciaId)!;
-  const nafta = datos.combustible.precios[provincia.id];
+  // RF-43: el litro más caro del NEA, el mismo que usa el cálculo.
+  const nafta = naftaDelNea(datos);
 
   const describirCampo = (campo: Campo): DescripcionDeCampo => {
     switch (campo) {
@@ -79,7 +81,7 @@ export function Calculadora() {
           etiqueta: 'Kilómetros a recorrer',
           unidad: 'km',
           ayuda: nafta
-            ? `Nafta súper en ${provincia.nombre}: ${formatearPesos(nafta.precio)} el litro, precio al ${formatearFecha(nafta.fecha)}.`
+            ? `Nafta súper: ${formatearPesos(nafta.precio)} el litro, el precio más alto del NEA (${nafta.provincia}) al ${formatearFecha(nafta.fecha)}.`
             : undefined,
         };
       case 'consumo':
@@ -124,7 +126,7 @@ export function Calculadora() {
     (document.getElementById(idAviso) ?? document.getElementById(`${idRol}-titulo`))?.focus();
   }, [vuelta, idAviso, idRol]);
 
-  const conCategoria = necesitaCategoria((id) => Boolean(estado.marcados[id]), estado.provinciaId, datos);
+  const conCategoria = necesitaCategoria((id) => Boolean(estado.marcados[id]), datos);
   const selectorDeCategoria = (
     <div className="campo campo--categoria">
       <label className="campo__etiqueta" htmlFor={idDeCampo('categoria')}>
@@ -214,9 +216,11 @@ export function Calculadora() {
                   {formato.desdePesosConCentavos(valorHoraDelRol(rol.id, datos))} la hora
                 </span>
                 <span className="ficha-del-rol__convenio">
-                  {formato.desdePesos(rol.valorBaseMensual)} por mes de convenio
+                  {formato.desdePesos(valorBaseDelRol(rol, datos).valorBaseMensual)} por mes de convenio
                 </span>
                 <span className="ficha-del-rol__convenio">{rol.convenio}</span>
+                {/* RF-35: de qué escala sale el valor y cuánto se le sumó, para poder justificarlo. */}
+                <span className="ficha-del-rol__convenio">{valorBaseDelRol(rol, datos).escala}</span>
               </p>
             </div>
 
@@ -240,26 +244,6 @@ export function Calculadora() {
                 error={errorDeNumero(estado.antiguedad, 'no-negativo')}
               />
             </div>
-
-            <fieldset className="opciones opciones--en-linea">
-              <legend className="opciones__titulo">Provincia</legend>
-              {datos.provincias.map((p, i) => (
-                <label key={p.id} className={`opcion${estado.provinciaId === p.id ? ' opcion--elegida' : ''}`}>
-                  <input
-                    id={i === 0 ? idDeCampo('provincia') : undefined}
-                    className="opcion__radio"
-                    type="radio"
-                    name="provincia"
-                    checked={estado.provinciaId === p.id}
-                    onChange={() => cambiar('provinciaId', p.id)}
-                  />
-                  <span className="opcion__texto">
-                    <span className="opcion__nombre">{p.nombre}</span>
-                  </span>
-                </label>
-              ))}
-            </fieldset>
-
           </section>
 
           {datos.grupos.map((grupo) => {
@@ -278,6 +262,12 @@ export function Calculadora() {
                 <TituloDeSeccion seccion={grupo.id} id={idTitulo}>
                   {grupo.nombre}
                 </TituloDeSeccion>
+                {/* RF-46: con los plegables cerrados, los costos se pasaban de largo. */}
+                {grupo.subgrupos && (
+                  <p className="bloque__aviso-de-subgrupos">
+                    {resumenDeSubgrupos(sueltos.filter((i) => i.subgrupo).length, grupo.subgrupos.length)}
+                  </p>
+                )}
                 {exclusiones.map((exclusion) => (
                   <OpcionesExcluyentes
                     key={exclusion.id}
@@ -294,14 +284,15 @@ export function Calculadora() {
                   />
                 ))}
                 {/* RF-27: un grupo con subgrupos se parte en plegables; los demás, como lista. */}
-                {grupo.subgrupos?.map((subgrupo) => {
+                {grupo.subgrupos?.map((subgrupo, posicion) => {
                   const delSubgrupo = sueltos.filter((i) => i.subgrupo === subgrupo.id);
                   return (
                     <SubgrupoPlegable
                       key={subgrupo.id}
                       nombre={subgrupo.nombre}
                       cuenta={cuentaDelSubgrupo(delSubgrupo, estado.marcados, aportes, formato)}
-                      abiertoAlInicio={delSubgrupo.some((i) => estado.marcados[i.id])}
+                      // RF-46: el primero abierto muestra que adentro hay ítems para marcar.
+                      abiertoAlInicio={posicion === 0 || delSubgrupo.some((i) => estado.marcados[i.id])}
                     >
                       {delSubgrupo.map(itemConCasilla)}
                     </SubgrupoPlegable>

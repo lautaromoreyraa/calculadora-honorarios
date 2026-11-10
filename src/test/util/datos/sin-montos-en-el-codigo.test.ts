@@ -15,11 +15,21 @@ function archivos(carpeta: string): string[] {
   });
 }
 
-/** Todos los números de un JSON, a cualquier profundidad. */
+// Lo que actualizan las Actions (índices, cotizaciones, nafta) no se copia a
+// mano al código, y cambia solo: un valor nuevo que coincidiera por azar con un
+// número del código haría fallar la corrida que lo publica.
+const ARCHIVOS_AUTOMATICOS = ['indices.json', 'combustible.json'];
+const CLAVES_AUTOMATICAS = new Set(['dolarBlue', 'dolarOficial']);
+
+/** Todos los números de un JSON, a cualquier profundidad, salvo los que actualizan las Actions. */
 function numeros(valor: unknown): number[] {
   if (typeof valor === 'number') return [valor];
   if (Array.isArray(valor)) return valor.flatMap(numeros);
-  if (valor && typeof valor === 'object') return Object.values(valor).flatMap(numeros);
+  if (valor && typeof valor === 'object') {
+    return Object.entries(valor)
+      .filter(([clave]) => !CLAVES_AUTOMATICAS.has(clave))
+      .flatMap(([, v]) => numeros(v));
+  }
   return [];
 }
 
@@ -28,7 +38,7 @@ describe('RF-17 · valores fuera del código', () => {
     // Desde 1.000: los números chicos (6 horas, 24 meses) son demasiado comunes
     // para buscarlos como texto sin falsos positivos.
     const montos = archivos(join(raiz, 'datos'))
-      .filter((a) => a.endsWith('.json') && !a.includes('esquema'))
+      .filter((a) => a.endsWith('.json') && !a.includes('esquema') && !ARCHIVOS_AUTOMATICOS.some((x) => a.endsWith(x)))
       .flatMap((a) => numeros(JSON.parse(readFileSync(a, 'utf8'))))
       .filter((n) => n >= 1000);
 

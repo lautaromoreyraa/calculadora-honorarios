@@ -2,11 +2,12 @@
 // Vive fuera de React para poder probarlo sin DOM: la pantalla sólo guarda este
 // estado y lo pasa por aSeleccion en cada cambio.
 import type { Datos, Item } from './datos/tipos.ts';
-import type { EntradaDeItem, Seleccion } from './calculo/tipos.ts';
-import { diasDeVacaciones, valorMensual } from './calculo/index.ts';
+import type { Calculo, EntradaDeItem, Seleccion } from './calculo/tipos.ts';
+import { diasDeVacaciones, valorBaseDelRol, valorMensual, valorPorJornada } from './calculo/index.ts';
 import { formatearNumero, formatearPesos, formatearPesosConCentavos, formatearPorcentaje } from './formato.ts';
 import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
 import { CONDICIONES_POR_DEFECTO } from './presupuesto/contenido.ts';
+import { ingresosBrutosDelNea, naftaDelNea } from './nea.ts';
 
 /** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
@@ -16,7 +17,6 @@ export type Vehiculo = 'auto' | 'moto';
 
 export interface EstadoDelFormulario {
   rolId: string;
-  provinciaId: string;
   categoria: string;
   /** Texto tal cual lo escribe el usuario: «1,5» o «1.5». */
   horas: string;
@@ -42,7 +42,6 @@ export interface EstadoDelFormulario {
 export function estadoInicial(datos: Datos): EstadoDelFormulario {
   return {
     rolId: datos.roles[0].id,
-    provinciaId: datos.provincias[0].id,
     categoria: datos.monotributo.categorias[0].letra,
     horas: '',
     antiguedad: '0',
@@ -148,7 +147,6 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
 
   return {
     rolId: estado.rolId,
-    provinciaId: estado.provinciaId,
     categoria: estado.categoria,
     horas: leerNumero(estado.horas),
     antiguedad: estado.antiguedad.trim() === '' ? 0 : leerNumero(estado.antiguedad),
@@ -159,12 +157,12 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
 /** Valor hora del rol (RN-01), para mostrarlo antes de que haya un cálculo completo. */
 export function valorHoraDelRol(rolId: string, datos: Datos): number {
   const rol = datos.roles.find((r) => r.id === rolId);
-  return rol ? rol.valorBaseMensual / datos.parametros.horasMensuales.valor : 0;
+  return rol ? valorBaseDelRol(rol, datos).valorBaseMensual / datos.parametros.horasMensuales.valor : 0;
 }
 
 /**
  * Cuánto vale un ítem, en una línea, para mostrarlo junto a su casilla. Los
- * calculados dependen de lo ya elegido (categoría, provincia, antigüedad): por
+ * calculados dependen de lo ya elegido (categoría, antigüedad): por
  * eso recibe el estado del formulario y no sólo el rol.
  */
 export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: Datos): string {
@@ -179,7 +177,7 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
       return item.multiplicaPor === 'antiguedad' ? `${mensual} por mes por año` : `${mensual} por mes`;
     }
     case 'por-jornada':
-      return `${formatearPesosConCentavos(item.valor)} por jornada de ${datos.parametros.horasPorJornada.valor} h`;
+      return `${formatearPesosConCentavos(valorPorJornada(item, datos))} por jornada de ${datos.parametros.horasPorJornada.valor} h`;
     case 'por-trabajo':
       return 'Una vez por trabajo';
     case 'calculado':
@@ -191,14 +189,8 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
             : 'Cuota de tu categoría, por mes';
         }
         case 'ingresos-brutos': {
-          const p = datos.provincias.find((x) => x.id === estado.provinciaId);
-          if (!p) return 'Según tu provincia';
-          const iibb = p.ingresosBrutos;
-          if (iibb.modo === 'alicuota') return `${p.nombre}: ${formatearPorcentaje(iibb.alicuota)} sobre el total facturado`;
-          const fijo = iibb.montos[estado.categoria];
-          return fijo === undefined
-            ? `${p.nombre}: monto fijo por categoría`
-            : `${p.nombre}: ${formatearPesos(fijo)} por mes en la categoría ${estado.categoria}`;
+          const iibb = ingresosBrutosDelNea(datos);
+          return iibb ? `${formatearPorcentaje(iibb.alicuota)} sobre el total facturado` : 'Sobre el total facturado';
         }
         case 'fondo-vacaciones': {
           const anios = leerNumero(estado.antiguedad);
@@ -210,7 +202,7 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
         case 'amortizacion':
           return `Precio del equipo en ${datos.parametros.vidaUtilDeEquiposEnMeses.valor} meses`;
         case 'movilidad': {
-          const nafta = datos.combustible.precios[estado.provinciaId];
+          const nafta = naftaDelNea(datos);
           return nafta ? `Nafta súper a ${formatearPesos(nafta.precio)} el litro` : 'Nafta para los kilómetros del trabajo';
         }
       }
@@ -224,9 +216,27 @@ export interface Aporte {
   falta?: boolean;
 }
 
+const cuantosItems = (n: number) => (n === 1 ? '1 ítem' : `${n} ítems`);
+
 /**
- * Lo que dice un subgrupo plegado (RF-27): cuántos ítems tiene marcados, cuánto
- * suman a este trabajo si hay un cálculo, y cuántos esperan un dato.
+ * Cuántos datos faltan, para decirlo donde se ve el total (RF-45): sin cálculo,
+ * los que lo impiden; con cálculo, los ítems marcados que todavía no suman.
+ * Cero si no falta nada.
+ */
+export function datosQueFaltan(calculo: Calculo): number {
+  return calculo.ok ? calculo.resultado.avisos.length : calculo.errores.length;
+}
+
+/** «Falta 1 dato» o «Faltan 3 datos» (RF-45). */
+export function textoDeLoQueFalta(cantidad: number): string {
+  return cantidad === 1 ? 'Falta 1 dato' : `Faltan ${cantidad} datos`;
+}
+
+/**
+ * Lo que dice un subgrupo plegado (RF-27, RF-46): cuántos ítems tiene, cuántos
+ * están marcados, cuánto suman a este trabajo si hay un cálculo y cuántos
+ * esperan un dato. Empieza por cuántos tiene porque «Ninguno marcado», solo,
+ * se leía como un grupo vacío y se pasaba de largo.
  */
 export function cuentaDelSubgrupo(
   items: Item[],
@@ -234,14 +244,24 @@ export function cuentaDelSubgrupo(
   aportes: ReadonlyMap<string, Aporte>,
   formato: Formato = EN_PESOS,
 ): string {
+  const total = cuantosItems(items.length);
   const elegidos = items.filter((i) => marcados[i.id]);
-  if (elegidos.length === 0) return 'Ninguno marcado';
+  if (elegidos.length === 0) return `${total} · ninguno marcado`;
   const cantidad = elegidos.length === 1 ? '1 marcado' : `${elegidos.length} marcados`;
   const del = elegidos.map((i) => aportes.get(i.id));
-  if (del.some((a) => a === undefined)) return cantidad;
-  const suma = del.reduce((total, a) => total + a!.monto, 0);
+  if (del.some((a) => a === undefined)) return `${total} · ${cantidad}`;
+  const suma = del.reduce((t, a) => t + a!.monto, 0);
   const sinCompletar = del.filter((a) => a!.falta).length;
-  return `${cantidad} · ${formato.monto(formato.redondear(suma))}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
+  return `${total} · ${cantidad} · ${formato.monto(formato.redondear(suma))}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
+}
+
+/**
+ * La línea debajo del título de un grupo con subgrupos (RF-46): avisa que hay
+ * más ítems de los que se ven, contados desde los datos.
+ */
+export function resumenDeSubgrupos(items: number, subgrupos: number): string {
+  const grupos = subgrupos === 1 ? '1 grupo' : `${subgrupos} grupos`;
+  return `${cuantosItems(items)} en ${grupos}: revisalos todos`;
 }
 
 const meses = [

@@ -1,10 +1,13 @@
 // Motor de cálculo: aplica las reglas de negocio del SRS (RN-01 a RN-15) a lo
 // que eligió el profesional. Funciones puras, sin React: todo lo que entra son
 // datos y una selección, y lo que sale es el desglose.
-import type { Datos, Dolares, Item, ItemCalculado, ItemMensual } from '../datos/tipos.ts';
+import type { Datos, Dolares, Item, ItemCalculado, ItemMensual, ItemPorJornada, Rol } from '../datos/tipos.ts';
 import { formatearNumero, formatearPorcentaje } from '../formato.ts';
 import { EN_PESOS, type Formato } from '../moneda.ts';
 import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
+import { factorDesde } from '../indices.ts';
+import { proyectarDesdeEscala, textoDeLaProyeccion } from '../proyeccion.ts';
+import { ingresosBrutosDelNea, naftaDelNea } from '../nea.ts';
 
 export type * from './tipos.ts';
 
@@ -41,7 +44,40 @@ export function valorMensual(item: ItemMensual, rolId: string, datos: Datos): nu
   const propio = item.porRol?.[rolId];
   const dolares = propio?.dolares ?? (propio?.valor === undefined ? item.dolares : undefined);
   if (dolares) return pesosDeDolares(dolares, datos.parametros.dolarOficial.valor);
-  return propio?.valor ?? item.valor ?? 0;
+  return (propio?.valor ?? item.valor ?? 0) * factorDeActualizacion(item, datos, rolId);
+}
+
+/** Monto por jornada de un ítem, con su actualización (RN-12). */
+export function valorPorJornada(item: ItemPorJornada, datos: Datos): number {
+  return item.valor * factorDeActualizacion(item, datos);
+}
+
+/** El valor base mensual del rol proyectado desde su escala (RF-35), con la explicación. */
+export function valorBaseDelRol(rol: Rol, datos: Datos): { valorBaseMensual: number; escala: string } {
+  const proyeccion = proyectarDesdeEscala(rol.escala.origen, datos.indices);
+  return {
+    valorBaseMensual: rol.valorBaseMensual * proyeccion.factor,
+    escala: textoDeLaProyeccion(proyeccion, rol.convenio),
+  };
+}
+
+/**
+ * Por cuánto se multiplica el monto cargado de un ítem (RN-12), siempre desde
+ * su origen, nunca encadenando meses:
+ * - un costo indexado (RF-20), por lo que se movió su serie del IPC Noreste;
+ * - un valor de convenio (RF-35), por la proyección desde su escala; si el rol
+ *   tiene una escala propia (la antigüedad del productor), por la de él.
+ * Los demás ítems no se tocan.
+ */
+export function factorDeActualizacion(item: Item, datos: Datos, rolId?: string): number {
+  const { regla, origen, serie } = item.actualizacion;
+  if (regla === 'escala') {
+    const propia = item.tipo === 'mensual' && rolId ? item.porRol?.[rolId]?.escala : undefined;
+    const desde = propia?.origen ?? origen;
+    return desde ? proyectarDesdeEscala(desde, datos.indices).factor : 1;
+  }
+  if (regla !== 'ipc-nea' || !origen || !serie) return 1;
+  return factorDesde(datos.indices.series[serie === 'general' ? 'ipc-nea-general' : 'ipc-nea-comunicacion'], origen);
 }
 
 /** Días de vacaciones de la LCT según la antigüedad (art. 150). */
@@ -56,28 +92,20 @@ function jornadas(horas: number, datos: Datos): number {
 }
 
 /**
- * Si algo de lo marcado usa la categoría de monotributo (RF-07): el ítem
- * «Monotributo», o ingresos brutos en una provincia de monto fijo por
- * categoría. Quien no es monotributista no marca ninguno y no se le pide.
+ * Si algo de lo marcado usa la categoría de monotributo (RF-07): sólo el ítem
+ * «Monotributo». Los ingresos brutos van sobre el total en todo el NEA (RF-43)
+ * y no la necesitan. Quien no es monotributista no lo marca y no se le pide.
  */
-export function necesitaCategoria(marcado: (itemId: string) => boolean, provinciaId: string, datos: Datos): boolean {
-  const provincia = datos.provincias.find((p) => p.id === provinciaId);
-  return datos.items.some(
-    (i) =>
-      i.tipo === 'calculado' &&
-      marcado(i.id) &&
-      (i.formula === 'monotributo' ||
-        (i.formula === 'ingresos-brutos' && provincia?.ingresosBrutos.modo === 'fijo-por-categoria')),
-  );
+export function necesitaCategoria(marcado: (itemId: string) => boolean, datos: Datos): boolean {
+  return datos.items.some((i) => i.tipo === 'calculado' && marcado(i.id) && i.formula === 'monotributo');
 }
 
 function validar(seleccion: Seleccion, datos: Datos): Falta[] {
   const errores: Falta[] = [];
   const falta = (campo: string, mensaje: string) => errores.push({ campo, mensaje });
   if (!datos.roles.some((r) => r.id === seleccion.rolId)) falta('rol', 'Elegí un rol.');
-  if (!datos.provincias.some((p) => p.id === seleccion.provinciaId)) falta('provincia', 'Elegí una provincia.');
   if (
-    necesitaCategoria((id) => id in seleccion.items, seleccion.provinciaId, datos) &&
+    necesitaCategoria((id) => id in seleccion.items, datos) &&
     !datos.monotributo.categorias.some((c) => c.letra === seleccion.categoria)
   ) {
     falta('categoria', 'Elegí una categoría de monotributo.');
@@ -110,8 +138,10 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
   const errores = validar(seleccion, datos);
   if (errores.length > 0) return { ok: false, errores };
 
-  const rol = datos.roles.find((r) => r.id === seleccion.rolId)!;
-  const provincia = datos.provincias.find((p) => p.id === seleccion.provinciaId)!;
+  const rolCargado = datos.roles.find((r) => r.id === seleccion.rolId)!;
+  // El valor de convenio llevado desde su escala hasta hoy (RF-35): de acá sale el valor hora.
+  const { valorBaseMensual, escala } = valorBaseDelRol(rolCargado, datos);
+  const rol = { ...rolCargado, valorBaseMensual };
   // Sólo está garantizada si algo la usa (validar): se lee dentro de esos casos.
   const categoria = datos.monotributo.categorias.find((c) => c.letra === seleccion.categoria);
   const { horas, antiguedad } = seleccion;
@@ -142,18 +172,14 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         return renglon(item, prorratear(cuota), `Categoría ${letra}: ${prorrateoTexto(cuota)}`);
       }
       case 'ingresos-brutos': {
-        const iibb = provincia.ingresosBrutos; // RN-07
-        if (iibb.modo === 'alicuota') {
-          ingresosBrutosSobreTotal = iibb.alicuota;
-          return undefined;
+        // RN-07, RF-43: la alícuota más alta del NEA, sobre el total; se aplica al final.
+        const iibb = ingresosBrutosDelNea(datos);
+        if (!iibb) {
+          avisos.push(`${item.nombre}: no hay alícuota cargada en los datos.`);
+          return faltante(renglon(item, 0, 'Falta la alícuota en los datos'));
         }
-        const { letra } = categoria!;
-        const fijo = iibb.montos[letra] ?? 0;
-        return renglon(
-          item,
-          prorratear(fijo),
-          `${provincia.nombre}, categoría ${letra}: ${prorrateoTexto(fijo)}`,
-        );
+        ingresosBrutosSobreTotal = iibb.alicuota;
+        return undefined;
       }
       case 'fondo-vacaciones': {
         const { divisorDelDia } = datos.parametros.vacaciones; // RN-05
@@ -179,11 +205,15 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         );
       }
       case 'movilidad': {
-        const nafta = datos.combustible.precios[provincia.id]; // RN-10
+        const nafta = naftaDelNea(datos); // RN-10, RF-43: la más cara del NEA
         const consumo = entrada.consumo ?? datos.parametros.consumoDelAutoCada100Km.valor;
         if (!entrada.km || entrada.km <= 0) {
           avisos.push(`${item.nombre}: faltan los kilómetros.`);
           return faltante(renglon(item, 0, 'Faltan los kilómetros'));
+        }
+        if (!nafta) {
+          avisos.push(`${item.nombre}: no hay precio de la nafta en los datos.`);
+          return faltante(renglon(item, 0, 'Falta el precio de la nafta en los datos'));
         }
         const litros = (entrada.km * consumo) / 100;
         return renglon(
@@ -226,8 +256,9 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
       }
       case 'por-jornada': {
         const n = jornadas(horas, datos);
+        const porJornada = valorPorJornada(item, datos);
         renglones.push(
-          renglon(item, item.valor * n, `${n} ${n === 1 ? 'jornada' : 'jornadas'} × ${formato.desdePesos(item.valor)}`),
+          renglon(item, porJornada * n, `${n} ${n === 1 ? 'jornada' : 'jornadas'} × ${formato.desdePesos(porJornada)}`),
         );
         break;
       }
@@ -253,7 +284,7 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
   let total = subtotal;
   let renglonDeIngresosBrutos: Renglon | undefined;
   if (ingresosBrutosSobreTotal !== undefined) {
-    // RN-07, Corrientes: el total se eleva para que, descontado el impuesto, quede el subtotal.
+    // RN-07, RF-43: el total se eleva para que, descontado el impuesto, quede el subtotal.
     // El subtotal ya está en la moneda que se muestra: no se vuelve a convertir.
     const bruto = formato.redondear(subtotal / (1 - ingresosBrutosSobreTotal));
     const item = datos.items.find((i) => i.id === 'ingresos-brutos')!;
@@ -261,7 +292,7 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
       ...renglon(
         item,
         0,
-        `${provincia.nombre}: ${formatearPorcentaje(ingresosBrutosSobreTotal)} sobre el total facturado`,
+        `${formatearPorcentaje(ingresosBrutosSobreTotal)} sobre el total facturado`,
       ),
       monto: formato.redondear(bruto - subtotal),
     };
@@ -276,6 +307,7 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         nombre: rol.nombre,
         convenio: rol.convenio,
         valorBaseMensual: rol.valorBaseMensual,
+        escala,
       },
       valorHora: valorHora / formato.factor,
       horas,

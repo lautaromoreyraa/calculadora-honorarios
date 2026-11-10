@@ -5,6 +5,7 @@
       "nombre": "Community manager",
       "valorBaseMensual": 882721,
       "convenio": "Redactor, CCT 541/08, escala FATPREN-ADIRA",
+      "escala": { "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -12,6 +13,7 @@
       "nombre": "Cronista de exteriores",
       "valorBaseMensual": 778142,
       "convenio": "Cronista, CCT 301/75, rama radio, SIPREBA",
+      "escala": { "origen": "2026-08", "fuente": "https://www.sipreba.org/paritarias/escala-salarial-prensa-radial/" },
       "vigencia": "2026-10"
     },
     {
@@ -19,6 +21,7 @@
       "nombre": "Creador/a de contenidos",
       "valorBaseMensual": 882721,
       "convenio": "Redactor, CCT 541/08, escala FATPREN-ADIRA",
+      "escala": { "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -26,6 +29,7 @@
       "nombre": "Conductor/a",
       "valorBaseMensual": 741844.23,
       "convenio": "Redactor locutor de prensa II, CCT 378/75",
+      "escala": { "origen": "2024-08", "fuente": "https://www.radioytelevision.ar/wp-content/uploads/2024/11/Escalas-Salariales-RNA.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -33,6 +37,7 @@
       "nombre": "Redactor/a digital",
       "valorBaseMensual": 882721,
       "convenio": "Redactor, CCT 541/08, escala FATPREN-ADIRA",
+      "escala": { "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -40,6 +45,7 @@
       "nombre": "Fotoperiodista",
       "valorBaseMensual": 882721,
       "convenio": "Redactor, CCT 541/08, escala FATPREN-ADIRA",
+      "escala": { "origen": "2026-09", "fuente": "https://fatpren.org.ar/wp-content/uploads/2026/08/ESCALA_FATPREN-ADIRA_CCT_541_AGO26.pdf" },
       "vigencia": "2026-10"
     },
     {
@@ -47,6 +53,7 @@
       "nombre": "Productor/a",
       "valorBaseMensual": 1261955.24,
       "convenio": "Productor GS 1, CCT 131/75, SATSAID",
+      "escala": { "origen": "2026-09", "fuente": "https://satsaid.com.ar/noticias/satsaid-firmo-un-nuevo-acuerdo-con-ata-y-capit/" },
       "vigencia": "2026-10"
     },
     {
@@ -54,6 +61,7 @@
       "nombre": "Editor/a de videos",
       "valorBaseMensual": 1123646.22,
       "convenio": "Operador técnico GS 3, CCT 131/75, SATSAID",
+      "escala": { "origen": "2026-09", "fuente": "https://satsaid.com.ar/noticias/satsaid-firmo-un-nuevo-acuerdo-con-ata-y-capit/" },
       "vigencia": "2026-10"
     }
   ]
