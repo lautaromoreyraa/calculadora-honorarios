@@ -987,16 +987,49 @@
   border-top: 0;
 }
 
+/* RF-46: el nombre y la invitación a abrir en una fila; debajo, cuántos ítems
+   tiene y cuántos están marcados. Las dos filas siempre, en cualquier ancho. */
 .subgrupo__resumen {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--espacio-1) var(--espacio-3);
   min-height: var(--alto-control);
   padding: var(--espacio-3) 0;
   cursor: pointer;
   list-style: none;
+}
+
+/* Línea del grupo que avisa que hay más ítems que los que se ven (RF-46). */
+.bloque__aviso-de-subgrupos {
+  margin-top: calc(-1 * var(--espacio-3));
+  color: var(--color-acento-fuerte);
+  font-weight: 600;
+}
+
+/* «Ver ítems» con forma de botón: el resumen es el control, esto lo hace notar. */
+.subgrupo__abrir {
+  grid-column: 2;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0 var(--espacio-3);
+  border: 1px solid var(--color-acento);
+  border-radius: 999px;
+  color: var(--color-acento);
+  font-size: var(--texto-chico);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.subgrupo[open] .subgrupo__abrir {
+  border-color: var(--color-borde);
+  color: var(--color-texto-suave);
+}
+
+.subgrupo__resumen:hover .subgrupo__abrir {
+  background: var(--color-acento-suave);
 }
 
 .subgrupo__resumen::-webkit-details-marker {
@@ -1030,19 +1063,14 @@
   font-weight: 600;
 }
 
+/* La cuenta va abajo del nombre, alineada con su texto y no con la flecha. */
 .subgrupo__cuenta {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  padding-left: calc(0.5em + var(--espacio-2));
   font-size: var(--texto-chico);
   color: var(--color-texto-suave);
   font-variant-numeric: tabular-nums;
-}
-
-/* En el celular la cuenta va siempre abajo, alineada con el nombre: si no,
-   unos subgrupos la ponían al costado y otros abajo, según el largo del nombre. */
-@media (max-width: 39.99rem) {
-  .subgrupo__cuenta {
-    flex-basis: 100%;
-    padding-left: calc(0.5em + var(--espacio-2));
-  }
 }
 
 .subgrupo__items {

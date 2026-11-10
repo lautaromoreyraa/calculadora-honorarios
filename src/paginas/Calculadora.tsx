@@ -21,6 +21,7 @@ import { naftaDelNea } from '../util/nea.ts';
 import {
   camposDeItem,
   cuentaDelSubgrupo,
+  resumenDeSubgrupos,
   formatearFecha,
   idDeCampo,
   leerNumero,
@@ -261,6 +262,12 @@ export function Calculadora() {
                 <TituloDeSeccion seccion={grupo.id} id={idTitulo}>
                   {grupo.nombre}
                 </TituloDeSeccion>
+                {/* RF-46: con los plegables cerrados, los costos se pasaban de largo. */}
+                {grupo.subgrupos && (
+                  <p className="bloque__aviso-de-subgrupos">
+                    {resumenDeSubgrupos(sueltos.filter((i) => i.subgrupo).length, grupo.subgrupos.length)}
+                  </p>
+                )}
                 {exclusiones.map((exclusion) => (
                   <OpcionesExcluyentes
                     key={exclusion.id}
@@ -277,14 +284,15 @@ export function Calculadora() {
                   />
                 ))}
                 {/* RF-27: un grupo con subgrupos se parte en plegables; los demás, como lista. */}
-                {grupo.subgrupos?.map((subgrupo) => {
+                {grupo.subgrupos?.map((subgrupo, posicion) => {
                   const delSubgrupo = sueltos.filter((i) => i.subgrupo === subgrupo.id);
                   return (
                     <SubgrupoPlegable
                       key={subgrupo.id}
                       nombre={subgrupo.nombre}
                       cuenta={cuentaDelSubgrupo(delSubgrupo, estado.marcados, aportes, formato)}
-                      abiertoAlInicio={delSubgrupo.some((i) => estado.marcados[i.id])}
+                      // RF-46: el primero abierto muestra que adentro hay ítems para marcar.
+                      abiertoAlInicio={posicion === 0 || delSubgrupo.some((i) => estado.marcados[i.id])}
                     >
                       {delSubgrupo.map(itemConCasilla)}
                     </SubgrupoPlegable>
