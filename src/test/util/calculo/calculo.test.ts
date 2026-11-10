@@ -116,12 +116,26 @@ describe('RF-06 · costos operativos mensuales', () => {
     expect(monto(resultado(seleccion({ horas: 9 }, { conectividad: {} })), 'conectividad')).toBe(1600);
   });
 
+  // La cotización se fija acá: la Action diaria (RF-21) cambia la de los datos y
+  // corre estos tests antes de publicar, así que no pueden depender de ella.
+  const conOficial = (valor: number): Datos => ({
+    ...datos,
+    parametros: { ...datos.parametros, dolarOficial: { ...datos.parametros.dolarOficial, valor } },
+  });
+
   it('licencias e IA salen del precio en dólares (RN-15)', () => {
-    const r = resultado(seleccion({ horas: 180 }, { licencias: {}, 'ia-y-redes': {} }));
+    const d = conOficial(1512.5);
+    const r = resultado(seleccion({ horas: 180 }, { licencias: {}, 'ia-y-redes': {} }), d);
     expect(monto(r, 'licencias')).toBe(52930);
     expect(monto(r, 'ia-y-redes')).toBe(30242);
-    const redactor = resultado(seleccion({ rolId: 'redactor-digital', horas: 180 }, { 'ia-y-redes': {} }));
+    const redactor = resultado(seleccion({ rolId: 'redactor-digital', horas: 180 }, { 'ia-y-redes': {} }), d);
     expect(monto(redactor, 'ia-y-redes')).toBe(15125);
+  });
+
+  it('RF-21 · la licencia se recalcula con la cotización oficial nueva', () => {
+    // Adobe CC Pro, USD 69,99 × 50 %: con $1.512,50 da $52.930; con el doble, el doble.
+    const r = resultado(seleccion({ horas: 180 }, { licencias: {} }), conOficial(3025));
+    expect(monto(r, 'licencias')).toBe(105860);
   });
 });
 
