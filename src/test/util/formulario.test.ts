@@ -11,6 +11,7 @@ import {
   cuentaDelSubgrupo,
   datosQueFaltan,
   textoDeLoQueFalta,
+  resumenDeSubgrupos,
   estadoInicial,
   formatearFecha,
   formatearVigencia,
@@ -188,27 +189,34 @@ describe('RF-45 · lo que falta se nota', () => {
   });
 });
 
-describe('RF-27 · cuenta de un subgrupo plegado', () => {
+describe('RF-27, RF-46 · cuenta de un subgrupo plegado', () => {
   const operativos = datos.items.filter((i) => i.subgrupo === 'conectividad-y-software');
 
-  it('sin nada marcado lo dice', () => {
-    expect(cuentaDelSubgrupo(operativos, {}, new Map())).toBe('Ninguno marcado');
+  it('sin nada marcado dice cuántos ítems tiene y que no hay ninguno marcado', () => {
+    expect(cuentaDelSubgrupo(operativos, {}, new Map())).toBe('4 ítems · ninguno marcado');
   });
 
   it('con dos marcados dice cuántos y cuánto suman', () => {
     const marcados = { conectividad: true, licencias: true };
     const aportes = new Map([['conectividad', { monto: 1600 }], ['licencias', { monto: 7400 }]]);
-    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(9000)}`);
+    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`4 ítems · 2 marcados · ${formatearPesos(9000)}`);
   });
 
   it('avisa cuántos esperan un dato', () => {
     const marcados = { conectividad: true, licencias: true };
     const aportes = new Map([['conectividad', { monto: 1600 }], ['licencias', { monto: 0, falta: true }]]);
-    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`2 marcados · ${formatearPesos(1600)} · 1 sin completar`);
+    expect(cuentaDelSubgrupo(operativos, marcados, aportes)).toBe(`4 ítems · 2 marcados · ${formatearPesos(1600)} · 1 sin completar`);
   });
 
   it('sin cálculo todavía, sólo la cantidad', () => {
-    expect(cuentaDelSubgrupo(operativos, { conectividad: true }, new Map())).toBe('1 marcado');
+    expect(cuentaDelSubgrupo(operativos, { conectividad: true }, new Map())).toBe('4 ítems · 1 marcado');
+  });
+
+  it('la línea del grupo cuenta los ítems y los subgrupos de los datos', () => {
+    const grupo = datos.grupos.find((g) => g.id === 'operativos')!;
+    const items = datos.items.filter((i) => i.grupo === 'operativos' && i.subgrupo);
+    expect(resumenDeSubgrupos(items.length, grupo.subgrupos!.length)).toBe('15 ítems en 3 grupos: revisalos todos');
+    expect(resumenDeSubgrupos(1, 1)).toBe('1 ítem en 1 grupo: revisalos todos');
   });
 });
 

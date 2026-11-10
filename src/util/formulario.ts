@@ -216,6 +216,8 @@ export interface Aporte {
   falta?: boolean;
 }
 
+const cuantosItems = (n: number) => (n === 1 ? '1 ítem' : `${n} ítems`);
+
 /**
  * Cuántos datos faltan, para decirlo donde se ve el total (RF-45): sin cálculo,
  * los que lo impiden; con cálculo, los ítems marcados que todavía no suman.
@@ -231,8 +233,10 @@ export function textoDeLoQueFalta(cantidad: number): string {
 }
 
 /**
- * Lo que dice un subgrupo plegado (RF-27): cuántos ítems tiene marcados, cuánto
- * suman a este trabajo si hay un cálculo, y cuántos esperan un dato.
+ * Lo que dice un subgrupo plegado (RF-27, RF-46): cuántos ítems tiene, cuántos
+ * están marcados, cuánto suman a este trabajo si hay un cálculo y cuántos
+ * esperan un dato. Empieza por cuántos tiene porque «Ninguno marcado», solo,
+ * se leía como un grupo vacío y se pasaba de largo.
  */
 export function cuentaDelSubgrupo(
   items: Item[],
@@ -240,14 +244,24 @@ export function cuentaDelSubgrupo(
   aportes: ReadonlyMap<string, Aporte>,
   formato: Formato = EN_PESOS,
 ): string {
+  const total = cuantosItems(items.length);
   const elegidos = items.filter((i) => marcados[i.id]);
-  if (elegidos.length === 0) return 'Ninguno marcado';
+  if (elegidos.length === 0) return `${total} · ninguno marcado`;
   const cantidad = elegidos.length === 1 ? '1 marcado' : `${elegidos.length} marcados`;
   const del = elegidos.map((i) => aportes.get(i.id));
-  if (del.some((a) => a === undefined)) return cantidad;
-  const suma = del.reduce((total, a) => total + a!.monto, 0);
+  if (del.some((a) => a === undefined)) return `${total} · ${cantidad}`;
+  const suma = del.reduce((t, a) => t + a!.monto, 0);
   const sinCompletar = del.filter((a) => a!.falta).length;
-  return `${cantidad} · ${formato.monto(formato.redondear(suma))}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
+  return `${total} · ${cantidad} · ${formato.monto(formato.redondear(suma))}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
+}
+
+/**
+ * La línea debajo del título de un grupo con subgrupos (RF-46): avisa que hay
+ * más ítems de los que se ven, contados desde los datos.
+ */
+export function resumenDeSubgrupos(items: number, subgrupos: number): string {
+  const grupos = subgrupos === 1 ? '1 grupo' : `${subgrupos} grupos`;
+  return `${cuantosItems(items)} en ${grupos}: revisalos todos`;
 }
 
 const meses = [
