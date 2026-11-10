@@ -12,7 +12,8 @@
     "vacaciones",
     "sueldoAnualComplementario",
     "dolarOficial",
-    "dolarBlue"
+    "dolarBlue",
+    "rangosDeVariacion"
   ],
   "additionalProperties": false,
   "properties": {
@@ -77,6 +78,18 @@
         }
       }
     },
+    "rangosDeVariacion": {
+      "description": "Cuánto puede moverse cada dato externo de una actualización a la siguiente (RF-23); fuera de eso la Action frena y no abre PR",
+      "type": "object",
+      "required": ["dolar", "ipc", "salarios", "combustible"],
+      "additionalProperties": false,
+      "properties": {
+        "dolar": { "$ref": "#/$defs/rango" },
+        "ipc": { "$ref": "#/$defs/rango" },
+        "salarios": { "$ref": "#/$defs/rango" },
+        "combustible": { "$ref": "#/$defs/rango" }
+      }
+    },
     "dolarOficial": {
       "type": "object",
       "required": ["valor", "fecha", "fuente"],
@@ -85,6 +98,18 @@
         "valor": { "$ref": "comun.schema.json#/$defs/pesos" },
         "fecha": { "$ref": "comun.schema.json#/$defs/fecha" },
         "fuente": { "$ref": "comun.schema.json#/$defs/texto" }
+      }
+    }
+  },
+  "$defs": {
+    "rango": {
+      "description": "Fracciones: subida 0,2 es hasta 20 % más; bajada 0,5 es hasta la mitad",
+      "type": "object",
+      "required": ["maximaSubida", "maximaBajada"],
+      "additionalProperties": false,
+      "properties": {
+        "maximaSubida": { "type": "number", "exclusiveMinimum": 0 },
+        "maximaBajada": { "type": "number", "exclusiveMinimum": 0, "maximum": 1 }
       }
     }
   }
