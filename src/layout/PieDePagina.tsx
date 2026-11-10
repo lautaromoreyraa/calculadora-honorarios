@@ -20,7 +20,7 @@ export function PieDePagina({ datos, vigencia }: Props) {
         <p>
           Valores vigentes a {formatearVigencia(vigencia)}. Dólar oficial de referencia:{' '}
           {formatearPesosConCentavos(dolarOficial.valor)} ({dolarOficial.fuente}, {formatearFecha(dolarOficial.fecha)}).
-          Nafta súper: mediana de las estaciones de cada provincia ({datos.combustible.fuente}). Para ver los montos en
+          Nafta súper: la mediana más alta entre las provincias del NEA ({datos.combustible.fuente}). Para ver los montos en
           dólares: {formatearPesos(dolarBlue.valor)} ({dolarBlue.fuente}, {formatearFecha(dolarBlue.fecha)}).
         </p>
         <div className="pie__monotributo">

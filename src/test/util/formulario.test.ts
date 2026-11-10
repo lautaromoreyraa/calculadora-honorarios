@@ -50,10 +50,9 @@ describe('leerNumero', () => {
 });
 
 describe('estadoInicial', () => {
-  it('arranca con el primer rol, provincia y categoría de los datos, sin horas ni opciones elegidas', () => {
+  it('arranca con el primer rol y categoría de los datos, sin horas ni opciones elegidas', () => {
     const e = estadoInicial(datos);
     expect(e.rolId).toBe(datos.roles[0].id);
-    expect(e.provinciaId).toBe(datos.provincias[0].id);
     expect(e.categoria).toBe(datos.monotributo.categorias[0].letra);
     expect(e.horas).toBe('');
     expect(Object.values(e.elegidos).every((v) => v === null)).toBe(true);
@@ -131,20 +130,15 @@ describe('resumenDelItem', () => {
     expect(resumenDelItem(item('refrigerio'), cm, datos)).toMatch(/por jornada de 6 h$/);
   });
 
-  it('los calculados reflejan la categoría, la provincia y la antigüedad elegidas', () => {
+  it('los calculados reflejan la categoría y la antigüedad elegidas, y el NEA', () => {
     expect(resumenDelItem(item('monotributo'), estado({ categoria: 'B' }), datos)).toMatch(/56\.379 por mes en la categoría B$/);
-    const chaco = datos.provincias.find((p) => p.id === 'chaco')!.ingresosBrutos;
-    const fijoA = chaco.modo === 'fijo-por-categoria' ? chaco.montos.A : 0;
-    expect(resumenDelItem(item('ingresos-brutos'), estado(), datos)).toBe(
-      `Chaco: ${formatearPesos(fijoA)} por mes en la categoría A`,
-    );
-    expect(resumenDelItem(item('ingresos-brutos'), estado({ provinciaId: 'corrientes' }), datos)).toBe(
-      'Corrientes: 3 % sobre el total facturado',
-    );
+    // RF-43: la categoría ya no cambia los ingresos brutos, y la nafta es la más cara.
+    for (const categoria of ['A', 'B']) {
+      expect(resumenDelItem(item('ingresos-brutos'), estado({ categoria }), datos)).toBe('3 % sobre el total facturado');
+    }
     expect(resumenDelItem(item('fondo-vacaciones'), estado({ antiguedad: '12' }), datos)).toMatch(/^28 días/);
-    expect(resumenDelItem(item('movilidad'), estado({ provinciaId: 'corrientes' }), datos)).toBe(
-      `Nafta súper a ${formatearPesos(datos.combustible.precios.corrientes.precio)} el litro`,
-    );
+    const masCara = Math.max(...Object.values(datos.combustible.precios).map((p) => p.precio));
+    expect(resumenDelItem(item('movilidad'), estado(), datos)).toBe(`Nafta súper a ${formatearPesos(masCara)} el litro`);
   });
 
   it('el valor hora del rol es el base mensual sobre las horas de referencia', () => {

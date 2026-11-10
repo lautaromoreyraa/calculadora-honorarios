@@ -26,7 +26,6 @@ function resultado(cambios: Partial<Seleccion> = {}): Resultado {
   const calculo = calcular(
     {
       rolId: 'productor',
-      provinciaId: 'chaco',
       categoria: 'A',
       horas: 12,
       antiguedad: 3,
@@ -130,8 +129,8 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain('Escala de septiembre de 2026 (CCT 131/75) + 0,0 % por salarios + 0,0 % por IPC NEA');
   });
 
-  it('con Corrientes el total ya incluye ingresos brutos y no se muestra el subtotal', async () => {
-    const r = resultado({ provinciaId: 'corrientes' });
+  it('con ingresos brutos el total ya los incluye y no se muestra el subtotal', async () => {
+    const r = resultado();
     expect(r.ingresosBrutosSobreTotal).toBeDefined();
     const texto = await textoDelWord(r, completo);
     expect(texto).toContain(formatearPesos(r.total));
@@ -165,18 +164,18 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain('50 % de anticipo');
   });
 
-  it('el renglón del trabajo: 10 h y $ 52.371 dan $ 5.237,10 por hora', async () => {
+  it('el renglón del trabajo: 10 h y $ 53.394 dan $ 5.339,40 por hora', async () => {
     const r = resultado({
       rolId: 'cm',
       horas: 10,
       antiguedad: 0,
       items: { 'cliente-a': {}, monotributo: {}, 'ingresos-brutos': {} },
     });
-    expect(r.total).toBe(52371);
+    expect(r.total).toBe(53394);
     const texto = await textoDelWord(r, completo);
     expect(texto).toContain('Valor por hora');
     expect(texto).toContain('10 h');
-    expect(texto).toContain(formatearPesosConCentavos(5237.1));
+    expect(texto).toContain(formatearPesosConCentavos(5339.4));
   });
 
   it('con el monotributo dice «Factura C»; sin él no menciona el IVA', async () => {
@@ -230,7 +229,7 @@ describe('RF-16 · presupuesto en Word', () => {
   it('RF-28 · en dólares el total sale en dólares y dice la cotización y su fecha', async () => {
     const cotizacion = { valor: 1550, fecha: '2026-10-14', fuente: 'dolarapi.com, dólar blue (venta)' };
     const c = calcular(
-      { rolId: 'productor', provinciaId: 'chaco', categoria: 'A', horas: 12, antiguedad: 3, items: { 'cliente-d': {} } },
+      { rolId: 'productor', categoria: 'A', horas: 12, antiguedad: 3, items: { 'cliente-d': {} } },
       datos,
       enDolares(cotizacion),
     );

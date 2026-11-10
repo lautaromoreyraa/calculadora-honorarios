@@ -17,10 +17,11 @@ const VERSION = 1;
  */
 const CAMPOS_QUE_SE_RECUERDAN: Campo[] = ['precio', 'consumo'];
 
+// Los perfiles guardados antes de RF-43 traen `provinciaId`: se ignora sin
+// cambiar de versión, para no olvidar el resto de lo recordado.
 export interface Perfil {
   version: number;
   rolId: string;
-  provinciaId: string;
   categoria: string;
   antiguedad: string;
   marcados: Record<string, boolean>;
@@ -48,7 +49,6 @@ export function perfilDe(estado: EstadoDelFormulario): Perfil {
   return {
     version: VERSION,
     rolId: estado.rolId,
-    provinciaId: estado.provinciaId,
     categoria: estado.categoria,
     antiguedad: estado.antiguedad,
     marcados: Object.fromEntries(Object.entries(estado.marcados).filter(([, m]) => m)),
@@ -93,7 +93,6 @@ export function restaurar(guardado: unknown, datos: Datos): EstadoDelFormulario 
   return {
     ...inicial,
     rolId: datos.roles.some((r) => r.id === p.rolId) ? p.rolId! : inicial.rolId,
-    provinciaId: datos.provincias.some((x) => x.id === p.provinciaId) ? p.provinciaId! : inicial.provinciaId,
     categoria: datos.monotributo.categorias.some((c) => c.letra === p.categoria) ? p.categoria! : inicial.categoria,
     antiguedad: esTexto(p.antiguedad) ? p.antiguedad : inicial.antiguedad,
     marcados,

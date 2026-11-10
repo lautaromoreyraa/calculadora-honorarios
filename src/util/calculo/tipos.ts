@@ -17,7 +17,6 @@ export interface EntradaDeItem {
 
 export interface Seleccion {
   rolId: string;
-  provinciaId: string;
   /** Letra de la categoría de monotributo; sólo cuenta si algo la usa (RF-07). */
   categoria: string;
   /** Horas del trabajo; hasta dos decimales. */
@@ -56,7 +55,7 @@ export interface Resultado {
   renglones: Renglon[];
   /** Suma de los renglones antes de ingresos brutos sobre lo facturado. */
   subtotal: number;
-  /** Ingresos brutos sobre el total facturado (Corrientes), si se marcó. */
+  /** Ingresos brutos sobre el total facturado, con la alícuota del NEA (RF-43), si se marcó. */
   ingresosBrutosSobreTotal?: Renglon;
   total: number;
   /** Ítems marcados a los que les falta un dato: suman cero. */
@@ -69,7 +68,7 @@ export interface Resultado {
 
 /**
  * Un dato que falta para calcular. `campo` dice cuál, para que la pantalla
- * lleve a él: `rol`, `provincia`, `categoria`, `horas`, `antiguedad` o el id
+ * lleve a él: `rol`, `categoria`, `horas`, `antiguedad` o el id
  * de un conjunto excluyente.
  */
 export interface Falta {

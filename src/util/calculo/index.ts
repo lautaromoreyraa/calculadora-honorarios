@@ -7,6 +7,7 @@ import { EN_PESOS, type Formato } from '../moneda.ts';
 import type { Calculo, Falta, Renglon, Seleccion } from './tipos.ts';
 import { factorDesde } from '../indices.ts';
 import { proyectarDesdeEscala, textoDeLaProyeccion } from '../proyeccion.ts';
+import { ingresosBrutosDelNea, naftaDelNea } from '../nea.ts';
 
 export type * from './tipos.ts';
 
@@ -91,28 +92,20 @@ function jornadas(horas: number, datos: Datos): number {
 }
 
 /**
- * Si algo de lo marcado usa la categoría de monotributo (RF-07): el ítem
- * «Monotributo», o ingresos brutos en una provincia de monto fijo por
- * categoría. Quien no es monotributista no marca ninguno y no se le pide.
+ * Si algo de lo marcado usa la categoría de monotributo (RF-07): sólo el ítem
+ * «Monotributo». Los ingresos brutos van sobre el total en todo el NEA (RF-43)
+ * y no la necesitan. Quien no es monotributista no lo marca y no se le pide.
  */
-export function necesitaCategoria(marcado: (itemId: string) => boolean, provinciaId: string, datos: Datos): boolean {
-  const provincia = datos.provincias.find((p) => p.id === provinciaId);
-  return datos.items.some(
-    (i) =>
-      i.tipo === 'calculado' &&
-      marcado(i.id) &&
-      (i.formula === 'monotributo' ||
-        (i.formula === 'ingresos-brutos' && provincia?.ingresosBrutos.modo === 'fijo-por-categoria')),
-  );
+export function necesitaCategoria(marcado: (itemId: string) => boolean, datos: Datos): boolean {
+  return datos.items.some((i) => i.tipo === 'calculado' && marcado(i.id) && i.formula === 'monotributo');
 }
 
 function validar(seleccion: Seleccion, datos: Datos): Falta[] {
   const errores: Falta[] = [];
   const falta = (campo: string, mensaje: string) => errores.push({ campo, mensaje });
   if (!datos.roles.some((r) => r.id === seleccion.rolId)) falta('rol', 'Elegí un rol.');
-  if (!datos.provincias.some((p) => p.id === seleccion.provinciaId)) falta('provincia', 'Elegí una provincia.');
   if (
-    necesitaCategoria((id) => id in seleccion.items, seleccion.provinciaId, datos) &&
+    necesitaCategoria((id) => id in seleccion.items, datos) &&
     !datos.monotributo.categorias.some((c) => c.letra === seleccion.categoria)
   ) {
     falta('categoria', 'Elegí una categoría de monotributo.');
@@ -149,7 +142,6 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
   // El valor de convenio llevado desde su escala hasta hoy (RF-35): de acá sale el valor hora.
   const { valorBaseMensual, escala } = valorBaseDelRol(rolCargado, datos);
   const rol = { ...rolCargado, valorBaseMensual };
-  const provincia = datos.provincias.find((p) => p.id === seleccion.provinciaId)!;
   // Sólo está garantizada si algo la usa (validar): se lee dentro de esos casos.
   const categoria = datos.monotributo.categorias.find((c) => c.letra === seleccion.categoria);
   const { horas, antiguedad } = seleccion;
@@ -180,18 +172,14 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         return renglon(item, prorratear(cuota), `Categoría ${letra}: ${prorrateoTexto(cuota)}`);
       }
       case 'ingresos-brutos': {
-        const iibb = provincia.ingresosBrutos; // RN-07
-        if (iibb.modo === 'alicuota') {
-          ingresosBrutosSobreTotal = iibb.alicuota;
-          return undefined;
+        // RN-07, RF-43: la alícuota más alta del NEA, sobre el total; se aplica al final.
+        const iibb = ingresosBrutosDelNea(datos);
+        if (!iibb) {
+          avisos.push(`${item.nombre}: no hay alícuota cargada en los datos.`);
+          return faltante(renglon(item, 0, 'Falta la alícuota en los datos'));
         }
-        const { letra } = categoria!;
-        const fijo = iibb.montos[letra] ?? 0;
-        return renglon(
-          item,
-          prorratear(fijo),
-          `${provincia.nombre}, categoría ${letra}: ${prorrateoTexto(fijo)}`,
-        );
+        ingresosBrutosSobreTotal = iibb.alicuota;
+        return undefined;
       }
       case 'fondo-vacaciones': {
         const { divisorDelDia } = datos.parametros.vacaciones; // RN-05
@@ -217,11 +205,15 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         );
       }
       case 'movilidad': {
-        const nafta = datos.combustible.precios[provincia.id]; // RN-10
+        const nafta = naftaDelNea(datos); // RN-10, RF-43: la más cara del NEA
         const consumo = entrada.consumo ?? datos.parametros.consumoDelAutoCada100Km.valor;
         if (!entrada.km || entrada.km <= 0) {
           avisos.push(`${item.nombre}: faltan los kilómetros.`);
           return faltante(renglon(item, 0, 'Faltan los kilómetros'));
+        }
+        if (!nafta) {
+          avisos.push(`${item.nombre}: no hay precio de la nafta en los datos.`);
+          return faltante(renglon(item, 0, 'Falta el precio de la nafta en los datos'));
         }
         const litros = (entrada.km * consumo) / 100;
         return renglon(
@@ -292,7 +284,7 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
   let total = subtotal;
   let renglonDeIngresosBrutos: Renglon | undefined;
   if (ingresosBrutosSobreTotal !== undefined) {
-    // RN-07, Corrientes: el total se eleva para que, descontado el impuesto, quede el subtotal.
+    // RN-07, RF-43: el total se eleva para que, descontado el impuesto, quede el subtotal.
     // El subtotal ya está en la moneda que se muestra: no se vuelve a convertir.
     const bruto = formato.redondear(subtotal / (1 - ingresosBrutosSobreTotal));
     const item = datos.items.find((i) => i.id === 'ingresos-brutos')!;
@@ -300,7 +292,7 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
       ...renglon(
         item,
         0,
-        `${provincia.nombre}: ${formatearPorcentaje(ingresosBrutosSobreTotal)} sobre el total facturado`,
+        `${formatearPorcentaje(ingresosBrutosSobreTotal)} sobre el total facturado`,
       ),
       monto: formato.redondear(bruto - subtotal),
     };
