@@ -1,3 +1,4 @@
+import { TriangleAlert } from 'lucide-react';
 import { useFormato } from '../contexto/Moneda.tsx';
 import type { Aporte as DatosDelAporte } from '../util/formulario.ts';
 
@@ -8,8 +9,9 @@ interface Props {
 
 /**
  * Cuánto suma un ítem marcado a este trabajo. Si suma cero porque falta un
- * dato, lo dice; si vale cero de por sí (cliente A), no dice nada: «Suma $ 0»
- * se leía como un error del cálculo.
+ * dato, lo dice con el color y el ícono de aviso (RF-45): en gris se leía como
+ * un texto más y nadie lo completaba. Si vale cero de por sí (cliente A), no
+ * dice nada: «Suma $ 0» se leía como un error del cálculo.
  */
 export function Aporte({ id, aporte }: Props) {
   const formato = useFormato();
@@ -17,6 +19,7 @@ export function Aporte({ id, aporte }: Props) {
   if (aporte.falta) {
     return (
       <span className="item__aporte item__aporte--falta" id={id}>
+        <TriangleAlert size={16} strokeWidth={2} aria-hidden="true" />
         Falta un dato: todavía no suma
       </span>
     );

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Calculo } from '../util/calculo/tipos.ts';
 import { useFormato } from '../contexto/Moneda.tsx';
+import { datosQueFaltan, textoDeLoQueFalta } from '../util/formulario.ts';
 
 interface Props {
   calculo: Calculo;
@@ -14,6 +15,7 @@ const QUE_MUESTRAN_EL_TOTAL = ['resultado', 'presupuesto'];
 // los lectores de pantalla: eso lo hace el total del desglose.
 export function BarraDelTotal({ calculo }: Props) {
   const formato = useFormato();
+  const faltan = datosQueFaltan(calculo);
   const barra = useRef<HTMLDivElement>(null);
   const [totalALaVista, setTotalALaVista] = useState(false);
 
@@ -58,13 +60,17 @@ export function BarraDelTotal({ calculo }: Props) {
       className={`barra-del-total${totalALaVista ? ' barra-del-total--oculta' : ''}`}
       aria-hidden={totalALaVista || undefined}
     >
+      {/* RF-45: cuántos datos faltan, en el color de aviso; con total, debajo de él. */}
       {calculo.ok ? (
-        <span className="barra-del-total__monto">{formato.monto(calculo.resultado.total)}</span>
+        <span className="barra-del-total__resultado">
+          <span className="barra-del-total__monto">{formato.monto(calculo.resultado.total)}</span>
+          {faltan > 0 && <span className="barra-del-total__falta">{textoDeLoQueFalta(faltan)}</span>}
+        </span>
       ) : (
-        <span className="barra-del-total__monto barra-del-total__monto--vacio">Faltan datos</span>
+        <span className="barra-del-total__monto barra-del-total__monto--vacio">{textoDeLoQueFalta(faltan)}</span>
       )}
       <a className="barra-del-total__enlace" href="#resultado" tabIndex={totalALaVista ? -1 : undefined}>
-        {calculo.ok ? 'Ver desglose' : 'Ver qué falta'}
+        {calculo.ok && faltan === 0 ? 'Ver desglose' : 'Ver qué falta'}
       </a>
     </div>
   );
