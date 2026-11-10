@@ -150,4 +150,10 @@ describe('datos', () => {
       if (item.norma) expect(item.norma, item.id).not.toMatch(criterios);
     }
   });
+
+  it('RF-44 · la cesión de derechos dice que es para fotografías y redacción digital', () => {
+    const cesion = datos.items.find((i) => i.id === 'cesion-de-derechos');
+    expect(cesion?.descripcion).toMatch(/fotografías y redacción digital/);
+    expect(cesion?.tipo === 'porcentual' && cesion.porcentaje).toBe(0.4);
+  });
 });

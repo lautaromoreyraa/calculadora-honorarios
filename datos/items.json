@@ -320,6 +320,7 @@
     {
       "id": "cesion-de-derechos",
       "nombre": "Cesión de derecho de uso",
+      "descripcion": "Para fotografías y redacción digital: el permiso para que quien contrata publique o reutilice la obra",
       "grupo": "contenidos",
       "tipo": "porcentual",
       "porcentaje": 0.4,
