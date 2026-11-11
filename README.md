@@ -91,5 +91,6 @@ Tests also check that every cross-reference between data files resolves and that
 | **Verification** | Runs on every pull request: data validation, lint, type-check, tests and build |
 | **Publish** | On every merge to `main`: repeats the verification, builds and deploys to Cloudflare Pages with `wrangler` |
 | **Daily USD rate** | Fetches the day's rate; if it changed, verifies the change, opens a pull request that touches only that value, merges it and publishes. A value below half or above double the previous one stops the run without changing anything |
+| **Weekly fuel price** | Every Monday, takes the median daytime price of regular gasoline per province from the Energy Secretariat's pump-price dataset; if it changed, verifies the change, opens a pull request that touches only `combustible.json`, merges it and publishes. A move beyond ±30 % stops the run |
 
 Security headers served by Cloudflare are defined in `public/_headers`.

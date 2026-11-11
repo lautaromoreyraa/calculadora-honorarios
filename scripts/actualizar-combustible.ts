@@ -5,8 +5,8 @@
 //
 // Una provincia con menos de 5 estaciones conserva su precio anterior. Un
 // salto fuera del rango de RF-23 o un CSV con otra forma frenan la corrida:
-// no se escribe nada y queda en rojo. El PR no se mergea solo: el CSV llega
-// por http y lo revisa una persona (ver combustible.yml).
+// no se escribe nada y queda en rojo. Si pasa, el workflow mergea el PR solo,
+// como las cotizaciones (ver combustible.yml).
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { validarVariacion } from '../src/util/actualizacion/validacion.ts';
 import { tablaDeCambios, type Cambio } from '../src/util/actualizacion/cambios.ts';
