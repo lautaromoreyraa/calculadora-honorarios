@@ -39,14 +39,21 @@ const pedir = async (url: string) => {
   // Tope de 2 MB: las regex corren sobre HTML de terceros, y una página enorme o rota no puede trabar la corrida.
   return (await r.text()).slice(0, 2_000_000);
 };
+/** El sitio no contestó: conexión rechazada o cortada, demora, o un error 5xx del servidor. */
+const sinRespuesta = (error: unknown) =>
+  error instanceof Error && (/fetch failed|aborted|timeout/i.test(error.message) || / respondió 5\d\d\.$/.test(error.message));
 const anotar = (fuente: string, error: unknown) => {
   const mensaje = `${fuente}: ${String(error instanceof Error ? error.message : error).replace(/\s+/g, ' ')}`;
   errores.push(mensaje);
   console.error(`::warning::${mensaje}`);
 };
 
-// Boletín Oficial: la primera sección de los últimos 7 días.
-for (let atras = 0; atras < 7; atras++) {
+// Boletín Oficial: la primera sección de los últimos 7 días. El sitio no atiende
+// a los servidores de GitHub ni de Cloudflare (RF-48): si no responde, se avisa
+// una vez, se sigue con los sindicatos y la corrida no queda en rojo por eso.
+// Una respuesta con error (un 4xx, una página que cambió) sí cuenta como error.
+let boletinSinRespuesta = false;
+for (let atras = 0; atras < 7 && !boletinSinRespuesta; atras++) {
   const dia = new Date(Date.now() - atras * 86_400_000)
     .toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' })
     .replaceAll('-', '');
@@ -59,7 +66,12 @@ for (let atras = 0; atras < 7; atras++) {
       }
     }
   } catch (error) {
-    anotar(`Boletín Oficial del ${dia}`, error);
+    if (sinRespuesta(error)) {
+      boletinSinRespuesta = true;
+      console.log(`::warning::El Boletín Oficial no respondió (${(error as Error).message}); esta semana se miran sólo los sindicatos.`);
+    } else {
+      anotar(`Boletín Oficial del ${dia}`, error);
+    }
   }
 }
 
