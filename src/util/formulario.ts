@@ -12,8 +12,11 @@ import { ingresosBrutosDelNea, naftaDelNea } from './nea.ts';
 /** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
 
-/** Con qué se hace la movilidad (RN-10): decide el consumo por defecto. */
-export type Vehiculo = 'auto' | 'moto';
+/**
+ * Con qué se hace la movilidad: auto o moto deciden el consumo por defecto
+ * (RN-10); el transporte privado pide el monto del viaje (RF-47).
+ */
+export type Vehiculo = 'auto' | 'moto' | 'privado';
 
 export interface EstadoDelFormulario {
   rolId: string;
@@ -74,6 +77,8 @@ function consumoDe(vehiculo: Vehiculo, datos: Datos): number {
  * (RF-13). Pisa el consumo escrito: el de un auto no sirve para una moto.
  */
 export function conVehiculo(estado: EstadoDelFormulario, vehiculo: Vehiculo, datos: Datos): EstadoDelFormulario {
+  // El transporte privado no usa consumo: se deja el que había para cuando vuelva al auto o la moto.
+  if (vehiculo === 'privado') return { ...estado, vehiculo };
   const consumo = formatearNumero(consumoDe(vehiculo, datos));
   const entradas = { ...estado.entradas };
   for (const item of datos.items.filter((i) => camposDeItem(i).includes('consumo'))) {
@@ -117,11 +122,19 @@ export function leerNumero(texto: string | undefined): number {
  */
 export const idDeCampo = (campo: string) => `campo-${campo}`;
 
-/** Qué datos pide un ítem cuando se lo marca. */
-export function camposDeItem(item: Item): Campo[] {
+/** El ítem de movilidad: el único que cambia lo que pide según el vehículo. */
+export function esMovilidad(item: Item): boolean {
+  return item.tipo === 'calculado' && item.formula === 'movilidad';
+}
+
+/**
+ * Qué datos pide un ítem cuando se lo marca. La movilidad pide kilómetros y
+ * consumo con auto o moto, y el monto del viaje con transporte privado (RF-47).
+ */
+export function camposDeItem(item: Item, vehiculo: Vehiculo = 'auto'): Campo[] {
   if (item.tipo === 'por-trabajo') return ['monto'];
   if (item.tipo === 'calculado' && item.formula === 'amortizacion') return ['precio'];
-  if (item.tipo === 'calculado' && item.formula === 'movilidad') return ['km', 'consumo'];
+  if (esMovilidad(item)) return vehiculo === 'privado' ? ['monto'] : ['km', 'consumo'];
   return [];
 }
 
@@ -137,7 +150,7 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
         : estado.marcados[item.id];
     if (!marcado) continue;
     const entrada: EntradaDeItem = {};
-    for (const campo of camposDeItem(item)) {
+    for (const campo of camposDeItem(item, estado.vehiculo)) {
       const valor = leerNumero(estado.entradas[item.id]?.[campo]);
       // Un dato vacío no se manda: el motor avisa que falta (o usa su valor por defecto).
       if (!Number.isNaN(valor)) entrada[campo] = valor;
@@ -147,6 +160,7 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
 
   return {
     rolId: estado.rolId,
+    ...(estado.vehiculo === 'privado' ? { transportePrivado: true } : {}),
     categoria: estado.categoria,
     horas: leerNumero(estado.horas),
     antiguedad: estado.antiguedad.trim() === '' ? 0 : leerNumero(estado.antiguedad),
@@ -202,6 +216,7 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
         case 'amortizacion':
           return `Precio del equipo en ${datos.parametros.vidaUtilDeEquiposEnMeses.valor} meses`;
         case 'movilidad': {
+          if (estado.vehiculo === 'privado') return 'Lo que salió el viaje en Uber, remis o taxi';
           const nafta = naftaDelNea(datos);
           return nafta ? `Nafta súper a ${formatearPesos(nafta.precio)} el litro` : 'Nafta para los kilómetros del trabajo';
         }

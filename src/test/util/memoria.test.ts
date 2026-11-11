@@ -93,6 +93,12 @@ describe('RF-26 · recordar los datos del profesional', () => {
     expect(e).not.toHaveProperty('provinciaId');
   });
 
+  it('RF-47 · recuerda el transporte privado, pero no el monto del viaje', () => {
+    const e = recargar({ ...lleno(), vehiculo: 'privado', entradas: { ...lleno().entradas, movilidad: { monto: '8.500', consumo: '7,5' } } });
+    expect(e.vehiculo).toBe('privado');
+    expect(e.entradas.movilidad?.monto).toBeUndefined();
+  });
+
   it('olvidar deja todo como en la primera visita', () => {
     const a = almacen();
     guardarPerfil(a, perfilDe(lleno()));

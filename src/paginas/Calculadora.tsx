@@ -21,6 +21,7 @@ import { naftaDelNea } from '../util/nea.ts';
 import {
   camposDeItem,
   cuentaDelSubgrupo,
+  esMovilidad,
   resumenDeSubgrupos,
   formatearFecha,
   idDeCampo,
@@ -66,7 +67,7 @@ export function Calculadora() {
   // RF-43: el litro más caro del NEA, el mismo que usa el cálculo.
   const nafta = naftaDelNea(datos);
 
-  const describirCampo = (campo: Campo): DescripcionDeCampo => {
+  const describirCampo = (campo: Campo, item: Item): DescripcionDeCampo => {
     switch (campo) {
       case 'precio':
         return {
@@ -75,7 +76,10 @@ export function Calculadora() {
           ayuda: `Se reparte en ${datos.parametros.vidaUtilDeEquiposEnMeses.valor} meses de uso.`,
         };
       case 'monto':
-        return { etiqueta: 'Monto', prefijo: '$' };
+        // RF-47: en la movilidad, el monto es lo que salió el viaje.
+        return esMovilidad(item)
+          ? { etiqueta: 'Monto del viaje', prefijo: '$', ayuda: 'Uber, remis o taxi: lo que salió el viaje, ida y vuelta.' }
+          : { etiqueta: 'Monto', prefijo: '$' };
       case 'km':
         return {
           etiqueta: 'Kilómetros a recorrer',
@@ -162,12 +166,12 @@ export function Calculadora() {
       marcado={Boolean(estado.marcados[item.id])}
       aporte={estado.marcados[item.id] ? aportes.get(item.id) : undefined}
       alAlternar={(m) => alternar(item.id, m)}
-      campos={camposDeItem(item)}
-      describirCampo={describirCampo}
+      campos={camposDeItem(item, estado.vehiculo)}
+      describirCampo={(campo) => describirCampo(campo, item)}
       entradas={estado.entradas[item.id] ?? {}}
       alCargar={(campo, v) => cargar(item.id, campo, v)}
       antesDeLosCampos={
-        camposDeItem(item).includes('consumo') ? (
+        esMovilidad(item) ? (
           <SelectorDeVehiculo valor={estado.vehiculo} alElegir={elegirVehiculo} />
         ) : undefined
       }

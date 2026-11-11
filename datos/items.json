@@ -264,7 +264,7 @@
     {
       "id": "movilidad",
       "nombre": "Movilidad",
-      "descripcion": "Combustible para los kilómetros del trabajo, con el litro de nafta súper más caro del NEA",
+      "descripcion": "En auto o moto, la nafta de los kilómetros del trabajo al precio más caro del NEA; en Uber, remis o taxi, lo que salió el viaje",
       "grupo": "operativos",
       "subgrupo": "salidas",
       "tipo": "calculado",
