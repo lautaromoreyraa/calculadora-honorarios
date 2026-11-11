@@ -2,13 +2,13 @@
 # los últimos 60 días en el dataset «Precios en surtidor» de la Secretaría de
 # Energía (RN-10). Corre una vez por semana; si cambió el precio o la cantidad
 # de estaciones de alguna provincia, abre un PR a main que toca sólo
-# datos/combustible.json, con la tabla de valores. Una provincia con menos de 5
+# datos/combustible.json, con la tabla de valores, lo mergea y publica, como
+# las cotizaciones y los índices (RF-23). Una provincia con menos de 5
 # estaciones conserva su precio anterior.
 #
-# A diferencia de las cotizaciones y los índices, este PR NO se mergea solo:
-# el CSV sólo se sirve por http (el https redirige a http), así que alguien en
-# el camino podría cambiarlo, y el rango de RF-23 no alcanza para frenar un
-# precio falso que se mueva dentro de él. Lo revisa una persona.
+# El CSV sólo se sirve por http (el https redirige a http): alguien en el
+# camino podría cambiarlo dentro del rango de RF-23. Lautaro decidió el
+# 2026-11-10 que igual se mergee solo; la tabla queda en el PR para auditarlo.
 #
 # Un CSV con otra forma o un salto fuera del rango de RF-23 hacen fallar el
 # script: no hay PR y la corrida queda en rojo a la vista.
@@ -28,8 +28,8 @@ on:
 permissions:
   contents: read
 
-# El mismo grupo que las cotizaciones y los índices: todos escriben ramas y PR
-# contra main, y no tienen que pisarse.
+# El mismo grupo que las cotizaciones y los índices: todos mergean a main y
+# sincronizan develop, y no tienen que pisarse.
 concurrency:
   group: dolar-blue
   cancel-in-progress: false
@@ -102,7 +102,7 @@ jobs:
           git commit -am "RF-22: nafta súper a $(echo "$TITULO" | base64 -d)"
       # Un PR abierto con este token no dispara el workflow de verificación: la
       # verificación ya corrió sobre este mismo cambio en el job anterior.
-      - name: PR a main para revisar
+      - name: PR a main y merge
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -111,7 +111,28 @@ jobs:
           # Comillas simples: el texto lleva backticks de Markdown y no se ejecutan.
           cuerpo='Precio de la nafta súper por provincia: mediana del precio diurno de los últimos 60 días (RN-10), desde «Precios en surtidor» de la Secretaría de Energía. Toca sólo `datos/combustible.json`; validación de datos, lint, tests y build pasaron en esta corrida.'
           cuerpo="$cuerpo"$'\n\n'"$(echo "$TABLA" | base64 -d)"
-          cuerpo="$cuerpo"$'\n\n''**Para revisar antes de mergear:** el CSV llega por http. Compará los precios con https://preciosensurtidor.energia.gob.ar/ antes de aprobar.'
+          cuerpo="$cuerpo"$'\n\n''El CSV llega por http: si un precio no cierra, comparalo con https://preciosensurtidor.energia.gob.ar/.'
           gh pr create --base main --head "$rama" \
             --title "RF-22: nafta súper a $(echo "$TITULO" | base64 -d)" \
             --body "$cuerpo"
+          gh pr merge "$rama" --merge --delete-branch
+      - name: Sincronizar develop
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin main develop
+          git switch develop
+          if git merge --no-ff origin/main -m "Merge main: nafta del $FECHA"; then
+            git push origin develop
+          else
+            git merge --abort
+            gh pr create --base develop --head main --title "Sincronizar develop con la nafta del $FECHA" \
+              --body "El merge automático de main en develop tuvo conflictos: resolver a mano." || true
+          fi
+
+  publicar:
+    needs: integrar
+    uses: ./.github/workflows/publicacion.yml
+    with:
+      ref: main
+    secrets: inherit
