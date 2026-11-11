@@ -220,6 +220,28 @@ describe('RF-27, RF-46 · cuenta de un subgrupo plegado', () => {
   });
 });
 
+describe('RF-47 · transporte privado', () => {
+  const movilidad = item('movilidad');
+
+  it('pide el monto del viaje en vez de kilómetros y consumo', () => {
+    expect(camposDeItem(movilidad, 'privado')).toEqual(['monto']);
+    expect(camposDeItem(movilidad, 'auto')).toEqual(['km', 'consumo']);
+  });
+
+  it('manda el monto y avisa al motor que es transporte privado', () => {
+    const e = conVehiculo(estado({ marcados: { movilidad: true }, entradas: { movilidad: { monto: '8.500', km: '50' } } }), 'privado', datos);
+    const s = aSeleccion(e, datos);
+    expect(s.transportePrivado).toBe(true);
+    expect(s.items.movilidad).toEqual({ monto: 8500 });
+  });
+
+  it('al volver al auto conserva el consumo que había', () => {
+    const e = conVehiculo(conVehiculo(estadoInicial(datos), 'privado', datos), 'auto', datos);
+    expect(e.entradas.movilidad?.consumo).toBe('8');
+    expect(aSeleccion(e, datos).transportePrivado).toBeUndefined();
+  });
+});
+
 describe('RF-13 · auto o moto', () => {
   it('arranca en auto con 8 l/100 km', () => {
     const e = estadoInicial(datos);

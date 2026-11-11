@@ -317,6 +317,18 @@ describe('RF-13 · movilidad por kilómetros', () => {
     expect(r.avisos.join()).toMatch(/nafta/);
   });
 
+  it('RF-47 · en transporte privado suma lo que salió el viaje, sin nafta', () => {
+    const r = resultado({ ...seleccion({}, { movilidad: { monto: 8500 } }), transportePrivado: true });
+    expect(monto(r, 'movilidad')).toBe(8500);
+    expect(r.renglones.find((x) => x.id === 'movilidad')?.detalle).toMatch(/^Transporte privado/);
+  });
+
+  it('RF-47 · en transporte privado sin monto suma cero y avisa', () => {
+    const r = resultado({ ...seleccion({}, { movilidad: { km: 50 } }), transportePrivado: true });
+    expect(monto(r, 'movilidad')).toBe(0);
+    expect(r.avisos.join()).toMatch(/monto del viaje/);
+  });
+
   it('sin kilómetros suma cero y avisa', () => {
     const r = resultado(seleccion({}, { movilidad: {} }));
     expect(monto(r, 'movilidad')).toBe(0);
