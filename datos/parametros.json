@@ -42,8 +42,8 @@
     "combustible": { "maximaSubida": 0.3, "maximaBajada": 0.3 }
   },
   "dolarOficial": {
-    "valor": 1512.5,
-    "fecha": "2026-10-13",
+    "valor": 1545.5,
+    "fecha": "2026-11-05",
     "fuente": "BCRA, cotización de referencia (API de estadísticas cambiarias)"
   },
   "dolarBlue": {
