@@ -17,6 +17,11 @@ export interface EntradaDeItem {
 
 export interface Seleccion {
   rolId: string;
+  /**
+   * La movilidad es en transporte privado (RF-47): Uber, remis o taxi. Se suma
+   * el monto del viaje en vez de calcular la nafta.
+   */
+  transportePrivado?: boolean;
   /** Letra de la categoría de monotributo; sólo cuenta si algo la usa (RF-07). */
   categoria: string;
   /** Horas del trabajo; hasta dos decimales. */

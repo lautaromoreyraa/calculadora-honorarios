@@ -205,6 +205,14 @@ export function calcular(seleccion: Seleccion, datos: Datos, formato: Formato = 
         );
       }
       case 'movilidad': {
+        // RF-47: en Uber, remis o taxi se suma lo que salió el viaje, entero.
+        if (seleccion.transportePrivado) {
+          if (!entrada.monto || entrada.monto <= 0) {
+            avisos.push(`${item.nombre}: falta el monto del viaje.`);
+            return faltante(renglon(item, 0, 'Falta el monto del viaje'));
+          }
+          return renglon(item, entrada.monto, `Transporte privado: ${formato.desdePesos(entrada.monto)}`);
+        }
         const nafta = naftaDelNea(datos); // RN-10, RF-43: la más cara del NEA
         const consumo = entrada.consumo ?? datos.parametros.consumoDelAutoCada100Km.valor;
         if (!entrada.km || entrada.km <= 0) {

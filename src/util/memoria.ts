@@ -102,7 +102,7 @@ export function restaurar(guardado: unknown, datos: Datos): EstadoDelFormulario 
     telefono: esTexto(p.telefono) ? p.telefono : '',
     cuit: esTexto(p.cuit) ? p.cuit : '',
     condiciones: esTexto(p.condiciones) ? p.condiciones : inicial.condiciones,
-    vehiculo: p.vehiculo === 'moto' ? 'moto' : 'auto',
+    vehiculo: p.vehiculo === 'moto' || p.vehiculo === 'privado' ? p.vehiculo : 'auto',
     moneda: p.moneda === 'USD' ? 'USD' : 'ARS',
   };
 }

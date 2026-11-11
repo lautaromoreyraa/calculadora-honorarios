@@ -9,14 +9,18 @@ interface Props {
 const VEHICULOS: { id: Vehiculo; nombre: string }[] = [
   { id: 'auto', nombre: 'Auto' },
   { id: 'moto', nombre: 'Moto' },
+  { id: 'privado', nombre: 'Transporte privado' },
 ];
 
-/** Auto o moto (RF-13): elegir uno carga su consumo por defecto. */
+/**
+ * Auto o moto (RF-13): elegir uno carga su consumo por defecto. Transporte
+ * privado (RF-47): en vez de kilómetros, pide lo que salió el viaje.
+ */
 export function SelectorDeVehiculo({ valor, alElegir }: Props) {
   const nombre = useId();
   return (
     <fieldset className="opciones opciones--en-linea selector-de-vehiculo">
-      <legend className="opciones__titulo">Vehículo</legend>
+      <legend className="opciones__titulo">Cómo vas</legend>
       {VEHICULOS.map((v) => (
         <label key={v.id} className={`opcion${valor === v.id ? ' opcion--elegida' : ''}`}>
           <input
