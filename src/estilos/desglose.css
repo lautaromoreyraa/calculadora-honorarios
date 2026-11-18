@@ -1,6 +1,4 @@
-/* Total y desglose del resultado. */
 
-/* Pesos o dólares (RF-28): un control segmentado pegado debajo de la cabeza. */
 .selector-de-moneda {
   display: grid;
   gap: var(--espacio-2);
@@ -33,8 +31,6 @@
   color: var(--color-texto);
 }
 
-/* Elegida en neutro: el acento es de lo marcado y del total. El borde da 3,9:1
-   contra la superficie elevada y 5,1:1 contra el riel; el texto, 12,46:1. */
 .selector-de-moneda__opcion--elegida,
 .selector-de-moneda__opcion--elegida:hover {
   background: var(--color-superficie-elevada);
@@ -42,7 +38,6 @@
   box-shadow: inset 0 0 0 1px var(--color-borde-control);
 }
 
-/* El radio está oculto a la vista: el foco se muestra en la etiqueta. */
 .selector-de-moneda__opcion:has(input:focus-visible) {
   outline: 3px solid var(--color-foco);
   outline-offset: 2px;
@@ -70,7 +65,6 @@
   border: 1px solid var(--color-borde);
   border-radius: var(--radio);
   box-shadow: var(--realce);
-  /* Contenedor de consulta: la tabla y la leyenda se apilan según el ancho que les queda. */
   container-type: inline-size;
 }
 
@@ -81,20 +75,12 @@
   }
 }
 
-/* El selector de moneda va arriba de la cabeza y juntos (RNF-16): se elige la moneda y se lee el total. */
 .desglose__fijo {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: var(--espacio-3);
 }
 
-/* En escritorio el panel entero queda fijo en su columna hasta el presupuesto
-   (RNF-14), que es donde la columna termina (calculadora.css), y nunca pasa
-   del alto de la pantalla (RNF-15). Lautaro pidió el 2026-10-17 que el detalle
-   tenga su propia barra: cuando el panel acompañaba el scroll de la página,
-   los renglones se iban de la vista al subir y bajar por el formulario. La
-   cabeza y la moneda no se encogen; el que cede lugar y se recorre es el
-   cuerpo. */
 @media (min-width: 60rem) {
   .desglose {
     position: sticky;
@@ -111,12 +97,9 @@
   }
 
   .desglose__cuerpo {
-    /* Con una pantalla muy baja, al menos unos renglones a la vista. */
     min-height: 8rem;
     overflow-y: auto;
-    /* Al llegar al final del desglose, la rueda no sigue moviendo la página. */
     overscroll-behavior: contain;
-    /* El lugar de la barra queda reservado: que aparezca no corre los montos. */
     scrollbar-gutter: stable;
   }
 }
@@ -127,11 +110,8 @@
   color: var(--color-texto-suave);
 }
 
-/* El total es el protagonista: la voz de titular, en el acento más luminoso. */
 .desglose__total {
   font-family: var(--fuente-titulos);
-  /* Con el texto agrandado, un total de seis cifras no se puede cortar: no pasa
-     de un ancho proporcional a la pantalla. */
   font-size: min(var(--texto-total), 14vw);
   line-height: 1;
   font-weight: 560;
@@ -140,12 +120,7 @@
   font-variant-numeric: lining-nums tabular-nums;
 }
 
-/* El total cuenta hasta su valor nuevo (useNumeroAnimado): las cifras
-   tabulares hacen que no baile mientras cambia. */
 
-/* RF-45: lo que falta va en un recuadro de aviso. En gris se leía como un
-   texto más y nadie entendía por qué no aparecía el total. El aviso sobre su
-   fondo da 9,2:1 (tokens.css). */
 .desglose__lo-que-falta {
   display: grid;
   gap: var(--espacio-2);
@@ -193,7 +168,6 @@
   display: grid;
 }
 
-/* Llevan al campo: son objetivos táctiles, no sólo texto. */
 .desglose__falta a {
   display: inline-flex;
   align-items: center;
@@ -258,10 +232,6 @@
   font-weight: 700;
 }
 
-/* Con poco lugar en relación al tamaño de letra (texto agrandado en el
-   celular), concepto y monto no entran lado a lado: cada renglón se apila, con
-   el monto debajo. En em, para que dependa de la letra y no sólo de la pantalla:
-   a 360 px con el texto normal sigue en dos columnas. */
 @container (max-width: 18em) {
   .desglose__tabla,
   .desglose__tabla tbody,
@@ -283,8 +253,6 @@
   }
 }
 
-/* Composición del total (RNF-13): de dónde sale cada peso. La barra se
-   reacomoda con el total; la leyenda dice lo mismo en texto. */
 .composicion {
   display: grid;
   gap: var(--espacio-3);

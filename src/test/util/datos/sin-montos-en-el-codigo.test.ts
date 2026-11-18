@@ -3,8 +3,6 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
-// RF-17: ningún monto de datos/ puede estar escrito en el código. Si alguien lo
-// copia en src/, al actualizarse el dato el código seguiría usando el viejo.
 
 const raiz = fileURLToPath(new URL('../../../../', import.meta.url));
 
@@ -15,13 +13,9 @@ function archivos(carpeta: string): string[] {
   });
 }
 
-// Lo que actualizan las Actions (índices, cotizaciones, nafta) no se copia a
-// mano al código, y cambia solo: un valor nuevo que coincidiera por azar con un
-// número del código haría fallar la corrida que lo publica.
 const ARCHIVOS_AUTOMATICOS = ['indices.json', 'combustible.json'];
 const CLAVES_AUTOMATICAS = new Set(['dolarBlue', 'dolarOficial']);
 
-/** Todos los números de un JSON, a cualquier profundidad, salvo los que actualizan las Actions. */
 function numeros(valor: unknown): number[] {
   if (typeof valor === 'number') return [valor];
   if (Array.isArray(valor)) return valor.flatMap(numeros);
@@ -35,8 +29,6 @@ function numeros(valor: unknown): number[] {
 
 describe('RF-17 · valores fuera del código', () => {
   it('ningún monto de datos/ aparece en src/ (salvo en los tests)', () => {
-    // Desde 1.000: los números chicos (6 horas, 24 meses) son demasiado comunes
-    // para buscarlos como texto sin falsos positivos.
     const montos = archivos(join(raiz, 'datos'))
       .filter((a) => a.endsWith('.json') && !a.includes('esquema') && !ARCHIVOS_AUTOMATICOS.some((x) => a.endsWith(x)))
       .flatMap((a) => numeros(JSON.parse(readFileSync(a, 'utf8'))))

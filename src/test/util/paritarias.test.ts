@@ -9,12 +9,9 @@ import {
   textoSeguro,
 } from '../../util/paritarias.ts';
 
-// RF-40: una homologación en el Boletín Oficial o un enlace nuevo en la página
-// de escalas de un sindicato abren un aviso por convenio; sin cambios, nada.
 
 const CONVENIOS = ['131/75', '173/75', '301/75', '378/75', '541/08'];
 
-// Forma real de la primera sección del Boletín: el título va dentro del enlace.
 const SECCION = `
   <a href="/detalleAviso/primera/349983/20261103?anexos=1" title="Ver anexos"><i></i></a>
   <a href="/detalleAviso/primera/349983/20261103" onclick="sendDetalleEvent('Visto', 'ID: 349983');">

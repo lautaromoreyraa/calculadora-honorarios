@@ -7,11 +7,6 @@ interface Props {
   total: number;
 }
 
-/**
- * De dónde sale cada peso (RNF-13, RF-15): una barra repartida en partes y su
- * leyenda. La barra es sólo para la vista; la leyenda dice lo mismo en texto,
- * así el color nunca es lo único que distingue una parte de otra.
- */
 export function ComposicionDelTotal({ partes, total }: Props) {
   const formato = useFormato();
   if (total <= 0 || partes.length === 0) return null;

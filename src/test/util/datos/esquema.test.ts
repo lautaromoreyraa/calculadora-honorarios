@@ -4,9 +4,6 @@ import { fileURLToPath } from 'node:url';
 import Ajv2020 from 'ajv/dist/2020.js';
 import { describe, expect, it } from 'vitest';
 
-// La verificación corre el esquema sobre los datos reales; estos tests prueban
-// que el esquema rechace lo que tiene que rechazar, para que nadie lo afloje sin
-// que algo falle.
 
 const raiz = fileURLToPath(new URL('../../../../datos/', import.meta.url));
 const leer = (ruta: string) => JSON.parse(readFileSync(ruta, 'utf8'));

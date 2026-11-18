@@ -1,6 +1,3 @@
-// Estado del formulario y su traducción a la Seleccion que entiende el motor.
-// Vive fuera de React para poder probarlo sin DOM: la pantalla sólo guarda este
-// estado y lo pasa por aSeleccion en cada cambio.
 import type { Datos, Item } from './datos/tipos.ts';
 import type { Calculo, EntradaDeItem, Seleccion } from './calculo/tipos.ts';
 import { diasDeVacaciones, valorBaseDelRol, valorMensual, valorPorJornada } from './calculo/index.ts';
@@ -9,36 +6,24 @@ import { EN_PESOS, type Formato, type Moneda } from './moneda.ts';
 import { CONDICIONES_POR_DEFECTO } from './presupuesto/contenido.ts';
 import { ingresosBrutosDelNea, naftaDelNea } from './nea.ts';
 
-/** Lo que pide un ítem marcado. */
 export type Campo = keyof EntradaDeItem;
 
-/**
- * Con qué se hace la movilidad: auto o moto deciden el consumo por defecto
- * (RN-10); el transporte privado pide el monto del viaje (RF-47).
- */
 export type Vehiculo = 'auto' | 'moto' | 'privado';
 
 export interface EstadoDelFormulario {
   rolId: string;
   categoria: string;
-  /** Texto tal cual lo escribe el usuario: «1,5» o «1.5». */
   horas: string;
   antiguedad: string;
-  /** Casillas marcadas, por id de ítem. */
   marcados: Record<string, boolean>;
-  /** Opción elegida en cada conjunto excluyente, por id de exclusión; null es «ninguna». */
   elegidos: Record<string, string | null>;
-  /** Datos que cargó el usuario para cada ítem, como texto. */
   entradas: Record<string, Partial<Record<Campo, string>>>;
-  /** Nombre del profesional para el presupuesto; vive acá para poder recordarlo (RF-26). */
   profesional: string;
-  /** Contacto del profesional y sus condiciones de pago: van en el presupuesto y se recuerdan (RF-16). */
   email: string;
   telefono: string;
   cuit: string;
   condiciones: string;
   vehiculo: Vehiculo;
-  /** En qué moneda se muestran los montos (RF-28). Lo que se carga sigue en pesos. */
   moneda: Moneda;
 }
 
@@ -50,7 +35,6 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
     antiguedad: '0',
     marcados: {},
     elegidos: Object.fromEntries(datos.exclusiones.map((e) => [e.id, null])),
-    // El consumo arranca en el del parámetro y el usuario lo puede cambiar (RN-10).
     entradas: Object.fromEntries(
       datos.items
         .filter((i) => camposDeItem(i).includes('consumo'))
@@ -66,18 +50,12 @@ export function estadoInicial(datos: Datos): EstadoDelFormulario {
   };
 }
 
-/** Consumo por defecto de cada vehículo, cada 100 km. */
 function consumoDe(vehiculo: Vehiculo, datos: Datos): number {
   const { consumoDelAutoCada100Km, consumoDeLaMotoCada100Km } = datos.parametros;
   return (vehiculo === 'moto' ? consumoDeLaMotoCada100Km : consumoDelAutoCada100Km).valor;
 }
 
-/**
- * Cambia el vehículo y carga su consumo por defecto en cada ítem de movilidad
- * (RF-13). Pisa el consumo escrito: el de un auto no sirve para una moto.
- */
 export function conVehiculo(estado: EstadoDelFormulario, vehiculo: Vehiculo, datos: Datos): EstadoDelFormulario {
-  // El transporte privado no usa consumo: se deja el que había para cuando vuelva al auto o la moto.
   if (vehiculo === 'privado') return { ...estado, vehiculo };
   const consumo = formatearNumero(consumoDe(vehiculo, datos));
   const entradas = { ...estado.entradas };
@@ -87,27 +65,15 @@ export function conVehiculo(estado: EstadoDelFormulario, vehiculo: Vehiculo, dat
   return { ...estado, vehiculo, entradas };
 }
 
-/** Años de antigüedad mayores que cero; vacío cuenta como cero, igual que en el motor. */
 function tieneAntiguedad(texto: string): boolean {
   const n = texto.trim() === '' ? 0 : leerNumero(texto);
   return Number.isFinite(n) && n > 0;
 }
 
-/**
- * Ítems que no tienen casilla: se suman solos cuando hay años de antigüedad
- * cargados (RF-33). Quien escribe sus años quiere que se le paguen; una casilla
- * aparte era un paso más que se olvidaba.
- */
 export function vaPorAntiguedad(item: Item): boolean {
   return item.tipo === 'mensual' && item.multiplicaPor === 'antiguedad' && !item.exclusion;
 }
 
-/**
- * Convierte lo que escribe una persona en Argentina a número: coma decimal y
- * punto de miles («1.234,5», «2.400.000»). Sin coma, un punto seguido de grupos
- * de tres cifras es de miles; si no, es decimal («1.5»). Vacío o inválido da
- * NaN, para que el motor lo rechace.
- */
 export function leerNumero(texto: string | undefined): number {
   const limpio = (texto ?? '').replace(/\s|\$/g, '');
   if (limpio === '') return Number.NaN;
@@ -116,21 +82,12 @@ export function leerNumero(texto: string | undefined): number {
   return /^-?\d+(\.\d+)?$/.test(normalizado) ? Number(normalizado) : Number.NaN;
 }
 
-/**
- * Id del control de un campo del formulario, el mismo que usa el motor en
- * `Falta.campo`: así la lista de lo que falta lleva a cada uno.
- */
 export const idDeCampo = (campo: string) => `campo-${campo}`;
 
-/** El ítem de movilidad: el único que cambia lo que pide según el vehículo. */
 export function esMovilidad(item: Item): boolean {
   return item.tipo === 'calculado' && item.formula === 'movilidad';
 }
 
-/**
- * Qué datos pide un ítem cuando se lo marca. La movilidad pide kilómetros y
- * consumo con auto o moto, y el monto del viaje con transporte privado (RF-47).
- */
 export function camposDeItem(item: Item, vehiculo: Vehiculo = 'auto'): Campo[] {
   if (item.tipo === 'por-trabajo') return ['monto'];
   if (item.tipo === 'calculado' && item.formula === 'amortizacion') return ['precio'];
@@ -152,7 +109,6 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
     const entrada: EntradaDeItem = {};
     for (const campo of camposDeItem(item, estado.vehiculo)) {
       const valor = leerNumero(estado.entradas[item.id]?.[campo]);
-      // Un dato vacío no se manda: el motor avisa que falta (o usa su valor por defecto).
       if (!Number.isNaN(valor)) entrada[campo] = valor;
     }
     items[item.id] = entrada;
@@ -168,17 +124,11 @@ export function aSeleccion(estado: EstadoDelFormulario, datos: Datos): Seleccion
   };
 }
 
-/** Valor hora del rol (RN-01), para mostrarlo antes de que haya un cálculo completo. */
 export function valorHoraDelRol(rolId: string, datos: Datos): number {
   const rol = datos.roles.find((r) => r.id === rolId);
   return rol ? valorBaseDelRol(rol, datos).valorBaseMensual / datos.parametros.horasMensuales.valor : 0;
 }
 
-/**
- * Cuánto vale un ítem, en una línea, para mostrarlo junto a su casilla. Los
- * calculados dependen de lo ya elegido (categoría, antigüedad): por
- * eso recibe el estado del formulario y no sólo el rol.
- */
 export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: Datos): string {
   const { rolId } = estado;
   switch (item.tipo) {
@@ -224,35 +174,21 @@ export function resumenDelItem(item: Item, estado: EstadoDelFormulario, datos: D
   }
 }
 
-/** Lo que un ítem marcado suma a este trabajo, según el último cálculo. */
 export interface Aporte {
   monto: number;
-  /** Suma cero porque falta un dato, no porque valga cero. */
   falta?: boolean;
 }
 
 const cuantosItems = (n: number) => (n === 1 ? '1 ítem' : `${n} ítems`);
 
-/**
- * Cuántos datos faltan, para decirlo donde se ve el total (RF-45): sin cálculo,
- * los que lo impiden; con cálculo, los ítems marcados que todavía no suman.
- * Cero si no falta nada.
- */
 export function datosQueFaltan(calculo: Calculo): number {
   return calculo.ok ? calculo.resultado.avisos.length : calculo.errores.length;
 }
 
-/** «Falta 1 dato» o «Faltan 3 datos» (RF-45). */
 export function textoDeLoQueFalta(cantidad: number): string {
   return cantidad === 1 ? 'Falta 1 dato' : `Faltan ${cantidad} datos`;
 }
 
-/**
- * Lo que dice un subgrupo plegado (RF-27, RF-46): cuántos ítems tiene, cuántos
- * están marcados, cuánto suman a este trabajo si hay un cálculo y cuántos
- * esperan un dato. Empieza por cuántos tiene porque «Ninguno marcado», solo,
- * se leía como un grupo vacío y se pasaba de largo.
- */
 export function cuentaDelSubgrupo(
   items: Item[],
   marcados: Record<string, boolean>,
@@ -270,10 +206,6 @@ export function cuentaDelSubgrupo(
   return `${total} · ${cantidad} · ${formato.monto(formato.redondear(suma))}${sinCompletar > 0 ? ` · ${sinCompletar} sin completar` : ''}`;
 }
 
-/**
- * La línea debajo del título de un grupo con subgrupos (RF-46): avisa que hay
- * más ítems de los que se ven, contados desde los datos.
- */
 export function resumenDeSubgrupos(items: number, subgrupos: number): string {
   const grupos = subgrupos === 1 ? '1 grupo' : `${subgrupos} grupos`;
   return `${cuantosItems(items)} en ${grupos}: revisalos todos`;
@@ -284,19 +216,16 @@ const meses = [
   'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
 ];
 
-/** «2026-10» → «octubre de 2026». */
 export function formatearVigencia(vigencia: string): string {
   const [anio, mes] = vigencia.split('-').map(Number);
   return `${meses[mes - 1]} de ${anio}`;
 }
 
-/** «2026-10-13» → «13 de octubre de 2026». */
 export function formatearFecha(fecha: string): string {
   const [anio, mes, dia] = fecha.split('-').map(Number);
   return `${dia} de ${meses[mes - 1]} de ${anio}`;
 }
 
-/** La vigencia más reciente de todos los datos, AAAA-MM: «valores a octubre de 2026». */
 export function vigenciaDeLosDatos(datos: Datos): string {
   const vigencias = [
     ...datos.roles.map((r) => r.vigencia),

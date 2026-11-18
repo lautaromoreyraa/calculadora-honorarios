@@ -9,11 +9,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-/**
- * Un ícono por sección (RNF-13), todos de Lucide, con el mismo trazo. Viven
- * acá y no en los datos: son de la interfaz, y una sección nueva sin ícono
- * sale igual, con el genérico.
- */
 const ICONOS: Record<string, LucideIcon> = {
   trabajo: BriefcaseBusiness,
   cliente: Building2,
@@ -28,7 +23,6 @@ interface Props {
   seccion: string;
   id: string;
   children: string;
-  /** El título de «El trabajo» recibe el foco al empezar de nuevo. */
   enfocable?: boolean;
 }
 

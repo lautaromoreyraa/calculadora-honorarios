@@ -11,13 +11,10 @@ import {
   type Serie,
 } from '../../util/indices.ts';
 
-// RF-20: los índices del INDEC llegan solos a datos/indices.json, validados, y
-// cada costo indexado se calcula desde su mes de origen (RN-12).
 
 const { ipc, salarios } = datos.parametros.rangosDeVariacion;
 const serie = (meses: Record<string, number>): Serie => ({ nombre: 'IPC de prueba', fuente: 'test', meses });
 
-// Forma real del CSV del INDEC, ya pasado de Latin-1.
 const CSV = [
   'Codigo;Descripcion;Clasificador;Periodo;Indice_IPC;v_m_IPC;v_i_a_IPC;Region',
   '0;NIVEL GENERAL;Nivel general y divisiones COICOP;202608;12404,6845;1,8;37;Noreste',
@@ -47,7 +44,6 @@ describe('RF-20 · lectura de las fuentes', () => {
       '2026-06': 9662.3,
       '2026-07': 9879.87,
     });
-    // Julio de 2026 vino vacío en la API con agosto publicado: eso no puede entrar como un cero.
     expect(() => leerSerieDeDatosGobAr({ data: [['2026-06-01', 1], ['2026-07-01', null], ['2026-08-01', 2]] }, 'IPC')).toThrow(
       /número positivo/,
     );

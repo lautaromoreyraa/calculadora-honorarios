@@ -3,8 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { conCotizacion } from '../../util/cotizaciones.ts';
 import { FUENTE_DEL_OFICIAL, leerRespuestaDelBcra } from '../../util/dolar-oficial.ts';
 
-// RF-21: la Action diaria trae la cotización de referencia del BCRA y la deja
-// en dolarOficial, sin tocar nada más de parametros.json.
 
 const respuesta = (fecha: unknown, detalle: unknown) => ({ status: 200, results: [{ fecha, detalle }] });
 const usd = (tipoCotizacion: unknown) => [{ codigoMoneda: 'USD', descripcion: 'DOLAR E.E.U.U.', tipoPase: 0, tipoCotizacion }];

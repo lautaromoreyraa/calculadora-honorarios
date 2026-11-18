@@ -1,5 +1,3 @@
-// Reglas recomendadas de JavaScript, TypeScript y hooks de React: lo justo para
-// que la verificación de los PR atrape errores, sin reglas de estilo.
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
@@ -12,6 +10,9 @@ export default tseslint.config(
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     languageOptions: { globals: globals.browser },
     plugins: { 'react-hooks': reactHooks },
-    rules: reactHooks.configs.recommended.rules,
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'no-empty': ['error', { allowEmptyCatch: true }],
+    },
   },
 )

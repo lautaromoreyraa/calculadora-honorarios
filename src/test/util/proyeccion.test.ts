@@ -6,8 +6,6 @@ import { contenidoDelPresupuesto } from '../../util/presupuesto/contenido.ts';
 import { proyectarDesdeEscala, textoDeLaProyeccion } from '../../util/proyeccion.ts';
 import { datosAlOrigen } from '../fixture/datos.ts';
 
-// RF-35: cada valor de convenio se proyecta desde su escala (RN-12), primero por
-// el índice de salarios y después por el IPC NEA, y se dice cuánto se sumó.
 
 const indices = (salarios: Record<string, number>, ipc: Record<string, number>): Indices => ({
   series: {
@@ -56,7 +54,6 @@ describe('RF-35 · proyección desde la escala', () => {
 });
 
 describe('RF-35 · en el cálculo, la pantalla y el Word', () => {
-  // Productor: escala de 2026-09. Con salarios +2 % hasta octubre e IPC +3 % en noviembre.
   const conProyeccion: Datos = {
     ...datosAlOrigen,
     indices: indices({ '2026-09': 100, '2026-10': 102 }, { '2026-09': 100, '2026-10': 100, '2026-11': 103 }),
@@ -81,9 +78,7 @@ describe('RF-35 · en el cálculo, la pantalla y el Word', () => {
   });
 
   it('los adicionales de convenio también se proyectan, con la escala propia del rol', () => {
-    // Antigüedad del productor: $11.236,47 (escala propia, CCT 131/75) × factor, un año, 180 horas.
     expect(r.renglones.find((x) => x.id === 'antiguedad')?.monto).toBe(Math.round(11236.47 * factor));
-    // Refrigerio: $8.329,50 por jornada × factor × 30 jornadas.
     expect(r.renglones.find((x) => x.id === 'refrigerio')?.monto).toBe(Math.round(8329.5 * factor * 30));
   });
 
@@ -110,8 +105,6 @@ describe('RF-35 · en el cálculo, la pantalla y el Word', () => {
 });
 
 describe('RF-35 · los índices cubren todas las escalas', () => {
-  // Si una escala quedara antes del primer mes cargado, la proyección fallaría y
-  // con ella el cálculo entero: se controla sobre los datos reales.
   it('cada rol y cada adicional de convenio se proyecta sin error con los índices actuales', async () => {
     const { datos } = await import('../../util/datos/index.ts');
     const origenes = [

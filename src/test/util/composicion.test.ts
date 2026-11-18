@@ -4,7 +4,6 @@ import { composicionDelTotal } from '../../util/composicion.ts';
 import { datos } from '../../util/datos/index.ts';
 import { enDolares } from '../../util/moneda.ts';
 
-// RNF-13: la barra del resultado reparte el total en cuatro partes.
 
 const seleccion = (cambios: Partial<Seleccion> = {}): Seleccion => ({
   rolId: 'cm',

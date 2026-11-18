@@ -1,5 +1,3 @@
-// Valida cada archivo de datos/ contra su esquema. Corre en la verificación de
-// cada PR: un valor mal cargado tiene que frenar el merge, no romper el sitio.
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';

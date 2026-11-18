@@ -5,7 +5,6 @@ import { Aporte } from './Aporte.tsx';
 import { CampoNumerico } from './CampoNumerico.tsx';
 import { NormaDelItem } from './NormaDelItem.tsx';
 
-/** Etiqueta, unidad y ayuda de cada dato que puede pedir un ítem. */
 export interface DescripcionDeCampo {
   etiqueta: string;
   prefijo?: string;
@@ -17,14 +16,12 @@ interface Props {
   item: Item;
   resumen: string;
   marcado: boolean;
-  /** Cuánto suma a este trabajo, si está marcado y hay un cálculo. */
   aporte?: DatosDelAporte;
   alAlternar: (marcado: boolean) => void;
   campos: Campo[];
   describirCampo: (campo: Campo) => DescripcionDeCampo;
   entradas: Partial<Record<Campo, string>>;
   alCargar: (campo: Campo, valor: string) => void;
-  /** Un control propio del ítem, antes de sus campos: el vehículo de la movilidad. */
   antesDeLosCampos?: ReactNode;
 }
 
@@ -42,17 +39,12 @@ export function ItemConCasilla({
 }: Props) {
   const id = useId();
   return (
-    // RF-45: marcado pero sin el dato que pide, la tarjeta entera lo hace notar.
     <div className={`item${marcado ? ' item--marcado' : ''}${marcado && aporte?.falta ? ' item--falta' : ''}`}>
-      {/* La etiqueta envuelve la casilla y ocupa todo el ancho de la tarjeta:
-          tocar cualquier parte del texto la marca, no sólo el cuadradito. */}
       <label className="item__fila">
         <input
           className="item__casilla"
           type="checkbox"
           checked={marcado}
-          // La etiqueta envuelve toda la tarjeta: el nombre accesible es sólo el
-          // nombre del ítem, y lo demás va como descripción, una sola vez.
           aria-labelledby={`${id}-nombre`}
           aria-describedby={`${id}-resumen ${id}-aporte`}
           onChange={(e) => alAlternar(e.target.checked)}

@@ -10,16 +10,12 @@ interface Props {
   resumen: (item: Item) => string;
   elegido: string | null;
   alElegir: (itemId: string | null) => void;
-  /** Cuánto suma la opción elegida a este trabajo, si hay un cálculo. */
   aporte?: DatosDelAporte;
-  /** Si el título repite el de la sección, se oculta a la vista pero queda para lectores de pantalla. */
   tituloOculto?: boolean;
 }
 
-/** Un conjunto de ítems de los que se elige uno: radios. Si no es obligatorio, suma «Sin recargo». */
 export function OpcionesExcluyentes({ exclusion, opciones, resumen, elegido, alElegir, aporte, tituloOculto }: Props) {
   const nombre = useId();
-  // El primer radio lleva el id del conjunto: ahí lleva la lista de lo que falta.
   const idPrimero = idDeCampo(exclusion.id);
   return (
     <fieldset className="opciones">
@@ -48,8 +44,6 @@ export function OpcionesExcluyentes({ exclusion, opciones, resumen, elegido, alE
         </label>
       )}
       {opciones.map((item, i) => (
-        // La norma va dentro del mismo recuadro que su opción: suelta entre dos
-        // tarjetas no se sabía de cuál era.
         <div className={`opcion-con-norma${elegido === item.id ? ' opcion-con-norma--elegida' : ''}`} key={item.id}>
           <label className="opcion">
             <input

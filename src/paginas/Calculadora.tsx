@@ -38,16 +38,10 @@ import '../estilos/desglose.css';
 
 const vigencia = vigenciaDeLosDatos(datos);
 
-/**
- * El último ítem que puede usar la categoría de monotributo: el selector va
- * debajo, junto a las casillas que lo hacen aparecer (RF-07). Debajo y no
- * arriba, para que marcar la casilla no la corra de lugar.
- */
 const ultimoConCategoria = datos.items
   .filter((i) => i.tipo === 'calculado' && (i.formula === 'monotributo' || i.formula === 'ingresos-brutos'))
   .at(-1)?.id;
 
-/** Error de un campo numérico escrito: vacío no es error todavía, sólo «falta». */
 function errorDeNumero(texto: string, minimo: 'positivo' | 'no-negativo'): string | undefined {
   if (texto.trim() === '') return undefined;
   const n = leerNumero(texto);
@@ -64,7 +58,6 @@ export function Calculadora() {
   const idTituloResultado = useId();
 
   const rol = datos.roles.find((r) => r.id === estado.rolId)!;
-  // RF-43: el litro más caro del NEA, el mismo que usa el cálculo.
   const nafta = naftaDelNea(datos);
 
   const describirCampo = (campo: Campo, item: Item): DescripcionDeCampo => {
@@ -76,7 +69,6 @@ export function Calculadora() {
           ayuda: `Se reparte en ${datos.parametros.vidaUtilDeEquiposEnMeses.valor} meses de uso.`,
         };
       case 'monto':
-        // RF-47: en la movilidad, el monto es lo que salió el viaje.
         return esMovilidad(item)
           ? { etiqueta: 'Monto del viaje', prefijo: '$', ayuda: 'Uber, remis o taxi: lo que salió el viaje, ida y vuelta.' }
           : { etiqueta: 'Monto', prefijo: '$' };
@@ -105,15 +97,12 @@ export function Calculadora() {
 
   const resumen = (item: Item) => resumenDelItem(item, estado, datos);
 
-  // RF-33: el adicional por antigüedad no tiene casilla; el campo de años dice
-  // cuánto suma, con el valor del rol elegido.
   const porAntiguedad = datos.items.filter(vaPorAntiguedad);
   const ayudaDeAntiguedad = [
     'Años de ejercicio profesional.',
     ...porAntiguedad.map((i) => `${i.nombre}: ${resumen(i)}.`),
   ].join(' ');
 
-  // Cuánto suma cada ítem a este trabajo, para mostrarlo junto a su casilla.
   const aportes = new Map<string, Aporte>();
   if (calculo.ok) {
     for (const r of calculo.resultado.renglones) aportes.set(r.id, { monto: r.monto, falta: r.falta });
@@ -121,8 +110,6 @@ export function Calculadora() {
     if (iibb) aportes.set(iibb.id, { monto: iibb.monto });
   }
 
-  // Al reiniciar o deshacer, el formulario se vuelve a montar: la página sube y
-  // el foco va al aviso (o al primer bloque), para no quedar en medio de la nada.
   const idAviso = `${idRol}-aviso`;
   useEffect(() => {
     if (vuelta === 0) return;
@@ -181,8 +168,6 @@ export function Calculadora() {
   return (
     <ProveedorDeFormato value={formato}>
       <Encabezado vigencia={vigencia} encuesta={datos.parametros.encuesta?.url} />
-      {/* Las keys llevan prefijo: son hermanos en el mismo fragmento y una key repetida
-          hace que React no sepa cuál quitar y deje el formulario viejo en la página. */}
       <main className="calculadora" key={`formulario-${vuelta}`}>
         <form className="calculadora__formulario" aria-label="Datos del trabajo" onSubmit={(e) => e.preventDefault()}>
           {reiniciado && (
@@ -223,7 +208,6 @@ export function Calculadora() {
                   {formato.desdePesos(valorBaseDelRol(rol, datos).valorBaseMensual)} por mes de convenio
                 </span>
                 <span className="ficha-del-rol__convenio">{rol.convenio}</span>
-                {/* RF-35: de qué escala sale el valor y cuánto se le sumó, para poder justificarlo. */}
                 <span className="ficha-del-rol__convenio">{valorBaseDelRol(rol, datos).escala}</span>
               </p>
             </div>
@@ -258,15 +242,12 @@ export function Calculadora() {
             return (
               <section
                 key={grupo.id}
-                // Lautaro pidió los costos operativos con un punto redondo en vez
-                // del cuadrado (RNF-13); siguen siendo casillas: se marcan varios.
                 className={grupo.id === 'operativos' ? 'bloque bloque--casillas-redondas' : 'bloque'}
                 aria-labelledby={idTitulo}
               >
                 <TituloDeSeccion seccion={grupo.id} id={idTitulo}>
                   {grupo.nombre}
                 </TituloDeSeccion>
-                {/* RF-46: con los plegables cerrados, los costos se pasaban de largo. */}
                 {grupo.subgrupos && (
                   <p className="bloque__aviso-de-subgrupos">
                     {resumenDeSubgrupos(sueltos.filter((i) => i.subgrupo).length, grupo.subgrupos.length)}
@@ -287,7 +268,6 @@ export function Calculadora() {
                     tituloOculto={exclusion.nombre === grupo.nombre}
                   />
                 ))}
-                {/* RF-27: un grupo con subgrupos se parte en plegables; los demás, como lista. */}
                 {grupo.subgrupos?.map((subgrupo, posicion) => {
                   const delSubgrupo = sueltos.filter((i) => i.subgrupo === subgrupo.id);
                   return (
@@ -295,7 +275,6 @@ export function Calculadora() {
                       key={subgrupo.id}
                       nombre={subgrupo.nombre}
                       cuenta={cuentaDelSubgrupo(delSubgrupo, estado.marcados, aportes, formato)}
-                      // RF-46: el primero abierto muestra que adentro hay ítems para marcar.
                       abiertoAlInicio={posicion === 0 || delSubgrupo.some((i) => estado.marcados[i.id])}
                     >
                       {delSubgrupo.map(itemConCasilla)}
@@ -303,8 +282,6 @@ export function Calculadora() {
                   );
                 })}
                 {!grupo.subgrupos && sueltos.length > 0 && (
-                  // Si el grupo también tiene opciones excluyentes, las casillas van
-                  // separadas y con su subtítulo: si no, se leen como una opción más.
                   <div className={exclusiones.length > 0 ? 'items items--separados' : 'items'}>
                     {exclusiones.length > 0 && grupo.tituloDeLosItems && (
                       <h3 className="bloque__subtitulo">{grupo.tituloDeLosItems}</h3>
@@ -316,7 +293,6 @@ export function Calculadora() {
             );
           })}
 
-          {/* RF-26: lo recordado se borra desde acá, al final de lo que se cargó. */}
           <div className="reinicio">
             {recuerda && (
               <p className="campo__ayuda">
@@ -329,24 +305,16 @@ export function Calculadora() {
           </div>
         </form>
 
-        {/* La columna existe para que el panel fijo tenga dónde terminar: un sticky
-            dentro de la grilla seguiría pegado hasta el final de la página, encima
-            del presupuesto. */}
         <div className="calculadora__columna-resultado">
           <aside id="resultado" className="calculadora__resultado" aria-labelledby={idTituloResultado} tabIndex={-1}>
             <h2 className="solo-lectores" id={idTituloResultado}>
               Resultado
             </h2>
-            {/* La moneda va arriba del total: se elige antes de leerlo (RNF-16).
-                Queda fija con él (RNF-14). */}
             <Desglose calculo={calculo}>
               <SelectorDeMoneda valor={estado.moneda} alElegir={elegirMoneda} cotizacion={datos.parametros.dolarBlue} />
             </Desglose>
           </aside>
         </div>
-        {/* RF-16: sólo con un resultado válido hay algo para presupuestar. Va fuera
-            del panel del resultado: en escritorio ese panel queda fijo, y el
-            formulario adentro quedaba al fondo de un segundo scroll. */}
         {calculo.ok && (
           <div id="presupuesto" className="calculadora__presupuesto">
             <DescargaDePresupuesto
@@ -364,7 +332,6 @@ export function Calculadora() {
         )}
       </main>
       <PieDePagina datos={datos} vigencia={vigencia} />
-      {/* Con la misma key que el formulario: si no, sigue observando el resultado viejo. */}
       <BarraDelTotal key={`barra-${vuelta}`} calculo={calculo} />
     </ProveedorDeFormato>
   );
