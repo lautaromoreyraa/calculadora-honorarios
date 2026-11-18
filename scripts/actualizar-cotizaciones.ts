@@ -1,12 +1,3 @@
-// Trae el dólar blue (RF-29) y el oficial del BCRA (RF-21) y escribe en
-// datos/parametros.json los que cambiaron. Lo corre la GitHub Action diaria;
-// Node 24 ejecuta TypeScript sin compilar. No hace commits ni PR: eso lo hace
-// el workflow, con las salidas `cambio`, `titulo`, `fecha`, `tabla` y
-// `errores` de este script.
-//
-// Cada fuente es independiente: si una API se cae o da un valor fuera del
-// rango de RF-23, esa cotización no se toca, la otra se publica igual y el
-// workflow termina en rojo con el error a la vista.
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { tablaDeCambios, type Cambio } from '../src/util/actualizacion/cambios.ts';
 import { conCotizacion, hayQueActualizar, type ClaveDeCotizacion, type Cotizacion } from '../src/util/cotizaciones.ts';
@@ -48,8 +39,6 @@ for (const fuente of fuentes) {
       console.log(`${fuente.nombre} sin cambios: $ ${anterior.valor} (${anterior.fecha}).`);
     }
   } catch (error) {
-    // Una línea por error: el texto puede traer parte de la respuesta de la API, y
-    // un salto de línea ahí podría colar comandos de workflow (`::…::`) en el registro.
     const detalle = error instanceof Error ? error.message : String(error);
     const mensaje = `${fuente.nombre}: ${detalle}`.replace(/\s+/g, ' ');
     errores.push(mensaje);
@@ -61,9 +50,7 @@ const cambio = cambios.length > 0;
 if (cambio) writeFileSync(ruta, texto);
 
 if (process.env.GITHUB_OUTPUT) {
-  // La fecha del PR es la de hoy en Argentina: cada cotización trae la suya.
   const hoy = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Argentina/Buenos_Aires' });
-  // Tabla y errores viajan en base64: son de varias líneas o traen texto de la API.
   const b64 = (s: string) => Buffer.from(s).toString('base64');
   appendFileSync(
     process.env.GITHUB_OUTPUT,

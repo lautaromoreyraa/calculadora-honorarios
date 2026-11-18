@@ -2,8 +2,6 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { cambiaElPrecio, celdasDeCsv, conPrecios, medirPorProvincia, nombreEnElCsv } from '../../util/combustible.ts';
 
-// RF-22: la Action semanal deja por provincia la mediana del precio diurno de la
-// nafta súper de los últimos 60 días, con cuántas estaciones lo informaron.
 
 const CABECERA =
   'indice_tiempo,idempresa,cuit,empresa,direccion,localidad,provincia,region,idproducto,producto,idtipohorario,tipohorario,precio,fecha_vigencia,idempresabandera,empresabandera,latitud,longitud,geojson';
@@ -25,10 +23,10 @@ describe('RF-22 · nafta desde los surtidores', () => {
   it('mediana del precio diurno de la nafta súper, una vez por estación', () => {
     const filas = [
       ...[2100, 2150, 2189, 2200, 2250].map((p, i) => fila(i + 1, 'CHACO', p)),
-      fila(1, 'CHACO', 2000, '2026-09-30'), // la misma estación informó antes: cuenta la última
-      fila(9, 'CHACO', 9999, '2026-10-20', '19'), // gasoil
+      fila(1, 'CHACO', 2000, '2026-09-30'),
+      fila(9, 'CHACO', 9999, '2026-10-20', '19'),
       fila(10, 'CHACO', 9999, '2026-10-20', '2', 'Nocturno'),
-      fila(11, 'CHACO', 1, '2026-08-01'), // más de 60 días
+      fila(11, 'CHACO', 1, '2026-08-01'),
       ...[2199, 2199, 2210, 2190, 2205, 2199].map((p, i) => fila(20 + i, 'CORRIENTES', p)),
     ];
     expect(medirPorProvincia(csv(filas), provincias, HOY)).toEqual({

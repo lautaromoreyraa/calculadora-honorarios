@@ -1,20 +1,3 @@
-// Suma a datos/indices.json los meses nuevos del IPC Noreste (nivel general y
-// Comunicación) y del índice de salarios del INDEC (RF-20). Lo corre la GitHub
-// Action diaria desde el día 10; Node 24 ejecuta TypeScript sin compilar. No
-// hace commits ni PR: eso lo hace el workflow, con las salidas `cambio`,
-// `titulo` y `tabla` de este script.
-//
-// Fuentes: el IPC sale del CSV del INDEC, que publica antes que la API de
-// datos.gob.ar; si el CSV no responde o cambia de forma, el nivel general se
-// toma de la serie 148.3_INIVELNEA_DICI_M_21 de esa API (la división
-// Comunicación no tiene respaldo). El índice de salarios sale de la serie
-// 149.1_SOR_PRIADO_OCTU_0_25.
-//
-// Cualquier error (fuente caída sin respaldo, mes salteado, dato vacío, salto
-// fuera del rango de RF-23) frena todo: no se escribe nada, no hay PR y la
-// corrida queda en rojo.
-//
-// `--inicial AAAA-MM` arma el archivo desde ese mes, para la carga inicial.
 import { appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { tablaDeCambios, type Cambio } from '../src/util/actualizacion/cambios.ts';
 import {
@@ -41,21 +24,17 @@ async function serieDeDatosGobAr(id: string, dato: string) {
   return leerSerieDeDatosGobAr(await (await pedir(API_DE_SERIES + id)).json(), dato);
 }
 
-/** Si el IPC salió del respaldo y no del CSV: se avisa en el PR. */
 let usoElRespaldo = false;
 
-/** Lo que dice cada fuente hoy, por serie. */
 async function consultarFuentes(): Promise<Record<IdDeSerie, Record<string, number>>> {
   const salarios = await serieDeDatosGobAr(SERIE_DE_SALARIOS, 'Índice de salarios');
   try {
-    // El CSV viene en Latin-1: «Comunicación» se leería mal como UTF-8.
     const texto = new TextDecoder('latin1').decode(await (await pedir(CSV_DEL_INDEC)).arrayBuffer());
     return { ...leerCsvDelIndec(texto), salarios };
   } catch (error) {
     console.error(`::warning::CSV del INDEC: ${String(error).replace(/\s+/g, ' ')} Se usa la API de series para el nivel general.`);
     const general = await serieDeDatosGobAr(SERIE_DE_RESPALDO_DEL_IPC, 'IPC Noreste');
     usoElRespaldo = true;
-    // Sin respaldo para Comunicación: queda como está y se actualiza cuando vuelva el CSV.
     return { 'ipc-nea-general': general, 'ipc-nea-comunicacion': {}, salarios };
   }
 }
@@ -68,7 +47,6 @@ const inicial = process.argv.indexOf('--inicial');
 if (inicial >= 0) {
   const primero = process.argv[inicial + 1];
   const series = JSON.parse(readFileSync(new URL('../datos/indices.json', import.meta.url), 'utf8')).series;
-  // La carga inicial nunca reescribe meses ya cargados: los montos parten de ellos.
   for (const id of Object.keys(series) as IdDeSerie[]) {
     if (Object.keys(series[id].meses).length > 0) throw new Error(`La serie ${id} ya tiene meses: --inicial es sólo para un archivo vacío.`);
   }
@@ -100,7 +78,6 @@ for (const id of Object.keys(indices.series) as IdDeSerie[]) {
     serie.meses[mes] = valor;
     cambios.push({ dato: `${serie.nombre}, ${mes}`, anterior, nuevo: valor });
   }
-  // Nombres cortos: el resumen va en el asunto del commit, que no pasa de 72 caracteres.
   if (nuevos.length > 0) resumen.push(`${NOMBRE_CORTO[id]} ${nuevos.at(-1)!.mes}`);
   console.log(nuevos.length > 0 ? `${serie.nombre}: ${nuevos.map((n) => n.mes).join(', ')}.` : `${serie.nombre}: sin meses nuevos.`);
 }

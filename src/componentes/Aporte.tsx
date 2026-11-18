@@ -7,12 +7,6 @@ interface Props {
   aporte?: DatosDelAporte;
 }
 
-/**
- * Cuánto suma un ítem marcado a este trabajo. Si suma cero porque falta un
- * dato, lo dice con el color y el ícono de aviso (RF-45): en gris se leía como
- * un texto más y nadie lo completaba. Si vale cero de por sí (cliente A), no
- * dice nada: «Suma $ 0» se leía como un error del cálculo.
- */
 export function Aporte({ id, aporte }: Props) {
   const formato = useFormato();
   if (!aporte) return null;

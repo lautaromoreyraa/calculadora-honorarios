@@ -1,29 +1,13 @@
-# Índices del INDEC (RF-20): IPC Noreste (nivel general y Comunicación) e índice
-# de salarios. Corre todos los días desde el 10 de cada mes, que es cuando el
-# INDEC empieza a publicar; mientras no haya un mes nuevo, termina sin PR. Si
-# hay uno, abre un PR a main que toca sólo datos/indices.json, corre la
-# verificación completa, lo mergea y publica, como las cotizaciones (RF-23).
-#
-# Un mes salteado, un dato vacío o un salto fuera del rango de RF-23 hacen
-# fallar el script: no hay PR y la corrida queda en rojo a la vista.
-# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
-#
-# Dos jobs (RNF-07): el que instala dependencias y las ejecuta no tiene ningún
-# permiso de escritura; el que puede escribir en main y mergear no instala ni
-# ejecuta nada de terceros.
 name: Índices del INDEC
 
 on:
   schedule:
-    # 14:00 UTC = 11:00 en Argentina, del 10 al fin de mes.
     - cron: '0 14 10-31 * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# El mismo grupo que las cotizaciones: los dos mergean a main y sincronizan
-# develop, y no tienen que pisarse.
 concurrency:
   group: dolar-blue
   cancel-in-progress: false
@@ -40,22 +24,19 @@ jobs:
       tabla: ${{ steps.indices.outputs.tabla }}
       parche: ${{ steps.parche.outputs.parche }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 24
           cache: npm
-      # Antes de npm ci: el script sólo usa código del repo, y el parche queda
-      # fijado antes de que corra cualquier dependencia.
       - id: indices
         run: npm run actualizar-indices
       - id: parche
         if: steps.indices.outputs.cambio == 'true'
         run: |
-          # El PR tiene que tocar sólo los índices: si no, no se mergea solo (RF-23).
           node scripts/controlar-archivos.ts datos/indices.json
           echo "parche=$(git diff | base64 -w0)" >> "$GITHUB_OUTPUT"
       - if: steps.indices.outputs.cambio == 'true'
@@ -82,7 +63,7 @@ jobs:
       PARCHE: ${{ needs.consultar.outputs.parche }}
       TABLA: ${{ needs.consultar.outputs.tabla }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
           fetch-depth: 0
@@ -94,15 +75,12 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "datos/indices-$FECHA"
           git commit -am "RF-20: $(echo "$TITULO" | base64 -d)"
-      # Un PR abierto con este token no dispara el workflow de verificación: la
-      # verificación ya corrió sobre este mismo cambio en el job anterior.
       - name: PR a main y merge
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           rama="datos/indices-$FECHA"
           git push origin "$rama"
-          # Comillas simples: el texto lleva backticks de Markdown y no se ejecutan.
           cuerpo='Meses nuevos de los índices del INDEC. Toca sólo `datos/indices.json`; los montos se recalculan desde su mes de origen (RN-12). Validación de datos, lint, tests y build pasaron en esta corrida.'
           cuerpo="$cuerpo"$'\n\n'"$(echo "$TABLA" | base64 -d)"
           gh pr create --base main --head "$rama" \

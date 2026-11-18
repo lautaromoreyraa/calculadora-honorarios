@@ -12,10 +12,6 @@ const VEHICULOS: { id: Vehiculo; nombre: string }[] = [
   { id: 'privado', nombre: 'Transporte privado' },
 ];
 
-/**
- * Auto o moto (RF-13): elegir uno carga su consumo por defecto. Transporte
- * privado (RF-47): en vez de kilómetros, pide lo que salió el viaje.
- */
 export function SelectorDeVehiculo({ valor, alElegir }: Props) {
   const nombre = useId();
   return (

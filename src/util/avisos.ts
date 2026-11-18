@@ -1,18 +1,8 @@
-// Recordatorios de los valores que no se actualizan solos (RF-24). Funciones
-// puras: las usa el script de la Action mensual, que abre un issue por cada
-// aviso del mes salvo que ya haya uno abierto con la misma etiqueta.
-//
-// - Febrero y agosto: monotributo (ARCA) y RS de Chaco (ATP), que cambian en
-//   esos meses y se cargan a mano (RN-13).
-// - Octubre: revisión anual opcional de las escalas de convenio (por si
-//   alguien quiere reanclarlas, RN-12) y de los cuatro costos de mercado
-//   indexados, para compararlos con los precios de lista.
 import { factorDeActualizacion, valorBaseDelRol, valorMensual } from './calculo/index.ts';
 import type { Datos, Item, ItemMensual } from './datos/tipos.ts';
 import { formatearPesos } from './formato.ts';
 
 export interface Aviso {
-  /** Identifica el tipo de aviso: con un issue abierto con esta etiqueta, no se abre otro. */
   etiqueta: string;
   titulo: string;
   cuerpo: string;
@@ -92,7 +82,6 @@ function avisoDeRevisionAnual(mes: string, datos: Datos): Aviso {
   };
 }
 
-/** Los avisos que corresponden a un mes AAAA-MM: ninguno fuera de febrero, agosto y octubre. */
 export function avisosDelMes(mes: string, datos: Datos): Aviso[] {
   const numero = Number(mes.slice(5, 7));
   if (numero === 2 || numero === 8) return [avisoDeValoresManuales(mes, datos)];
@@ -100,7 +89,6 @@ export function avisosDelMes(mes: string, datos: Datos): Aviso[] {
   return [];
 }
 
-/** Los avisos que hay que abrir: los del mes sin un issue abierto con su etiqueta. */
 export function avisosParaAbrir(avisos: Aviso[], etiquetasAbiertas: string[]): Aviso[] {
   const abiertas = new Set(etiquetasAbiertas);
   return avisos.filter((a) => !abiertas.has(a.etiqueta));

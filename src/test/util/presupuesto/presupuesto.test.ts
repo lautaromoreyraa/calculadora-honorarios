@@ -2,8 +2,6 @@ import { Packer } from 'docx';
 import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
 import { calcular, type Resultado, type Seleccion } from '../../../util/calculo/index.ts';
-// Los montos esperados salen del SRS: se prueban con los datos en su valor
-// cargado, sin lo que los índices vivos les sumaron (ver test/fixture/datos.ts).
 import { datosAlOrigen as datos } from '../../fixture/datos.ts';
 import { formatearPesos, formatearPesosConCentavos } from '../../../util/formato.ts';
 import { enDolares } from '../../../util/moneda.ts';
@@ -19,8 +17,6 @@ import {
 import { contenidoDelPresupuesto, LEYENDA_FACTURA_C } from '../../../util/presupuesto/contenido.ts';
 import { fechaDentroDe } from '../../../util/presupuesto/fechas.ts';
 
-// RF-16: el Word tiene que decir lo mismo que la pantalla. Se genera el .docx
-// de verdad y se lee su XML.
 
 function resultado(cambios: Partial<Seleccion> = {}): Resultado {
   const calculo = calcular(
@@ -65,7 +61,6 @@ const vacio: DatosDelPresupuesto = {
   condiciones: '',
 };
 
-/** Texto plano de word/document.xml: el XML sin etiquetas, con las entidades resueltas. */
 async function textoDelWord(r: Resultado, presupuesto: DatosDelPresupuesto): Promise<string> {
   const buffer = await Packer.toBuffer(armarPresupuesto(r, datos, presupuesto));
   const zip = await JSZip.loadAsync(buffer);
@@ -125,7 +120,6 @@ describe('RF-16 · presupuesto en Word', () => {
     expect(texto).toContain('12 h');
     expect(texto).toContain('Validez de la oferta: hasta el 28 de octubre de 2026');
     expect(texto).toContain(`Valores de referencia vigentes a ${vigenciaDeLosValores(datos)}.`);
-    // RF-35: el Word dice de qué escala sale el valor hora y cuánto se le sumó.
     expect(texto).toContain('Escala de septiembre de 2026 (CCT 131/75) + 0,0 % por salarios + 0,0 % por IPC NEA');
   });
 

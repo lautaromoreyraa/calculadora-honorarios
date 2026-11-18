@@ -7,7 +7,6 @@ interface Props {
   vigencia: string;
 }
 
-/** Crédito, aviso y de dónde salen los valores (RF-19). */
 export function PieDePagina({ datos, vigencia }: Props) {
   const { dolarOficial, dolarBlue } = datos.parametros;
   return (
@@ -25,7 +24,6 @@ export function PieDePagina({ datos, vigencia }: Props) {
         </p>
         <div className="pie__monotributo">
           <p>Cuota mensual del monotributo para servicios, según ARCA:</p>
-          {/* Una lista y no una frase: con varias categorías, «A $ … · B $ …» no se lee. */}
           <dl className="pie__categorias">
             {datos.monotributo.categorias.map((c) => (
               <div key={c.letra} className="pie__categoria">

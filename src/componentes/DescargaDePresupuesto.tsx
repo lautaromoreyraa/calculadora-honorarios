@@ -8,7 +8,6 @@ import { fechaDentroDe } from '../util/presupuesto/fechas.ts';
 import { TituloDeSeccion } from './TituloDeSeccion.tsx';
 import { VistaPreviaDelPresupuesto } from './VistaPreviaDelPresupuesto.tsx';
 
-/** Lo del profesional que se recuerda entre visitas (RF-26): lo guarda la calculadora, no este formulario. */
 export interface DelProfesional {
   profesional: string;
   email: string;
@@ -30,13 +29,11 @@ interface CampoDeTextoProps {
   alCambiar: (valor: string) => void;
   autoComplete?: string;
   multilinea?: boolean;
-  /** «date» muestra el calendario del sistema. */
   tipo?: 'text' | 'date' | 'email' | 'tel';
   min?: string;
   ayuda?: string;
 }
 
-/** Campo de texto con los mismos estilos que los numéricos del formulario. */
 function CampoDeTexto({
   id,
   etiqueta,
@@ -76,8 +73,6 @@ function CampoDeTexto({
           />
         )}
       </div>
-      {/* Debajo del campo, como en el resto del formulario: arriba empujaba el
-          campo y lo desalineaba del de al lado. */}
       {ayuda && (
         <p className="campo__ayuda" id={`${id}-ayuda`}>
           {ayuda}
@@ -87,25 +82,18 @@ function CampoDeTexto({
   );
 }
 
-/**
- * Campos del presupuesto, vista previa y botón de descarga (RF-16). Todo se
- * genera en el navegador: nada de lo que se carga acá sale del equipo (RNF-02).
- */
 export default function DescargaDePresupuesto({ resultado, delProfesional, alCambiar }: Props) {
   const id = useId();
   const formato = useFormato();
-  // El siguiente al último descargado en este navegador; se puede cambiar.
   const [numero, setNumero] = useState(() =>
     siguienteNumero(leerUltimoNumero(almacenDelNavegador()), new Date().getFullYear()),
   );
   const [empresa, setEmpresa] = useState('');
   const [contacto, setContacto] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  // La validez es una fecha: el cliente lee «hasta el 29 de octubre», no «15 días» desde quién sabe cuándo.
   const [validez, setValidez] = useState(() => fechaDentroDe(15));
   const [generando, setGenerando] = useState(false);
   const [error, setError] = useState('');
-  /** Nombre del último archivo descargado: en el celular la descarga del navegador se pierde fácil. */
   const [descargado, setDescargado] = useState('');
 
   const presupuesto = useMemo(
@@ -119,9 +107,6 @@ export default function DescargaDePresupuesto({ resultado, delProfesional, alCam
     setError('');
     setDescargado('');
     try {
-      // docx pesa: se baja recién cuando alguien pide el Word. Si se publicó una
-      // versión nueva con la página abierta, ese archivo ya no existe con el
-      // nombre que esta página conoce: se pide recargar en vez de fallar mudo.
       let modulo: typeof import('../util/presupuesto/index.ts');
       try {
         modulo = await import('../util/presupuesto/index.ts');
@@ -133,8 +118,6 @@ export default function DescargaDePresupuesto({ resultado, delProfesional, alCam
       const blob = await modulo.generarPresupuesto(resultado, datos, { ...presupuesto, fecha });
       const url = URL.createObjectURL(blob);
       const archivo = modulo.nombreDelArchivo(resultado, fecha);
-      // En el documento y revocado más tarde: un enlace suelto, o revocar la URL
-      // en el mismo instante, cancela la descarga en algunos navegadores.
       const enlace = document.createElement('a');
       enlace.href = url;
       enlace.download = archivo;
@@ -143,8 +126,6 @@ export default function DescargaDePresupuesto({ resultado, delProfesional, alCam
       enlace.click();
       enlace.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
-      // El número queda en el campo, por si hay que corregir algo y volver a
-      // bajarlo; el próximo presupuesto ya propone el siguiente.
       guardarUltimoNumero(almacenDelNavegador(), numero);
       setDescargado(archivo);
     } catch {
@@ -254,15 +235,12 @@ export default function DescargaDePresupuesto({ resultado, delProfesional, alCam
           />
         </fieldset>
 
-        {/* El total a la vista junto al botón: en escritorio, al llegar acá el panel
-            del resultado ya quedó arriba. */}
         <p className="presupuesto__total">
           Total a presupuestar: <strong>{formato.monto(resultado.total)}</strong>
         </p>
         <button type="button" className="boton" onClick={descargar} disabled={generando}>
           {generando ? 'Generando…' : 'Descargar presupuesto (.docx)'}
         </button>
-        {/* Queda hasta la próxima descarga: no desaparece sola. */}
         <p className="presupuesto__listo" role="status">
           {descargado && `Presupuesto descargado: ${descargado}`}
         </p>

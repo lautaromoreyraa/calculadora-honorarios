@@ -7,19 +7,14 @@ interface Props {
   calculo: Calculo;
 }
 
-/** Lo que ya muestra el total: con cualquiera de los dos a la vista, la barra sobra. */
 const QUE_MUESTRAN_EL_TOTAL = ['resultado', 'presupuesto'];
 
-// En el celular el desglose queda debajo del formulario: esta barra muestra el
-// total mientras se marcan casillas y lleva al desglose. No anuncia cambios a
-// los lectores de pantalla: eso lo hace el total del desglose.
 export function BarraDelTotal({ calculo }: Props) {
   const formato = useFormato();
   const faltan = datosQueFaltan(calculo);
   const barra = useRef<HTMLDivElement>(null);
   const [totalALaVista, setTotalALaVista] = useState(false);
 
-  // #presupuesto aparece recién con un resultado: se vuelve a observar cuando cambia.
   useEffect(() => {
     if (!('IntersectionObserver' in window)) return;
     const visibles = new Set<string>();
@@ -40,8 +35,6 @@ export function BarraDelTotal({ calculo }: Props) {
     return () => observador.disconnect();
   }, [calculo.ok]);
 
-  // El pie y el margen de scroll dejan lugar para la barra según su alto real:
-  // con el texto agrandado mide el doble y tapaba el final de la página.
   useEffect(() => {
     const el = barra.current;
     if (!el || !('ResizeObserver' in window)) return;
@@ -60,7 +53,6 @@ export function BarraDelTotal({ calculo }: Props) {
       className={`barra-del-total${totalALaVista ? ' barra-del-total--oculta' : ''}`}
       aria-hidden={totalALaVista || undefined}
     >
-      {/* RF-45: cuántos datos faltan, en el color de aviso; con total, debajo de él. */}
       {calculo.ok ? (
         <span className="barra-del-total__resultado">
           <span className="barra-del-total__monto">{formato.monto(calculo.resultado.total)}</span>
