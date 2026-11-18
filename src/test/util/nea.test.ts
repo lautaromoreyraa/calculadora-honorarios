@@ -3,7 +3,6 @@ import type { Datos } from '../../util/datos/tipos.ts';
 import { datos } from '../../util/datos/index.ts';
 import { ingresosBrutosDelNea, naftaDelNea } from '../../util/nea.ts';
 
-// RF-43: donde un valor cambia según la provincia, se toma el más alto del NEA.
 
 describe('RF-43 · ingresos brutos del NEA', () => {
   it('es la alícuota sobre lo facturado más alta: hoy el 3 % de Corrientes', () => {

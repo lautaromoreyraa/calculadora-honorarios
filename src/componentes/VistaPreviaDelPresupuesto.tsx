@@ -1,12 +1,5 @@
 import type { ContenidoDelPresupuesto } from '../util/presupuesto/contenido.ts';
 
-/**
- * La hoja tal como va a salir en el Word (RF-16), mientras se escribe. Lee el
- * mismo contenido que el generador del .docx, así que no puede decir otra
- * cosa. Va en blanco, como el documento: es papel, no parte del tema oscuro.
- * Sin encabezados h3/h4 a propósito: para el lector de pantalla es una figura
- * dentro de la sección del presupuesto, no un capítulo más de la página.
- */
 export function VistaPreviaDelPresupuesto({ contenido: c }: { contenido: ContenidoDelPresupuesto }) {
   return (
     <figure className="hoja-figura">

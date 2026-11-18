@@ -1,13 +1,3 @@
-// Busca señales de paritarias nuevas (RF-40) y escribe en un JSON los avisos a
-// abrir. Lo corre la Action semanal, que le pasa los issues de paritarias ya
-// abiertos o cerrados (la memoria entre semanas) y abre los que el script
-// devuelve. No toca datos/ ni abre PR, y no tiene credenciales.
-//
-// Uso: node scripts/paritarias.ts <historia.json> <salida.json>
-//   historia.json: [{ "body": "..." }, ...] de `gh issue list --label paritarias`.
-//   salida.json: { base, avisos, errores }. Sin historia, la primera corrida
-//   devuelve una línea de base con todo lo que hay hoy, para no avisar de cada
-//   escala vieja.
 import { readFileSync, writeFileSync } from 'node:fs';
 import type { Aviso } from '../src/util/avisos.ts';
 import {
@@ -36,10 +26,8 @@ const todos: string[] = [];
 const pedir = async (url: string) => {
   const r = await fetch(url, { signal: AbortSignal.timeout(60_000), headers: { 'User-Agent': 'calculadora-honorarios (RF-40)' } });
   if (!r.ok) throw new Error(`${url} respondió ${r.status}.`);
-  // Tope de 2 MB: las regex corren sobre HTML de terceros, y una página enorme o rota no puede trabar la corrida.
   return (await r.text()).slice(0, 2_000_000);
 };
-/** El sitio no contestó: conexión rechazada o cortada, demora, o un error 5xx del servidor. */
 const sinRespuesta = (error: unknown) =>
   error instanceof Error && (/fetch failed|aborted|timeout/i.test(error.message) || / respondió 5\d\d\.$/.test(error.message));
 const anotar = (fuente: string, error: unknown) => {
@@ -48,10 +36,6 @@ const anotar = (fuente: string, error: unknown) => {
   console.error(`::warning::${mensaje}`);
 };
 
-// Boletín Oficial: la primera sección de los últimos 7 días. El sitio no atiende
-// a los servidores de GitHub ni de Cloudflare (RF-48): si no responde, se avisa
-// una vez, se sigue con los sindicatos y la corrida no queda en rojo por eso.
-// Una respuesta con error (un 4xx, una página que cambió) sí cuenta como error.
 let boletinSinRespuesta = false;
 for (let atras = 0; atras < 7 && !boletinSinRespuesta; atras++) {
   const dia = new Date(Date.now() - atras * 86_400_000)
@@ -75,7 +59,6 @@ for (let atras = 0; atras < 7 && !boletinSinRespuesta; atras++) {
   }
 }
 
-// Páginas de escalas de los sindicatos.
 for (const pagina of PAGINAS_DE_ESCALAS) {
   try {
     const enlaces = enlacesDeEscalas(await pedir(pagina.url), pagina.url);

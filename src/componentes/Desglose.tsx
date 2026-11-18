@@ -12,20 +12,11 @@ import { TriangleAlert } from 'lucide-react';
 
 interface Props {
   calculo: Calculo;
-  /** Lo que va pegado arriba de la cabeza y queda fijo con ella: el selector de moneda (RNF-14, RNF-16). */
   children?: ReactNode;
 }
 
-/**
- * Total y desglose renglón por renglón (RF-15). Si falta algo, dice qué. Arriba
- * el selector de moneda (RNF-16) y la cabeza (total y composición); abajo el
- * cuerpo con los renglones. En escritorio todo queda fijo al costado (RNF-14).
- */
 export function Desglose({ calculo, children }: Props) {
   const formato = useFormato();
-  // El anuncio vive en un nodo que no cambia entre «faltan datos» y el total,
-  // así el lector de pantalla lo sigue; y espera a que se termine de escribir.
-  // RF-45: con total, también dice si falta algo; si no, el faltante sólo se ve.
   const faltan = datosQueFaltan(calculo);
   const anuncio = useValorDiferido(
     calculo.ok
@@ -51,7 +42,6 @@ export function Desglose({ calculo, children }: Props) {
   );
 }
 
-/** Lleva el foco al campo: un enlace a #id sólo desplaza, y con teclado o lector hay que llegar al control. */
 function irAlCampo(evento: MouseEvent<HTMLAnchorElement>, campo: string) {
   const control = document.getElementById(idDeCampo(campo));
   if (!control) return;
@@ -64,7 +54,6 @@ function Pendiente({ errores }: { errores: Falta[] }) {
   return (
     <div className="desglose__cabeza">
       <p className="desglose__total-etiqueta">Total del trabajo</p>
-      {/* RF-45: lo que falta va en un recuadro de aviso, no como texto gris. */}
       <div className="desglose__lo-que-falta">
         <p className="desglose__total desglose__total--vacio">
           <TriangleAlert size={20} strokeWidth={2} aria-hidden="true" />
@@ -88,8 +77,6 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
   const formato = useFormato();
   const r = calculo.resultado;
   const iibb = r.ingresosBrutosSobreTotal;
-  // El único movimiento de la página: el total cuenta hasta su valor nuevo. Lo
-  // que se anuncia al lector de pantalla es el valor final, no los intermedios.
   const totalMostrado = useNumeroAnimado(r.total);
   return (
     <>
@@ -108,8 +95,6 @@ function Resultado({ calculo, children }: { calculo: Extract<Calculo, { ok: true
         </div>
       </div>
 
-      {/* En escritorio el cuerpo se recorre con su propia barra (RNF-15): con
-          tabIndex se llega con el teclado y se mueve con las flechas. */}
       <div className="desglose__cuerpo" tabIndex={0} role="region" aria-label="Desglose del honorario">
         {r.avisos.length > 0 && (
           <div className="desglose__lo-que-falta">

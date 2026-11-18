@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { datos } from '../../../util/datos/index.ts';
 
-// El esquema valida la forma de cada archivo por separado; estos tests validan lo
-// que cruza archivos: que las referencias apunten a algo que existe.
 
 const repetidos = (ids: string[]) => ids.filter((id, i) => ids.indexOf(id) !== i);
 const idsDeRoles = datos.roles.map((r) => r.id);
@@ -108,8 +106,6 @@ describe('datos', () => {
     expect(tramos).toEqual([...tramos].sort((a, b) => a - b));
   });
 
-  // Sin el mes de la escala no se puede proyectar nada (RN-12): el esquema exige
-  // los campos, y este test que estén justo en los valores de convenio.
   it('TAR-08 · los ocho roles y los adicionales de convenio dicen de qué escala salen', () => {
     for (const rol of datos.roles) {
       expect(rol.escala.origen, rol.id).toMatch(/^\d{4}-\d{2}$/);
@@ -126,8 +122,6 @@ describe('datos', () => {
     expect(antiguedad?.tipo === 'mensual' && antiguedad.porRol?.productor?.escala?.origen).toBe('2026-09');
   });
 
-  // Los meses del relevamiento del BUG-04 (2026-10-19). Afirmados uno por uno:
-  // un mes corrido proyectaría desde el lugar equivocado sin que nada lo note.
   it('TAR-08 · cada rol tiene el mes de su escala', () => {
     const meses = Object.fromEntries(datos.roles.map((r) => [r.id, r.escala.origen]));
     expect(meses).toEqual({
@@ -142,8 +136,6 @@ describe('datos', () => {
     });
   });
 
-  // Un criterio propio mostrado como «Norma» le hace creer al usuario que hay una
-  // ley detrás; si el texto aporta algo, va en la descripción.
   it('RF-41 · la norma de un ítem no es un criterio de la investigación ni un costo de mercado', () => {
     const criterios = /costo de mercado|criterio de la investigación|precio del alquiler|sobre la base de cálculo/i;
     for (const item of datos.items) {

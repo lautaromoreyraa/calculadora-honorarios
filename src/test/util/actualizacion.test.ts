@@ -9,8 +9,6 @@ import {
 } from '../../util/actualizacion/validacion.ts';
 import { datos } from '../../util/datos/index.ts';
 
-// RF-23: ningún dato externo llega al sitio sin pasar por estas validaciones, y
-// un PR automático que toca algo más que sus datos no se mergea solo.
 
 const { ipc } = datos.parametros.rangosDeVariacion;
 
@@ -87,7 +85,6 @@ describe('RF-23 · PR automático', () => {
 });
 
 describe('RF-23 · rango del dólar', () => {
-  // El borde exacto: de la mitad al doble del valor anterior, ambos incluidos.
   const { dolar } = datos.parametros.rangosDeVariacion;
   it('acepta hasta la mitad y hasta el doble, y frena apenas se pasa', () => {
     expect(() => validarVariacion('Dólar', 1000, 500, dolar)).not.toThrow();

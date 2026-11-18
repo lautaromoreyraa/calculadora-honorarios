@@ -14,9 +14,7 @@ import {
 } from '../../util/memoria.ts';
 import { CONDICIONES_POR_DEFECTO } from '../../util/presupuesto/contenido.ts';
 
-// RF-26: recordar los datos del profesional entre visitas, sin los del trabajo.
 
-/** Un localStorage en memoria, como el del navegador. */
 function almacen(): Storage {
   const valores = new Map<string, string>();
   return {
@@ -53,7 +51,6 @@ const lleno = (): EstadoDelFormulario => ({
   moneda: 'USD',
 });
 
-/** Guardar y volver a abrir la página. */
 function recargar(estado: EstadoDelFormulario, a = almacen()): EstadoDelFormulario {
   guardarPerfil(a, perfilDe(estado));
   return restaurar(leerPerfil(a), datos);

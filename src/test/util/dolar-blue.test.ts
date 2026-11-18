@@ -4,9 +4,7 @@ import { hayQueActualizar } from '../../util/cotizaciones.ts';
 import { conDolarBlue, FUENTE_DEL_BLUE, leerRespuesta } from '../../util/dolar-blue.ts';
 import { datos } from '../../util/datos/index.ts';
 
-// RF-29: la Action diaria actualiza el dólar blue sólo con un valor nuevo y razonable.
 
-// El rango es el de los datos: si alguien lo afloja, estos casos lo marcan.
 const rango = datos.parametros.rangosDeVariacion.dolar;
 const anterior = { valor: 1550, fecha: '2026-10-14', fuente: FUENTE_DEL_BLUE };
 
@@ -42,9 +40,6 @@ describe('RF-29 · dólar blue diario', () => {
 
   it('cambia sólo el bloque dolarBlue de parametros.json, sin reformatear el resto', () => {
     const texto = readFileSync(new URL('../../../datos/parametros.json', import.meta.url), 'utf8');
-    // El valor nuevo se deriva del que tiene el archivo y no se fija a mano: la
-    // Action escribe la cotizacion real antes de correr los tests, y el dia que
-    // coincidia con el valor fijo el "cambio" no cambiaba nada y la corrida frenaba.
     const actual = JSON.parse(texto).dolarBlue;
     const cotizacion = { valor: actual.valor + 25, fecha: actual.fecha === '2000-01-01' ? '2000-01-02' : '2000-01-01', fuente: FUENTE_DEL_BLUE };
     const nuevo = conDolarBlue(texto, cotizacion);

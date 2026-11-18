@@ -1,16 +1,7 @@
-# Recordatorios de los valores que no se actualizan solos (RF-24). El día 1 de
-# cada mes arma los avisos que correspondan: en febrero y agosto, monotributo y
-# RS de Chaco; en octubre, la revisión anual de escalas y costos de mercado. Por
-# cada uno abre un issue, salvo que ya haya uno abierto con su etiqueta.
-#
-# No instala dependencias: el script sólo usa código del repo. El único permiso
-# de escritura es el de issues; no toca el código ni los datos.
-# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
 name: Avisos de valores manuales
 
 on:
   schedule:
-    # Día 1 a las 13:00 UTC = 10:00 en Argentina.
     - cron: '0 13 1 * *'
   workflow_dispatch:
 
@@ -25,10 +16,10 @@ jobs:
       contents: read
       issues: write
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 24
       - run: node scripts/avisos-del-mes.ts "$RUNNER_TEMP/avisos.json"

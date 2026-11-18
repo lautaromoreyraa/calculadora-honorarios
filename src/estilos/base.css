@@ -7,8 +7,6 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
-  /* Las barras de scroll también son parte del tema: sin esto, Windows las
-     dibuja grises y claras sobre la página oscura. */
   scrollbar-color: var(--color-borde-control) var(--color-fondo);
 }
 
@@ -25,8 +23,6 @@ body {
   font-family: var(--fuente-base);
   font-size: var(--texto-base);
   line-height: 1.5;
-  /* Archivo viene apretada para titulares; en texto claro sobre fondo oscuro y
-     a tamaño de lectura, un poco de aire la hace más legible. */
   letter-spacing: 0.012em;
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;

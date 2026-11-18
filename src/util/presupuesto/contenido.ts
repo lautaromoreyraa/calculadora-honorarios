@@ -1,34 +1,23 @@
-// Qué dice el presupuesto (RF-16), sin decir cómo se dibuja. De acá salen el
-// Word y la vista previa de la pantalla: como los dos leen lo mismo, la vista
-// previa no puede mostrar algo distinto de lo que se descarga. No importa docx,
-// para que la vista previa no lo arrastre al bundle principal.
 import type { Resultado } from '../calculo/tipos.ts';
 import type { Datos } from '../datos/tipos.ts';
 import { formatearNumero, formatearPesos } from '../formato.ts';
 import { formatoDe } from '../moneda.ts';
 import { textoDeValidez } from './fechas.ts';
 
-/** Lo que el profesional completa antes de descargar. */
 export interface DatosDelPresupuesto {
   numero: string;
   profesional: string;
-  /** Contacto del profesional: los tres son opcionales y el vacío no sale. */
   email: string;
   telefono: string;
   cuit: string;
-  /** Empresa u organización del cliente. */
   empresa: string;
-  /** Persona del cliente a la que va dirigido; opcional. */
   contacto: string;
   descripcion: string;
-  /** Hasta cuándo vale la oferta, AAAA-MM-DD como lo da el calendario. */
   validez: string;
   condiciones: string;
-  /** Fecha del presupuesto; por defecto, hoy. */
   fecha?: Date;
 }
 
-/** Lo que falta y es necesario sale como marcador, para que se vea qué completar. */
 export const MARCADORES = {
   numero: '[Número]',
   profesional: '[Nombre del profesional]',
@@ -38,12 +27,10 @@ export const MARCADORES = {
   condiciones: '[Condiciones de pago]',
 } as const;
 
-/** Un punto de partida que el profesional cambia a su gusto; se recuerda el suyo. */
 export const CONDICIONES_POR_DEFECTO =
   '50 % de anticipo al aprobar el presupuesto y 50 % contra entrega, por transferencia bancaria. ' +
   'El plazo de entrega corre desde la aprobación y el pago del anticipo.';
 
-/** El monotributista emite factura C, que no discrimina IVA: decirlo evita la pregunta de siempre. */
 export const LEYENDA_FACTURA_C = 'Factura C: el IVA no se discrimina.';
 
 export interface ContenidoDelPresupuesto {
@@ -53,12 +40,9 @@ export interface ContenidoDelPresupuesto {
   cliente: { empresa: string; contacto?: string };
   trabajo: { descripcion: string; horas: string; valorHora: string };
   total: string;
-  /** En dólares, a qué cotización se tomó (RF-28). */
   cotizacion?: string;
-  /** Párrafos de las condiciones de pago, con la factura C si corresponde. */
   condiciones: string[];
   validez: string;
-  /** De qué escala sale el valor hora y cuánto se le sumó (RF-35). */
   fundamento: string;
   vigencia: string;
 }
@@ -68,7 +52,6 @@ const completar = (valor: string, marcador: string) => valor.trim() || marcador;
 const fechaLarga = new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'long', year: 'numeric' });
 const mesLargo = new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric', timeZone: 'UTC' });
 
-/** El mes más reciente entre las vigencias de los valores, como «octubre de 2026». */
 export function vigenciaDeLosValores(datos: Datos): string {
   const vigencias = [
     ...datos.roles.map((r) => r.vigencia),
@@ -80,11 +63,6 @@ export function vigenciaDeLosValores(datos: Datos): string {
   return mesLargo.format(new Date(Date.UTC(anio, mes - 1, 1)));
 }
 
-/**
- * El número que se propone después de `ultimo`. «2026-007» → «2026-008»; al
- * cambiar de año vuelve a «2027-001». Si el profesional usa su propia forma
- * («P-17»), se respeta y se le suma uno al número del final.
- */
 export function siguienteNumero(ultimo: string | null, anio: number): string {
   const primero = `${anio}-001`;
   const texto = ultimo?.trim() ?? '';
@@ -96,7 +74,6 @@ export function siguienteNumero(ultimo: string | null, anio: number): string {
   return prefijo + String(Number(cifras) + 1).padStart(cifras.length, '0');
 }
 
-/** Todo lo que dice el presupuesto, ya escrito. Pura. */
 export function contenidoDelPresupuesto(
   resultado: Resultado,
   datos: Datos,
@@ -122,7 +99,6 @@ export function contenidoDelPresupuesto(
     trabajo: {
       descripcion: completar(p.descripcion, MARCADORES.descripcion),
       horas: `${formatearNumero(resultado.horas)} h`,
-      // El precio final por hora, con todo adentro: es lo que el cliente compara.
       valorHora: formato.montoConCentavos(resultado.total / resultado.horas),
     },
     total: formato.monto(resultado.total),

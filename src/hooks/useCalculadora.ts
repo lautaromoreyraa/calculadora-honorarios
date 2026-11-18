@@ -31,20 +31,11 @@ export type CampoGeneral =
   | 'cuit'
   | 'condiciones';
 
-/**
- * Estado del formulario y cálculo en vivo: cada cambio recalcula todo (RF-15).
- * Arranca con lo que el navegador recuerda de la visita anterior y guarda cada
- * cambio (RF-26).
- */
 export function useCalculadora(datos: Datos) {
   const [estado, setEstado] = useState<EstadoDelFormulario>(() =>
     restaurar(leerPerfil(almacenDelNavegador()), datos),
   );
-  // Lo que había antes de «Empezar de nuevo», para poder deshacerlo. Se
-  // descarta con el primer cambio: deshacer después pisaría lo nuevo.
   const [anterior, setAnterior] = useState<EstadoDelFormulario | null>(null);
-  // Cambia al reiniciar o deshacer: la página la usa de key para volver a
-  // montar el formulario entero, con los plegables y los campos del presupuesto.
   const [vuelta, setVuelta] = useState(0);
   const [recuerda] = useState(() => puedeRecordar(almacenDelNavegador()));
   const formato = useMemo(() => formatoPara(estado.moneda, datos), [estado.moneda, datos]);
@@ -64,9 +55,7 @@ export function useCalculadora(datos: Datos) {
     calculo,
     formato,
     vuelta,
-    /** Si el navegador deja guardar: si no, la página no promete recordar nada. */
     recuerda,
-    /** Hay un reinicio que se puede deshacer. */
     reiniciado: anterior !== null,
     cambiar: (campo: CampoGeneral, valor: string) =>
       actualizar((e) => ({ ...e, [campo]: valor })),

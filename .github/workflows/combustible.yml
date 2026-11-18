@@ -1,35 +1,13 @@
-# Nafta súper por provincia (RF-22): mediana del precio diurno informado en
-# los últimos 60 días en el dataset «Precios en surtidor» de la Secretaría de
-# Energía (RN-10). Corre una vez por semana; si cambió el precio o la cantidad
-# de estaciones de alguna provincia, abre un PR a main que toca sólo
-# datos/combustible.json, con la tabla de valores, lo mergea y publica, como
-# las cotizaciones y los índices (RF-23). Una provincia con menos de 5
-# estaciones conserva su precio anterior.
-#
-# El CSV sólo se sirve por http (el https redirige a http): alguien en el
-# camino podría cambiarlo dentro del rango de RF-23. Lautaro decidió el
-# 2026-11-10 que igual se mergee solo; la tabla queda en el PR para auditarlo.
-#
-# Un CSV con otra forma o un salto fuera del rango de RF-23 hacen fallar el
-# script: no hay PR y la corrida queda en rojo a la vista.
-# Las acciones van fijadas por SHA para que un tag movido no cambie lo que corre.
-#
-# Dos jobs (RNF-07): el que instala dependencias y las ejecuta no tiene ningún
-# permiso de escritura; el que puede escribir no instala ni ejecuta nada de
-# terceros.
 name: Nafta en surtidor
 
 on:
   schedule:
-    # Los lunes a las 13:00 UTC = 10:00 en Argentina.
     - cron: '0 13 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
 
-# El mismo grupo que las cotizaciones y los índices: todos mergean a main y
-# sincronizan develop, y no tienen que pisarse.
 concurrency:
   group: dolar-blue
   cancel-in-progress: false
@@ -46,22 +24,19 @@ jobs:
       tabla: ${{ steps.nafta.outputs.tabla }}
       parche: ${{ steps.parche.outputs.parche }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
           persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
           node-version: 24
           cache: npm
-      # Antes de npm ci: el script sólo usa código del repo, y el parche queda
-      # fijado antes de que corra cualquier dependencia.
       - id: nafta
         run: npm run actualizar-combustible
       - id: parche
         if: steps.nafta.outputs.cambio == 'true'
         run: |
-          # El PR tiene que tocar sólo el combustible: si no, no se mergea solo (RF-23).
           node scripts/controlar-archivos.ts datos/combustible.json
           echo "parche=$(git diff | base64 -w0)" >> "$GITHUB_OUTPUT"
       - if: steps.nafta.outputs.cambio == 'true'
@@ -88,7 +63,7 @@ jobs:
       PARCHE: ${{ needs.consultar.outputs.parche }}
       TABLA: ${{ needs.consultar.outputs.tabla }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: main
           fetch-depth: 0
@@ -100,15 +75,12 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git switch -c "datos/nafta-$FECHA"
           git commit -am "RF-22: nafta súper a $(echo "$TITULO" | base64 -d)"
-      # Un PR abierto con este token no dispara el workflow de verificación: la
-      # verificación ya corrió sobre este mismo cambio en el job anterior.
       - name: PR a main y merge
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           rama="datos/nafta-$FECHA"
           git push origin "$rama"
-          # Comillas simples: el texto lleva backticks de Markdown y no se ejecutan.
           cuerpo='Precio de la nafta súper por provincia: mediana del precio diurno de los últimos 60 días (RN-10), desde «Precios en surtidor» de la Secretaría de Energía. Toca sólo `datos/combustible.json`; validación de datos, lint, tests y build pasaron en esta corrida.'
           cuerpo="$cuerpo"$'\n\n'"$(echo "$TABLA" | base64 -d)"
           cuerpo="$cuerpo"$'\n\n''El CSV llega por http: si un precio no cierra, comparalo con https://preciosensurtidor.energia.gob.ar/.'

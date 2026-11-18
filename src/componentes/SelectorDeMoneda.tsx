@@ -14,10 +14,6 @@ const MONEDAS: { id: Moneda; nombre: string }[] = [
   { id: 'USD', nombre: 'Dólares' },
 ];
 
-/**
- * Pesos o dólares (RF-28). En dólares dice qué cotización usa y de qué día: el
- * cliente que paga en dólares va a preguntar a cuánto se tomó.
- */
 export function SelectorDeMoneda({ valor, alElegir, cotizacion }: Props) {
   const nombre = useId();
   return (
